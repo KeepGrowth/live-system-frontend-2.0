@@ -21,6 +21,9 @@ import ProgramReview from '@/views/program/ProgramReview.vue'
 import UserPage from '@/views/user/UserPage.vue'
 import UserCate from '@/views/user/UserCate.vue'
 import UserReview from '@/views/user/UserReview.vue'
+import ProjectTab from '@/components/ProjectTab.vue'
+import useUserStore from '@/stores/user.js'
+import login from '@icon-park/vue-next/lib/icons/Login.js'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,7 +31,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'index',
-      redirect: HomeTab
+      redirect: { name: 'home' }
     },
     {
       path: '/login',
@@ -62,145 +65,145 @@ const router = createRouter({
               component: ProjectReview
             }
           ]
-        },
-        // 客户信息管理路由
-        {
-          path: 'customer',
-          name: 'customer',
-          component: CustomerTab,
-          children: [
-            {
-              path: 'info',
-              name: 'CustomerPage',
-              component: CustomerPage
-            },
-            {
-              path: 'cate',
-              name: 'CustomerCate',
-              component: CustomerCate
-            },
-            {
-              path: 'review',
-              name: 'CustomerReview',
-              component: CustomerReview
-            }
-          ]
-        },
-        // 目标信息管理路由
-        {
-          path: 'goal',
-          name: 'GoalTab',
-          component: GoalTab,
-          children: [
-            {
-              path: 'info',
-              name: 'GoalPage',
-              component: GoalPage
-            },
-            {
-              path: 'cate',
-              name: 'GoalCate',
-              component: GoalCate
-            },
-            {
-              path: 'review',
-              name: 'GoalReview',
-              component: GoalReview
-            }
-          ]
-        },
-        // 支出信息管理路由
-        {
-          path: 'expense',
-          name: 'ExpenseTab',
-          component: ExpenseTab,
-          children: [
-            {
-              path: 'info',
-              name: 'ExpensePage',
-              component: ExpensePage
-            },
-            {
-              path: 'cate',
-              name: 'ExpenseCate',
-              component: ExpenseCate
-            },
-            {
-              path: 'review',
-              name: 'ExpenseReview',
-              component: ExpenseReview
-            }
-          ]
-        },
-        // 收入信息管理路由
-        {
-          path: 'expense',
-          name: 'IncomeTab',
-          component: IncomeTab,
-          children: [
-            {
-              path: 'info',
-              name: 'IncomePage',
-              component: IncomePage
-            },
-            {
-              path: 'cate',
-              name: 'IncomeCate',
-              component: IncomeCate
-            },
-            {
-              path: 'review',
-              name: 'IncomeReview',
-              component: IncomeReview
-            }
-          ]
-        },
-        // 项目信息管理路由
-        {
-          path: 'program',
-          name: 'ProgramTab',
-          component: ProgramTab,
-          children: [
-            {
-              path: 'info',
-              name: 'ProgramPage',
-              component: ProgramPage
-            },
-            {
-              path: 'cate',
-              name: 'ProgramCate',
-              component: ProgramCate
-            },
-            {
-              path: 'review',
-              name: 'ProgramReview',
-              component: ProgramReview
-            }
-          ]
-        },
-        // 用户管理路由
-        {
-          path: 'user',
-          name: 'UserTab',
-          component: UserTab,
-          children: [
-            {
-              path: 'info',
-              name: 'UserPage',
-              component: UserPage
-            },
-            {
-              path: 'cate',
-              name: 'UserCate',
-              component: UserCate
-            },
-            {
-              path: 'review',
-              name: 'UserReview',
-              component: UserReview
-            }
-          ]
         }
+        // 客户信息管理路由
+        // {
+        //   path: 'customer',
+        //   name: 'customer',
+        //   component: CustomerTab,
+        //   children: [
+        //     {
+        //       path: 'info',
+        //       name: 'CustomerPage',
+        //       component: CustomerPage
+        //     },
+        //     {
+        //       path: 'cate',
+        //       name: 'CustomerCate',
+        //       component: CustomerCate
+        //     },
+        //     {
+        //       path: 'review',
+        //       name: 'CustomerReview',
+        //       component: CustomerReview
+        //     }
+        //   ]
+        // },
+        // // 目标信息管理路由
+        // {
+        //   path: 'goal',
+        //   name: 'GoalTab',
+        //   component: GoalTab,
+        //   children: [
+        //     {
+        //       path: 'info',
+        //       name: 'GoalPage',
+        //       component: GoalPage
+        //     },
+        //     {
+        //       path: 'cate',
+        //       name: 'GoalCate',
+        //       component: GoalCate
+        //     },
+        //     {
+        //       path: 'review',
+        //       name: 'GoalReview',
+        //       component: GoalReview
+        //     }
+        //   ]
+        // },
+        // // 支出信息管理路由
+        // {
+        //   path: 'expense',
+        //   name: 'ExpenseTab',
+        //   component: ExpenseTab,
+        //   children: [
+        //     {
+        //       path: 'info',
+        //       name: 'ExpensePage',
+        //       component: ExpensePage
+        //     },
+        //     {
+        //       path: 'cate',
+        //       name: 'ExpenseCate',
+        //       component: ExpenseCate
+        //     },
+        //     {
+        //       path: 'review',
+        //       name: 'ExpenseReview',
+        //       component: ExpenseReview
+        //     }
+        //   ]
+        // },
+        // // 收入信息管理路由
+        // {
+        //   path: 'expense',
+        //   name: 'IncomeTab',
+        //   component: IncomeTab,
+        //   children: [
+        //     {
+        //       path: 'info',
+        //       name: 'IncomePage',
+        //       component: IncomePage
+        //     },
+        //     {
+        //       path: 'cate',
+        //       name: 'IncomeCate',
+        //       component: IncomeCate
+        //     },
+        //     {
+        //       path: 'review',
+        //       name: 'IncomeReview',
+        //       component: IncomeReview
+        //     }
+        //   ]
+        // },
+        // // 项目信息管理路由
+        // {
+        //   path: 'program',
+        //   name: 'ProgramTab',
+        //   component: ProgramTab,
+        //   children: [
+        //     {
+        //       path: 'info',
+        //       name: 'ProgramPage',
+        //       component: ProgramPage
+        //     },
+        //     {
+        //       path: 'cate',
+        //       name: 'ProgramCate',
+        //       component: ProgramCate
+        //     },
+        //     {
+        //       path: 'review',
+        //       name: 'ProgramReview',
+        //       component: ProgramReview
+        //     }
+        //   ]
+        // },
+        // // 用户管理路由
+        // {
+        //   path: 'user',
+        //   name: 'UserTab',
+        //   component: UserTab,
+        //   children: [
+        //     {
+        //       path: 'info',
+        //       name: 'UserPage',
+        //       component: UserPage
+        //     },
+        //     {
+        //       path: 'cate',
+        //       name: 'UserCate',
+        //       component: UserCate
+        //     },
+        //     {
+        //       path: 'review',
+        //       name: 'UserReview',
+        //       component: UserReview
+        //     }
+        //   ]
+        // }
         // OKR管理路由
       ]
     }
@@ -208,4 +211,29 @@ const router = createRouter({
   ]
 })
 
+// 全局守卫
+router.beforeEach((to, from) => {
+  const userStore = useUserStore()
+
+  // 1. 严谨的白名单判断：精确匹配登录页路径
+  const whiteList = ['/login'] // 可以扩展其他无需登录的页面，比如 /register
+  if (whiteList.includes(to.path)) {
+    // 调试用（可选）：生产环境删除 console.log
+    console.log('白名单页面，直接放行：', to.path)
+    return true
+  }
+
+  // 2. 校验 token：覆盖空字符串、undefined、null 等情况
+  const hasToken = !!userStore.token // 转为布尔值，统一判断逻辑
+  if (!hasToken) {
+    console.log('无token，跳转到登录页')
+    return {
+      path: '/login',
+      query: { redirect: to.fullPath } // 记录原目标路径，登录后可回跳
+    }
+  }
+
+  // 3. 有有效 token，允许跳转
+  return true
+})
 export default router

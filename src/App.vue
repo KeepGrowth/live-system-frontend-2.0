@@ -19,4 +19,9 @@ import { RouterLink, RouterView } from 'vue-router'
 .ql-toolbar {
   font-family: '华文中宋', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
 }
+
+body {
+  font-family:  "Times New Roman","华文中宋", Arial, sans-serif;
+  font-weight: bold;
+}
 </style>
