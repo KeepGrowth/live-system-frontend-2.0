@@ -4,6 +4,7 @@ import TextEditor from '@/components/TextEditor.vue'
 import Uploader from '@/components/Uploader.vue'
 import { ref, defineProps, watch } from 'vue'
 import useProjectStore from '@/stores/project'
+import useChannelStore from '@/stores/projectChannel.js'
 import { ElMessage } from 'element-plus'
 
 
@@ -41,6 +42,8 @@ const handleCancel = () => {
 
 // project状态
 const projectStore = useProjectStore()
+// channel状态
+const channelStore = useChannelStore()
 const handleSubmit = async () => {
   if (!form.value.id) {
     const res = await projectStore.addProject(form.value)
@@ -62,28 +65,17 @@ const statusOptions = [
   {
     status: 0,
     label: '待完成'
-  }
-]
-const channelOptions = [
-  {
-    id: 1,
-    channel_name: '测试'
   },
   {
-    id: 2,
-    channel_name: '测试2'
-  }
-]
-const customerOptions = [
-  {
-    id: 1,
-    customer_name: '测试客户1'
+    status: 1,
+    label: '已完成'
   },
   {
-    id: 2,
-    customer_name: '测试客户2'
+    status: 2,
+    label: '已放弃'
   }
 ]
+const customerOptions = []
 // 项目描述监听内容更改
 const handleContentChange = (newContent) => {
   form.value.project_desc = newContent
@@ -93,6 +85,7 @@ const handleContentChange = (newContent) => {
 
 <template>
   <el-drawer
+    modal-penetrable
     :model-value="drawerVisible"
     @close="handleCancel"
     :modal="false"
@@ -163,7 +156,7 @@ const handleContentChange = (newContent) => {
           v-model="form.channel_id"
         >
           <el-option
-            v-for="channel in channelOptions"
+            v-for="channel in channelStore.channelOptions"
             :key="channel.id"
             :value="channel.id"
             :label="channel.channel_name"

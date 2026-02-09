@@ -6,7 +6,7 @@ import Uploader from '@/components/Uploader.vue'
 import ProjectDrawer from '@/views/project/component/ProjectDrawer.vue'
 import useProjectStore from '@/stores/project'
 // 数据容器
-const programList = ref([]) // 项目分页列表
+const projectList = ref([]) // 项目分页列表
 const projectForm = ref({}) // 单个项目内容
 const searchForm = ref({
   dateRange: [],
@@ -17,15 +17,13 @@ const DrawerVisible = ref(false)
 // 状态管理
 const projectStore = useProjectStore()
 onMounted(async () => {
-  programList.value = await projectStore.getProjectList()
+  projectList.value = await projectStore.getProjectList()
 })
 
 
 // 方法
 // 打开编辑抽屉
-const openDrawer = (projectItem: {}) => {
-  console.log(projectItem)
-
+const openDrawer = async(projectItem: {}) => {
   projectForm.value = projectItem
   DrawerVisible.value = true
 }
@@ -33,12 +31,18 @@ const openDrawer = (projectItem: {}) => {
 // 更改抽屉显示状态
 const handleDrawerChange = async (bool) => {
   DrawerVisible.value = bool
-  programList.value = await projectStore.getProjectList()
+  projectList.value = await projectStore.getProjectList()
 }
 const search = (searchForm: object) => {
 
 }
 // 条件查询
+
+// 删除项目
+const delProject = async (projectId: number) => {
+  await projectStore.delProject(projectId)
+  projectList.value = await projectStore.getProjectList()
+}
 
 </script>
 
@@ -83,7 +87,6 @@ const search = (searchForm: object) => {
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="openDrawer({})">新增项目</el-button>
-
         </el-form-item>
       </el-form>
     </el-card>
@@ -91,8 +94,8 @@ const search = (searchForm: object) => {
   <!--表格-->
   <el-row>
     <el-table
-      v-if="programList.length > 0"
-      :data="programList"
+      v-if="projectList.length > 0"
+      :data="projectList"
       style="width: 100%"
       stripe
       max-height="800"
@@ -112,7 +115,7 @@ const search = (searchForm: object) => {
       <el-table-column prop="channel_id" label="来源" width="auto" align="center" />
       <el-table-column prop="customer_id" label="客户" width="auto" align="center" />
       <el-table-column prop="create_time" label="创建时间" width="auto" align="center" />
-      <el-table-column fixed="right" label="Operations" min-width="120">
+      <el-table-column fixed="right" label="操作" min-width="120">
         <template #default="scope">
           <el-button
             type="warning"
@@ -121,13 +124,23 @@ const search = (searchForm: object) => {
             circle
             @click="openDrawer(scope.row)"
           ></el-button>
-          <el-button
-            type="danger"
-            size="small"
-            circle
-            :icon="Delete"
+          <el-popconfirm
+            class="box-item"
+            title="跟此项目相关的所有记录都会被删除，确认删除吗？"
+            placement="bottom"
           >
-          </el-button>
+            <template #reference>
+              <el-button
+                type="danger"
+                size="small"
+                circle
+                :icon="Delete"
+                @click="delProject(scope.row.id)"
+              >
+              </el-button>
+            </template>
+          </el-popconfirm>
+
         </template>
       </el-table-column>
 

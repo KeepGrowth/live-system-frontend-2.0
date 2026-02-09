@@ -43,7 +43,7 @@ watch(
   // 变化后的回调：更新 content 的值
   (newVal) => {
     content.value = newVal || ''
-  },
+  }
   // 可选配置：immediate 为 true 会在监听初始化时执行一次（可选，这里初始化已赋值，可省略）
   // { immediate: true }
 )

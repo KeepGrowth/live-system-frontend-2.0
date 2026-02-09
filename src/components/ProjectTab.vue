@@ -7,15 +7,15 @@
       class="demo-tabs"
       :stretch="true"
     >
-    <el-tab-pane label="基础信息" name="ProjectPage">
-      <project-page />
-    </el-tab-pane>
-    <el-tab-pane label="渠道管理" name="ProjectCate">
-      <project-cate/>
-    </el-tab-pane>
-    <el-tab-pane label="仪表盘" name="ProjectReview">
-      <project-review/>
-    </el-tab-pane>
+      <el-tab-pane label="基础信息" name="ProjectPage">
+        <project-page />
+      </el-tab-pane>
+      <el-tab-pane label="渠道管理" name="ProjectCate">
+        <project-cate />
+      </el-tab-pane>
+      <el-tab-pane label="仪表盘" name="ProjectReview">
+        <project-review />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
