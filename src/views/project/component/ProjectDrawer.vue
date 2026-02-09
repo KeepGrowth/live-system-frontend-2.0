@@ -28,8 +28,8 @@ watch(
     // 深拷贝新数据，强制覆盖旧数据
     form.value = deepClone(newVal)
     // 关键：确保编辑器内容同步更新（即使已有值也覆盖）
-    if (form.value.project_desc === undefined) {
-      form.value.project_desc = ''
+    if (form.value.projectDesc === undefined) {
+      form.value.projectDesc = ''
     }
   },
   { deep: true, immediate: true } // deep+immediate 确保深度监听+初始化执行
@@ -78,7 +78,7 @@ const statusOptions = [
 const customerOptions = []
 // 项目描述监听内容更改
 const handleContentChange = (newContent) => {
-  form.value.project_desc = newContent
+  form.value.projectDesc = newContent
 }
 
 </script>
@@ -94,11 +94,11 @@ const handleContentChange = (newContent) => {
     title="信息变更"
   >
     <el-form label-width="auto" :model="form">
-      <el-form-item prop="project_name" label="项目标题">
+      <el-form-item prop="projectName" label="项目标题">
         <el-input
           label="项目名称"
           placeholder="请输入项目标题"
-          v-model="form.project_name"
+          v-model="form.projectName"
         ></el-input>
       </el-form-item>
       <el-form-item prop="amount" label="项目金额">
@@ -108,11 +108,11 @@ const handleContentChange = (newContent) => {
           v-model="form.amount"
         ></el-input-number>
       </el-form-item>
-      <el-form-item prop="project_stack" label="技术栈">
+      <el-form-item prop="projectStack" label="技术栈">
         <el-input
           label="技术栈描述"
           placeholder="选用的技术栈"
-          v-model="form.project_stack"
+          v-model="form.projectStack"
         ></el-input>
       </el-form-item>
       <el-form-item prop="status" label="项目状态">
@@ -128,18 +128,18 @@ const handleContentChange = (newContent) => {
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item prop="start_date" label="开始时间">
+      <el-form-item prop="startDate" label="开始时间">
         <el-date-picker
-          v-model="form.start_date"
+          v-model="form.startDate"
           type="date"
           format="YYYY/MM/DD"
           value-format="YYYY-MM-DD"
         >
         </el-date-picker>
       </el-form-item>
-      <el-form-item prop="end_date" label="截止日期">
+      <el-form-item prop="endDate" label="截止日期">
         <el-date-picker
-          v-model="form.end_date"
+          v-model="form.endDate"
           type="date"
           format="YYYY/MM/DD"
           value-format="YYYY-MM-DD"
@@ -147,43 +147,43 @@ const handleContentChange = (newContent) => {
         </el-date-picker>
       </el-form-item>
       <el-form-item
-        prop="channel_id"
+        prop="channelId"
         label="渠道来源"
       >
         <el-select
           placeholder="选择渠道"
           filterable
-          v-model="form.channel_id"
+          v-model="form.channelId"
         >
           <el-option
             v-for="channel in channelStore.channelOptions"
             :key="channel.id"
             :value="channel.id"
-            :label="channel.channel_name"
+            :label="channel.channelName"
           ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item
-        prop="customer_id"
+        prop="customerId"
         label="客户"
       >
         <el-select
           placeholder="选择客户|确保客户信息界面有对应信息"
-          v-model="form.customer_id"
+          v-model="form.customerId"
           filterable
         >
           <el-option
             v-for="customer in customerOptions"
             :key="customer.id"
             :value="customer.id"
-            :label="customer.customer_name"
+            :label="customer.customerName"
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item prop="cover_path" label="项目封面图">
+      <el-form-item prop="coverPath" label="项目封面图">
         <uploader />
       </el-form-item>
-      <el-form-item prop="attachment_path" label="项目附件列表">
+      <el-form-item prop="attachmentPath" label="项目附件列表">
         <uploader />
       </el-form-item>
       <el-divider></el-divider>
@@ -192,7 +192,7 @@ const handleContentChange = (newContent) => {
     <text-editor
       @contentChange="handleContentChange"
 
-      :origin-content="form.project_desc || ''" />
+      :origin-content="form.projectDesc || ''" />
     <template #footer>
       <div class="drawer-footer">
         <el-button @click="handleCancel">取消</el-button>

@@ -21,9 +21,10 @@ import ProgramReview from '@/views/program/ProgramReview.vue'
 import UserPage from '@/views/user/UserPage.vue'
 import UserCate from '@/views/user/UserCate.vue'
 import UserReview from '@/views/user/UserReview.vue'
-import ProjectTab from '@/components/ProjectTab.vue'
+import ProjectTab from '@/views/project/component/ProjectTab.vue'
 import useUserStore from '@/stores/user.js'
 import login from '@icon-park/vue-next/lib/icons/Login.js'
+import GoalTab from '@/views/goal/component/GoalTab.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -65,7 +66,7 @@ const router = createRouter({
               component: ProjectReview
             }
           ]
-        }
+        },
         // 客户信息管理路由
         // {
         //   path: 'customer',
@@ -90,28 +91,28 @@ const router = createRouter({
         //   ]
         // },
         // // 目标信息管理路由
-        // {
-        //   path: 'goal',
-        //   name: 'GoalTab',
-        //   component: GoalTab,
-        //   children: [
-        //     {
-        //       path: 'info',
-        //       name: 'GoalPage',
-        //       component: GoalPage
-        //     },
-        //     {
-        //       path: 'cate',
-        //       name: 'GoalCate',
-        //       component: GoalCate
-        //     },
-        //     {
-        //       path: 'review',
-        //       name: 'GoalReview',
-        //       component: GoalReview
-        //     }
-        //   ]
-        // },
+        {
+          path: 'goal',
+          name: 'GoalTab',
+          component: GoalTab,
+          children: [
+            {
+              path: 'info',
+              name: 'GoalPage',
+              component: GoalPage
+            },
+            {
+              path: 'cate',
+              name: 'GoalCate',
+              component: GoalCate
+            },
+            {
+              path: 'review',
+              name: 'GoalReview',
+              component: GoalReview
+            }
+          ]
+        }
         // // 支出信息管理路由
         // {
         //   path: 'expense',

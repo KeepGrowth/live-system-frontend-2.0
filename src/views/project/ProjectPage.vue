@@ -1,21 +1,23 @@
-<script lang="ts" setup>
+<script setup>
 import { nextTick, onMounted, ref } from 'vue'
 import TextEditor from '@/components/TextEditor.vue'
-import { Delete, Edit, Plus } from '@element-plus/icons-vue'
+import { Delete, Edit, Histogram, Plus } from '@element-plus/icons-vue'
 import Uploader from '@/components/Uploader.vue'
 import ProjectDrawer from '@/views/project/component/ProjectDrawer.vue'
 import useProjectStore from '@/stores/project'
+import useProjectChannelStore from '@/stores/projectChannel'
+import { dayjs } from 'element-plus'
 // 数据容器
 const projectList = ref([]) // 项目分页列表
 const projectForm = ref({}) // 单个项目内容
 const searchForm = ref({
-  dateRange: [],
-  channelId: 1
+  dateRange: [dayjs(new Date()), dayjs(new Date())]
 }) // 条件筛选器
 const DrawerVisible = ref(false)
 
 // 状态管理
 const projectStore = useProjectStore()
+const channelStore = useProjectChannelStore()
 onMounted(async () => {
   projectList.value = await projectStore.getProjectList()
 })
@@ -23,7 +25,7 @@ onMounted(async () => {
 
 // 方法
 // 打开编辑抽屉
-const openDrawer = async(projectItem: {}) => {
+const openDrawer = async (projectItem) => {
   projectForm.value = projectItem
   DrawerVisible.value = true
 }
@@ -33,13 +35,13 @@ const handleDrawerChange = async (bool) => {
   DrawerVisible.value = bool
   projectList.value = await projectStore.getProjectList()
 }
-const search = (searchForm: object) => {
+const search = (searchForm) => {
 
 }
 // 条件查询
 
 // 删除项目
-const delProject = async (projectId: number) => {
+const delProject = async (projectId) => {
   await projectStore.delProject(projectId)
   projectList.value = await projectStore.getProjectList()
 }
@@ -49,7 +51,12 @@ const delProject = async (projectId: number) => {
 <template>
   <el-row class="header-row">
     <el-col :span="24" class="header-content">
-      <h1>项目管理</h1>
+      <h1 class="page-title">
+        <el-icon>
+          <Histogram />
+        </el-icon>
+        项目管理
+      </h1>
     </el-col>
   </el-row>
   <!--条件筛选器-->
@@ -68,13 +75,13 @@ const delProject = async (projectId: number) => {
           <!-- 1. 绑定v-model + 设置宽度100% + 补充占位符 -->
           <el-select
             v-model="searchForm.channelId"
-            style="width: 6rem;"
+            style="width: 10rem;"
             placeholder="请选择"
           >
             <el-option
-              v-for="item in channelOptions"
+              v-for="item in channelStore.channelOptions"
               :key="item.id"
-              :label="item.channel_name"
+              :label="item.channelName"
               :value="item.id"
             ></el-option>
           </el-select>
@@ -103,18 +110,18 @@ const delProject = async (projectId: number) => {
     >
       <el-table-column
         fixed
-        prop="end_date"
+        prop="endDate"
         label="截止日期"
         width="150"
         align="center"
         sortable
       />
-      <el-table-column prop="project_name" label="项目" width="auto" align="center" />
-      <el-table-column prop="project_stack" label="技术栈" width="auto" align="center" />
+      <el-table-column prop="projectName" label="项目" width="auto" align="center" />
+      <el-table-column prop="projectStack" label="技术栈" width="auto" align="center" />
       <el-table-column prop="amount" label="总金额" width="auto" align="center" />
-      <el-table-column prop="channel_id" label="来源" width="auto" align="center" />
-      <el-table-column prop="customer_id" label="客户" width="auto" align="center" />
-      <el-table-column prop="create_time" label="创建时间" width="auto" align="center" />
+      <el-table-column prop="channelId" label="来源" width="auto" align="center" />
+      <el-table-column prop="customerId" label="客户" width="auto" align="center" />
+      <el-table-column prop="createTime" label="创建时间" width="auto" align="center" />
       <el-table-column fixed="right" label="操作" min-width="120">
         <template #default="scope">
           <el-button
@@ -156,6 +163,14 @@ const delProject = async (projectId: number) => {
 </template>
 
 <style scoped>
+
+/* 页面标题样式 */
+.page-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .filter-card-container {
   width: 100%;
 }

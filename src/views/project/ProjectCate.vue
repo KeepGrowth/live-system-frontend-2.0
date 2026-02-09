@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup>
 import { nextTick, onMounted, ref } from 'vue'
 import { Delete, Edit, Plus } from '@element-plus/icons-vue'
 import useProjectChannelStore from '@/stores/projectChannel'
@@ -20,7 +20,7 @@ onMounted(async () => {
 
 // 方法
 // 打开编辑对话框
-const openDialog = (channelItem: {}) => {
+const openDialog = (channelItem) => {
   channelForm.value = channelItem
   dialogVisible.value = true
 }
@@ -33,11 +33,11 @@ const handleDialogChange = async (bool) => {
 }
 
 // 查询按钮方法
-const search = (searchForm: object) => {
+const search = (searchForm) => {
 
 }
 // 删除渠道分类方法
-const delChannel = async (channelId: int) => {
+const delChannel = async (channelId) => {
   await projectChannelStore.deleteChannel(channelId)
   projectChannelList.value = await projectChannelStore.getProjectChannelList()
 }

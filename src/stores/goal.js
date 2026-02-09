@@ -4,15 +4,15 @@ import { ElLoading, ElMessage, ElNotification } from 'element-plus'
 import formatTime from '@/utils/date.js'
 
 
-const useProjectStore = defineStore('project', () => {
+const useGoalStore = defineStore('goal', () => {
   // 请求单子列表
-  const getProjectList = async () => {
+  const getGoalList = async () => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.get('/project/list')
+    const res = await api.get('/goal/list')
     if (res.data.code === 200) {
       loading.close()
-      console.log(res.data)
-      return res.data.data.projectList?.map(item => ({
+      console.log(res.data.data.goalList)
+      return res.data.data.goalList?.map(item => ({
         ...item,
         create_time: formatTime(item.create_time),
         update_time: formatTime(item.update_time)
@@ -22,9 +22,9 @@ const useProjectStore = defineStore('project', () => {
   }
 
   // 新增单子
-  const addProject = async (projectForm) => {
+  const addGoal = async (goalForm) => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.post('/project/add', projectForm)
+    const res = await api.post('/goal/add', goalForm)
     if (res.data.code === 200) {
       ElNotification.success({
         message: res.data.message
@@ -34,9 +34,9 @@ const useProjectStore = defineStore('project', () => {
   }
 
   // 更新单子
-  const updateProject = async (projectForm) => {
+  const updateGoal = async (goalForm) => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.put('/project/update', projectForm)
+    const res = await api.put('/goal/update', goalForm)
     if (res.data.code === 200) {
       ElNotification({
         title: '成功',
@@ -49,11 +49,11 @@ const useProjectStore = defineStore('project', () => {
   }
 
   // 删除单子
-  const delProject = async (projectId) => {
+  const delGoal = async (goalId) => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.delete('/project/delete', {
+    const res = await api.delete('/goal/delete', {
       params: {
-        projectId
+        goalId
       }
     })
     if (res.data.code === 200) {
@@ -68,12 +68,15 @@ const useProjectStore = defineStore('project', () => {
 
 
   return {
-    getProjectList,
-    addProject,
-    updateProject,
-    delProject
+    getGoalList,
+    delGoal,
+    updateGoal,
+    addGoal
   }
 
-})
+},
+  {
+    persist:true
+  })
 
-export default useProjectStore
+export default useGoalStore

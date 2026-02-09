@@ -5,9 +5,10 @@
       class="header-menu"
       mode="horizontal"
       :ellipsis="false"
-      @select="handleSelect"
+      @select="redirect_to"
     >
-      <el-menu-item index="0">
+      <el-menu-item index="project">
+        <el-icon><HomeFilled /></el-icon>
         <h1>浮生录事</h1>
       </el-menu-item>
       <el-sub-menu index="2">
@@ -85,7 +86,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowLeft, ArrowRight, Coin, ColdDrink, List } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight, Coin, ColdDrink, HomeFilled, List } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import useUserStore from '@/stores/user'
@@ -94,9 +95,6 @@ const userStore = useUserStore()
 console.log(userStore.userInfo)
 
 const activeIndex = ref('1')
-const handleSelect = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath)
-}
 
 const isCollapse = ref(false)
 
