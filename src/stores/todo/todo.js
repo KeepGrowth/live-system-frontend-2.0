@@ -2,20 +2,23 @@ import { defineStore } from 'pinia'
 import api from '@/utils/request.js'
 import { ElLoading, ElMessage, ElNotification } from 'element-plus'
 import formatTime from '@/utils/date.js'
-import { ref } from 'vue'
 
 
-const useOkrStore = defineStore('okr', () => {
-  const okrOptions = ref([])
-
+const useTodoStore = defineStore('Todo', () => {
   // 请求单子列表
-  const getOkrList = async () => {
+  const getTodoList = async (searchForm) => {
+    const cleanParams = Object.fromEntries(
+      Object.entries(searchForm).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
+    )
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.get('/okr/list')
+    const res = await api.get('/todo/list', {
+      params:
+      cleanParams
+    })
     if (res.data.code === 200) {
       loading.close()
-      okrOptions.value = res.data.data.okrList || []
-      return res.data.data.okrList?.map(item => ({
+      console.log(res.data)
+      return res.data.data.todoList?.map(item => ({
         ...item,
         create_time: formatTime(item.create_time),
         update_time: formatTime(item.update_time)
@@ -25,9 +28,10 @@ const useOkrStore = defineStore('okr', () => {
   }
 
   // 新增单子
-  const addOkr = async (okrForm) => {
+  const addTodo = async (todoForm) => {
+    console.log(todoForm)
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.post('/okr/add', okrForm)
+    const res = await api.post('/todo/add', todoForm)
     if (res.data.code === 200) {
       ElNotification.success({
         message: res.data.message
@@ -37,9 +41,9 @@ const useOkrStore = defineStore('okr', () => {
   }
 
   // 更新单子
-  const updateOkr = async (okrForm) => {
+  const updateTodo = async (todoForm) => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.put('/okr/update', okrForm)
+    const res = await api.put('/todo/update', todoForm)
     if (res.data.code === 200) {
       ElNotification({
         title: '成功',
@@ -52,11 +56,11 @@ const useOkrStore = defineStore('okr', () => {
   }
 
   // 删除单子
-  const delOkr = async (okrId) => {
+  const delTodo = async (todoId) => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.delete('/okr/delete', {
+    const res = await api.delete('/todo/delete', {
       params: {
-        okrId
+        todoId: todoId
       }
     })
     if (res.data.code === 200) {
@@ -71,15 +75,12 @@ const useOkrStore = defineStore('okr', () => {
 
 
   return {
-    okrOptions,
-    getOkrList,
-    addOkr,
-    updateOkr,
-    delOkr
+    getTodoList,
+    addTodo,
+    updateTodo,
+    delTodo
   }
 
-}, {
-  persist: true
 })
 
-export default useOkrStore
+export default useTodoStore

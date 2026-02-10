@@ -17,16 +17,14 @@ import IncomeReview from '@/views/finance/income/IncomeReview.vue'
 import IncomeCate from '@/views/finance/income/IncomeCate.vue'
 import ProgramPage from '@/views/program/ProgramPage.vue'
 import ProgramReview from '@/views/program/ProgramReview.vue'
-import UserPage from '@/views/user/UserPage.vue'
-import UserCate from '@/views/user/UserCate.vue'
-import UserReview from '@/views/user/UserReview.vue'
 import ProjectTab from '@/views/project/component/ProjectTab.vue'
 import useUserStore from '@/stores/user.js'
-import login from '@icon-park/vue-next/lib/icons/Login.js'
 import GoalTab from '@/views/goal/component/GoalTab.vue'
 import ProgramTab from '@/views/program/component/ProgramTab.vue'
 import OkrPage from '@/views/okr/OkrPage.vue'
 import OkrTab from '@/views/okr/component/OkrTab.vue'
+import TodoTab from '@/views/todo/component/TodoTab.vue'
+import TodoPage from '@/views/todo/TodoPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -215,6 +213,20 @@ const router = createRouter({
               path: 'info',
               name: 'OkrPage',
               component: OkrPage
+            }
+          ]
+
+        },
+        {
+          path: 'todo',
+          name: 'todo',
+          component: TodoTab,
+          redirect: { name: 'TodoPage' },
+          children: [
+            {
+              path: 'info',
+              name: 'TodoPage',
+              component: TodoPage
             }
           ]
 

@@ -37,8 +37,8 @@
           </template>
           <el-menu-item index="goal">目标管理</el-menu-item>
           <el-menu-item index="program">项目管理</el-menu-item>
-          <el-menu-item index="OkrPage">OKR管理</el-menu-item>
-          <el-menu-item index="TodoPage">todo管理</el-menu-item>
+          <el-menu-item index="okr">OKR管理</el-menu-item>
+          <el-menu-item index="todo">Todo管理</el-menu-item>
           <el-menu-item index="project">IT项目管理</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="Finance">
