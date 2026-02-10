@@ -34,7 +34,7 @@
             <span>事业</span>
           </template>
           <el-menu-item index="GoalPage">目标管理</el-menu-item>
-          <el-menu-item index="ProgramPage">项目管理</el-menu-item>
+          <el-menu-item index="program">项目管理</el-menu-item>
           <el-menu-item index="OkrPage">OKR管理</el-menu-item>
           <el-menu-item index="TodoPage">todo管理</el-menu-item>
           <el-menu-item index="project">IT项目管理</el-menu-item>

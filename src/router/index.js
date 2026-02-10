@@ -25,6 +25,7 @@ import ProjectTab from '@/views/project/component/ProjectTab.vue'
 import useUserStore from '@/stores/user.js'
 import login from '@icon-park/vue-next/lib/icons/Login.js'
 import GoalTab from '@/views/goal/component/GoalTab.vue'
+import ProgramTab from '@/views/program/component/ProgramTab.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -112,7 +113,7 @@ const router = createRouter({
               component: GoalReview
             }
           ]
-        }
+        },
         // // 支出信息管理路由
         // {
         //   path: 'expense',
@@ -160,28 +161,28 @@ const router = createRouter({
         //   ]
         // },
         // // 项目信息管理路由
-        // {
-        //   path: 'program',
-        //   name: 'ProgramTab',
-        //   component: ProgramTab,
-        //   children: [
-        //     {
-        //       path: 'info',
-        //       name: 'ProgramPage',
-        //       component: ProgramPage
-        //     },
-        //     {
-        //       path: 'cate',
-        //       name: 'ProgramCate',
-        //       component: ProgramCate
-        //     },
-        //     {
-        //       path: 'review',
-        //       name: 'ProgramReview',
-        //       component: ProgramReview
-        //     }
-        //   ]
-        // },
+        {
+          path: 'program',
+          name: 'program',
+          component: ProgramTab,
+          children: [
+            {
+              path: 'info',
+              name: 'ProgramPage',
+              component: ProgramPage
+            },
+            {
+              path: 'cate',
+              name: 'ProgramCate',
+              component: ProgramCate
+            },
+            {
+              path: 'review',
+              name: 'ProgramReview',
+              component: ProgramReview
+            }
+          ]
+        },
         // // 用户管理路由
         // {
         //   path: 'user',

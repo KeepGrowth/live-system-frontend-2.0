@@ -3,8 +3,8 @@
 import TextEditor from '@/components/TextEditor.vue'
 import Uploader from '@/components/Uploader.vue'
 import { ref, defineProps, watch } from 'vue'
-import useProjectStore from '@/stores/project'
-import useChannelStore from '@/stores/projectChannel.js'
+import useProjectStore from '@/stores/project/project.js'
+import useChannelStore from '@/stores/project/projectChannel.js'
 import { ElMessage } from 'element-plus'
 
 

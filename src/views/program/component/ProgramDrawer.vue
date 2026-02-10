@@ -3,7 +3,7 @@
 import TextEditor from '@/components/TextEditor.vue'
 import Uploader from '@/components/Uploader.vue'
 import { ref, defineProps, watch } from 'vue'
-import useGoalStore from '@/stores/goal/goal.js'
+import useProgramStore from '@/stores/program/program.js'
 
 
 const props = defineProps({
@@ -11,7 +11,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  goalForm: {
+  programForm: {
     type: Object,
     default: () => ({})
   }
@@ -19,7 +19,7 @@ const props = defineProps({
 
 // 接受传过来的数据
 const form = ref({
-  goalName:String
+  programName:String
 })
 const formRef = ref(null)
 
@@ -27,7 +27,7 @@ const deepClone = (obj) => JSON.parse(JSON.stringify(obj))
 
 // 监听父组件传递的数据变化
 watch(
-  () => props.goalForm,
+  () => props.programForm,
   (newVal) => {
     // 深拷贝新数据，强制覆盖旧数据
     form.value = deepClone(newVal)
@@ -39,7 +39,7 @@ watch(
   { deep: true, immediate: true } // deep+immediate 确保深度监听+初始化执行
 )
 
-console.log(props.goalForm.id)
+console.log(props.programForm.id)
 
 const handleCancel = () => {
   emit('update:drawerVisible', false) // 通知父组件关闭抽屉
@@ -47,7 +47,7 @@ const handleCancel = () => {
 }
 
 // 状态
-const goalStore = useGoalStore()
+const programStore = useProgramStore()
 // 校验表单
 const validateForm = async (form) => {
   if (!form) return
@@ -60,10 +60,10 @@ const validateForm = async (form) => {
 // 提交按钮触发事件
 const handleSubmit = async () => {
   if (!form.value.id) {
-    await goalStore.addGoal(form.value)
+    await programStore.addProgram(form.value)
     form.value = {}
   } else {
-    await goalStore.updateGoal(form.value)
+    await programStore.updateProgram(form.value)
     form.value = {}
   }
   // 判断是添加还是编辑
@@ -96,14 +96,14 @@ const handleContentChange = (newContent) => {
 
 // 表单校验
 const rules = ref({
-  goalName: [
-    { required: true, message: '请输入目标名称', },
+  programName: [
+    { required: true, message: '请输入项目名称', },
   ],
   description: [
-    { required: true, message: '请输入本目标的基本描述。', trigger: 'blur' }
+    { required: true, message: '请输入本项目的基本描述。', trigger: 'blur' }
   ],
-  goalStatus: [
-    { required: true, message: '请选择目标的完成状态', trigger: 'blur' }
+  programStatus: [
+    { required: true, message: '请选择项目的完成状态', trigger: 'blur' }
   ],
   satisfactionScore: [
     { required: true, message: '请选择一个初始的满意度', trigger: 'blur' }
@@ -129,55 +129,55 @@ const rules = ref({
       ref="formRef"
       :rules="rules"
     >
-      <el-form-item prop="goalName" label="目标标题">
+      <el-form-item prop="programName" label="项目题">
         <el-input
-          label="目标名称"
-          placeholder="请输入目标标题"
-          v-model="form.goalName"
+          label="项目名称"
+          placeholder="请输入项目题"
+          v-model="form.programName"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="goalCategoryId" label="目标分类">
+      <el-form-item prop="goalId" label="目标归属">
         <el-select
-          v-model="form.goalCategoryId"
-          placeholder="选择目标分类"
+          v-model="form.goalId"
+          placeholder="选择目标归属"
         >
           <el-option
-            v-for="item in goalCateOptions"
+            v-for="item in programCateOptions"
             :key="item.id"
             :value="item.id"
             :label="item.categoryName"
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item prop="startDate" label="开始日期">
+      <el-form-item prop="estimateStartTime" label="预计开始日期">
         <el-date-picker
-          v-model="form.startDate"
+          v-model="form.estimateStartTime"
           type="date"
           format="YYYY/MM/DD"
           value-format="YYYY-MM-DD"
         >
         </el-date-picker>
       </el-form-item>
-      <el-form-item prop="finishDate" label="预计完成日期">
+      <el-form-item prop="estimateFinishTime" label="预计完成日期">
         <el-date-picker
-          v-model="form.finishDate"
+          v-model="form.estimateFinishTime"
           type="date"
           format="YYYY/MM/DD"
           value-format="YYYY-MM-DD"
         >
         </el-date-picker>
       </el-form-item>
-      <el-form-item prop="satisfactionScore" label="目标信心程度">
+      <el-form-item prop="satisfactionScore" label="项目信心程度">
         <el-rate v-model="form.satisfactionScore"></el-rate>
       </el-form-item>
       <el-form-item
-        prop="goalStatus"
+        prop="programStatus"
         label="完成情况"
       >
         <el-select
           placeholder="完成情况"
           filterable
-          v-model="form.goalStatus"
+          v-model="form.programStatus"
         >
           <el-option
             v-for="option in statusOptions"
@@ -189,11 +189,11 @@ const rules = ref({
       </el-form-item>
       <el-divider></el-divider>
     </el-form>
-    <p>目标描述</p>
+    <p>项目描述</p>
     <text-editor
       @contentChange="handleContentChange"
 
-      :origin-content="form.description || '你可以写一些你的预期成果，要达成什么结果，完成什么进步。'" />
+      :origin-content="form.programDesc || '你可以写一些你的预期成果，要达成什么结果，完成什么进步。'" />
     <template #footer>
       <div class="drawer-footer">
         <el-button @click="handleCancel">取消</el-button>

@@ -1,7 +1,7 @@
 <script setup>
 import { nextTick, onMounted, ref } from 'vue'
 import { Delete, Edit, Plus } from '@element-plus/icons-vue'
-import useProjectChannelStore from '@/stores/projectChannel'
+import useProjectChannelStore from '@/stores/project/projectChannel.js'
 import ChannelDialog from '@/views/project/component/ChannelDialog.vue'
 import { ElLoading, vLoading } from 'element-plus'
 // 数据容器

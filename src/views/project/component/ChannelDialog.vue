@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, watch, defineEmits } from 'vue'
-import useChannelStore from '@/stores/projectChannel'
+import useChannelStore from '@/stores/project/projectChannel'
 
 // 父数据
 const props = defineProps({

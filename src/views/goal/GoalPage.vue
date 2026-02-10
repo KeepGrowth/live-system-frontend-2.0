@@ -1,8 +1,8 @@
 <script setup>
 import { nextTick, onMounted, ref } from 'vue'
 import { Aim, Delete, Edit, Plus } from '@element-plus/icons-vue'
-import useGoalStore from '@/stores/goal.js'
-import useGoalCateStore from '@/stores/goalCategory.js'
+import useGoalStore from '@/stores/goal/goal.js'
+import useGoalCateStore from '@/stores/goal/goalCategory.js'
 import { dayjs } from 'element-plus'
 import GoalDrawer from '@/views/goal/component/GoalDrawer.vue'
 // 数据容器

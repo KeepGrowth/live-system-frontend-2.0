@@ -1,7 +1,7 @@
 <script setup>
 import { nextTick, onMounted, ref } from 'vue'
 import { Delete, Edit, Plus } from '@element-plus/icons-vue'
-import useGoalCateStore from '@/stores/goalCategory.js'
+import useGoalCateStore from '@/stores/goal/goalCategory.js'
 import GoalDialog from '@/views/goal/component/GoalDialog.vue'
 // 数据容器
 const goalCateList = ref([]) // 项目分页列表

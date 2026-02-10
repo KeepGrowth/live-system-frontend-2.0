@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, defineEmits } from 'vue'
-import useGoalCateStore from '@/stores/goalCategory'
+import useGoalCateStore from '@/stores/goal/goalCategory.js'
 
 // 父数据
 const props = defineProps({

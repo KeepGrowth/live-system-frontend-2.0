@@ -4,8 +4,8 @@ import TextEditor from '@/components/TextEditor.vue'
 import { Delete, Edit, Histogram, Plus } from '@element-plus/icons-vue'
 import Uploader from '@/components/Uploader.vue'
 import ProjectDrawer from '@/views/project/component/ProjectDrawer.vue'
-import useProjectStore from '@/stores/project'
-import useProjectChannelStore from '@/stores/projectChannel'
+import useProjectStore from '@/stores/project/project.js'
+import useProjectChannelStore from '@/stores/project/projectChannel.js'
 import { dayjs } from 'element-plus'
 // 数据容器
 const projectList = ref([]) // 项目分页列表
