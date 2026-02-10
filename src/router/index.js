@@ -25,6 +25,8 @@ import useUserStore from '@/stores/user.js'
 import login from '@icon-park/vue-next/lib/icons/Login.js'
 import GoalTab from '@/views/goal/component/GoalTab.vue'
 import ProgramTab from '@/views/program/component/ProgramTab.vue'
+import OkrPage from '@/views/okr/OkrPage.vue'
+import OkrTab from '@/views/okr/component/OkrTab.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -95,7 +97,7 @@ const router = createRouter({
           path: 'goal',
           name: 'goal',
           component: GoalTab,
-          redirect:{ name:'GoalPage' },
+          redirect: { name: 'GoalPage' },
           children: [
             {
               path: 'info',
@@ -165,7 +167,7 @@ const router = createRouter({
           path: 'program',
           name: 'program',
           component: ProgramTab,
-          redirect:{ name:'ProgramPage' },
+          redirect: { name: 'ProgramPage' },
           children: [
             {
               path: 'info',
@@ -203,6 +205,20 @@ const router = createRouter({
         //   ]
         // }
         // OKR管理路由
+        {
+          path: 'okr',
+          name: 'okr',
+          component: OkrTab,
+          redirect: { name: 'OkrPage' },
+          children: [
+            {
+              path: 'info',
+              name: 'OkrPage',
+              component: OkrPage
+            }
+          ]
+
+        }
       ]
     }
 

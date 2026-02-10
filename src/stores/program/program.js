@@ -2,16 +2,19 @@ import { defineStore } from 'pinia'
 import api from '@/utils/request.js'
 import { ElLoading, ElMessage, ElNotification } from 'element-plus'
 import formatTime from '@/utils/date.js'
+import { ref } from 'vue'
 
 
 const useProgramStore = defineStore('program', () => {
+    const programOptions = ref([])
+
     // 请求列表
     const getProgramList = async () => {
       const loading = ElLoading.service({ fullscreen: true })
       const res = await api.get('/program/list')
       if (res.data.code === 200) {
         loading.close()
-        console.log(res.data.data.programList)
+        programOptions.value = res.data.data.programList || []
         return res.data.data.programList?.map(item => ({
           ...item,
           createTime: formatTime(item.createTime),
@@ -69,6 +72,7 @@ const useProgramStore = defineStore('program', () => {
 
 
     return {
+      programOptions,
       getProgramList,
       delProgram,
       updateProgram,

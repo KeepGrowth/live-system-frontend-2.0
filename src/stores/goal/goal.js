@@ -14,7 +14,7 @@ const useGoalStore = defineStore('goal', () => {
       const res = await api.get('/goal/list')
       if (res.data.code === 200) {
         loading.close()
-        goalOptions.value = res.data.data.goalList
+        goalOptions.value = res.data.data.goalList || []
         return res.data.data.goalList?.map(item => ({
           ...item,
           create_time: formatTime(item.create_time),

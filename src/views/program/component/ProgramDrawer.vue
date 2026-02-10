@@ -2,7 +2,7 @@
 
 import TextEditor from '@/components/TextEditor.vue'
 import Uploader from '@/components/Uploader.vue'
-import { ref, defineProps, watch } from 'vue'
+import { ref, defineProps, watch, onMounted } from 'vue'
 import useProgramStore from '@/stores/program/program.js'
 import useGoalStore from '@/stores/goal/goal.js'
 
@@ -20,7 +20,7 @@ const props = defineProps({
 
 // 接受传过来的数据
 const form = ref({
-  programName:String
+  programName: String
 })
 const formRef = ref(null)
 
@@ -40,7 +40,6 @@ watch(
   { deep: true, immediate: true } // deep+immediate 确保深度监听+初始化执行
 )
 
-console.log(props.programForm.id)
 
 const handleCancel = () => {
   emit('update:drawerVisible', false) // 通知父组件关闭抽屉
@@ -50,6 +49,13 @@ const handleCancel = () => {
 // 状态
 const programStore = useProgramStore()
 const goalStore = useGoalStore()
+
+onMounted(async () => {
+    await goalStore.getGoalList()
+  }
+)
+
+
 // 校验表单
 const validateForm = async (form) => {
   if (!form) return
@@ -99,7 +105,7 @@ const handleContentChange = (newContent) => {
 // 表单校验
 const rules = ref({
   programName: [
-    { required: true, message: '请输入项目名称', },
+    { required: true, message: '请输入项目名称' }
   ],
   description: [
     { required: true, message: '请输入本项目的基本描述。', trigger: 'blur' }

@@ -2,9 +2,9 @@
 
 import TextEditor from '@/components/TextEditor.vue'
 import Uploader from '@/components/Uploader.vue'
-import { ref, defineProps, watch } from 'vue'
-import useGoalStore from '@/stores/goal/goal.js'
-import useGoalCateStore from '@/stores/goal/goalCategory.js'
+import { ref, defineProps, watch, onMounted } from 'vue'
+import useOkrStore from '@/stores/okr/okr.js'
+import useProgramStore from '@/stores/program/program.js'
 
 
 const props = defineProps({
@@ -12,7 +12,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  goalForm: {
+  okrForm: {
     type: Object,
     default: () => ({})
   }
@@ -20,7 +20,7 @@ const props = defineProps({
 
 // 接受传过来的数据
 const form = ref({
-  goalName:String
+  okrName: String
 })
 const formRef = ref(null)
 
@@ -28,7 +28,7 @@ const deepClone = (obj) => JSON.parse(JSON.stringify(obj))
 
 // 监听父组件传递的数据变化
 watch(
-  () => props.goalForm,
+  () => props.okrForm,
   (newVal) => {
     // 深拷贝新数据，强制覆盖旧数据
     form.value = deepClone(newVal)
@@ -40,16 +40,25 @@ watch(
   { deep: true, immediate: true } // deep+immediate 确保深度监听+初始化执行
 )
 
-console.log(props.goalForm.id)
 
 const handleCancel = () => {
   emit('update:drawerVisible', false) // 通知父组件关闭抽屉
   form.value = {}
 }
 
+
+
 // 状态
-const goalStore = useGoalStore()
-const goalCateStore = useGoalCateStore()
+const okrStore = useOkrStore()
+const programStore = useProgramStore()
+
+onMounted(async () => {
+    await programStore.getProgramList()
+  }
+)
+
+
+
 // 校验表单
 const validateForm = async (form) => {
   if (!form) return
@@ -62,10 +71,10 @@ const validateForm = async (form) => {
 // 提交按钮触发事件
 const handleSubmit = async () => {
   if (!form.value.id) {
-    await goalStore.addGoal(form.value)
+    await okrStore.addOkr(form.value)
     form.value = {}
   } else {
-    await goalStore.updateGoal(form.value)
+    await okrStore.updateOkr(form.value)
     form.value = {}
   }
   // 判断是添加还是编辑
@@ -92,23 +101,17 @@ const statusOptions = [
 ]
 // 监听内容更改
 const handleContentChange = (newContent) => {
-  form.value.description = newContent
+  form.value.krDesc = newContent
 }
 
 
 // 表单校验
 const rules = ref({
-  goalName: [
-    { required: true, message: '请输入目标名称', },
+  krName: [
+    { required: true, message: '请输入OKR名称' }
   ],
-  description: [
-    { required: true, message: '请输入本目标的基本描述。', trigger: 'blur' }
-  ],
-  goalStatus: [
-    { required: true, message: '请选择目标的完成状态', trigger: 'blur' }
-  ],
-  satisfactionScore: [
-    { required: true, message: '请选择一个初始的满意度', trigger: 'blur' }
+  programId: [
+    { required: true, message: 'KR必须绑定一个项目作为O' }
   ]
 
 })
@@ -131,55 +134,34 @@ const rules = ref({
       ref="formRef"
       :rules="rules"
     >
-      <el-form-item prop="goalName" label="目标标题">
+      <el-form-item prop="krName" label="OKR">
         <el-input
-          label="目标名称"
-          placeholder="请输入目标标题"
-          v-model="form.goalName"
+          label="OKR名称"
+          placeholder="请OKR标题"
+          v-model="form.krName"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="goalCategoryId" label="目标分类">
+      <el-form-item prop="programId" label="项目归属">
         <el-select
-          v-model="form.goalCategoryId"
-          placeholder="选择目标分类"
+          v-model="form.programId"
+          placeholder="选择项目归属"
         >
           <el-option
-            v-for="item in goalCateStore.goalCateOptions"
+            v-for="item in programStore.programOptions"
             :key="item.id"
             :value="item.id"
-            :label="item.categoryName"
+            :label="item.programName"
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item prop="startDate" label="开始日期">
-        <el-date-picker
-          v-model="form.startDate"
-          type="date"
-          format="YYYY/MM/DD"
-          value-format="YYYY-MM-DD"
-        >
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item prop="finishDate" label="预计完成日期">
-        <el-date-picker
-          v-model="form.finishDate"
-          type="date"
-          format="YYYY/MM/DD"
-          value-format="YYYY-MM-DD"
-        >
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item prop="satisfactionScore" label="目标信心程度">
-        <el-rate v-model="form.satisfactionScore"></el-rate>
-      </el-form-item>
       <el-form-item
-        prop="goalStatus"
+        prop="status"
         label="完成情况"
       >
         <el-select
           placeholder="完成情况"
           filterable
-          v-model="form.goalStatus"
+          v-model="form.status"
         >
           <el-option
             v-for="option in statusOptions"
@@ -191,11 +173,10 @@ const rules = ref({
       </el-form-item>
       <el-divider></el-divider>
     </el-form>
-    <p>目标描述</p>
+    <p>OKR描述</p>
     <text-editor
       @contentChange="handleContentChange"
-
-      :origin-content="form.description || '你可以写一些你的预期成果，要达成什么结果，完成什么进步。'" />
+      :origin-content="form.krDesc || '你可以写一些你的预期成果，要达成什么结果，完成什么进步。'" />
     <template #footer>
       <div class="drawer-footer">
         <el-button @click="handleCancel">取消</el-button>
