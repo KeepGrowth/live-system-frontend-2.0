@@ -4,6 +4,7 @@ import TextEditor from '@/components/TextEditor.vue'
 import Uploader from '@/components/Uploader.vue'
 import { ref, defineProps, watch } from 'vue'
 import useProgramStore from '@/stores/program/program.js'
+import useGoalStore from '@/stores/goal/goal.js'
 
 
 const props = defineProps({
@@ -48,6 +49,7 @@ const handleCancel = () => {
 
 // 状态
 const programStore = useProgramStore()
+const goalStore = useGoalStore()
 // 校验表单
 const validateForm = async (form) => {
   if (!form) return
@@ -132,7 +134,7 @@ const rules = ref({
       <el-form-item prop="programName" label="项目题">
         <el-input
           label="项目名称"
-          placeholder="请输入项目题"
+          placeholder="请项目标题"
           v-model="form.programName"
         ></el-input>
       </el-form-item>
@@ -142,10 +144,10 @@ const rules = ref({
           placeholder="选择目标归属"
         >
           <el-option
-            v-for="item in programCateOptions"
+            v-for="item in goalStore.goalOptions"
             :key="item.id"
             :value="item.id"
-            :label="item.categoryName"
+            :label="item.goalName"
           ></el-option>
         </el-select>
       </el-form-item>

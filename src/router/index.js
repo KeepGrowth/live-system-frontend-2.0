@@ -16,7 +16,6 @@ import ExpenseReview from '@/views/finance/ExpenseReview.vue'
 import IncomeReview from '@/views/finance/income/IncomeReview.vue'
 import IncomeCate from '@/views/finance/income/IncomeCate.vue'
 import ProgramPage from '@/views/program/ProgramPage.vue'
-import ProgramCate from '@/views/program/ProgramCate.vue'
 import ProgramReview from '@/views/program/ProgramReview.vue'
 import UserPage from '@/views/user/UserPage.vue'
 import UserCate from '@/views/user/UserCate.vue'
@@ -94,8 +93,9 @@ const router = createRouter({
         // // 目标信息管理路由
         {
           path: 'goal',
-          name: 'GoalTab',
+          name: 'goal',
           component: GoalTab,
+          redirect:{ name:'GoalPage' },
           children: [
             {
               path: 'info',
@@ -165,16 +165,12 @@ const router = createRouter({
           path: 'program',
           name: 'program',
           component: ProgramTab,
+          redirect:{ name:'ProgramPage' },
           children: [
             {
               path: 'info',
               name: 'ProgramPage',
               component: ProgramPage
-            },
-            {
-              path: 'cate',
-              name: 'ProgramCate',
-              component: ProgramCate
             },
             {
               path: 'review',

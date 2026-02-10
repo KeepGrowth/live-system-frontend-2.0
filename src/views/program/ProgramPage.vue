@@ -2,6 +2,7 @@
 import { nextTick, onMounted, ref } from 'vue'
 import { Aim, Delete, Edit, Memo, Plus } from '@element-plus/icons-vue'
 import useProgramStore from '@/stores/program/program.js'
+import useGoalStore from '@/stores/goal/goal.js'
 import { dayjs } from 'element-plus'
 import programDrawer from '@/views/program/component/ProgramDrawer.vue'
 // 数据容器
@@ -14,6 +15,7 @@ const DrawerVisible = ref(false)
 
 // 状态管理
 const programStore = useProgramStore()
+const goalStore = useGoalStore()
 onMounted(async () => {
   programList.value = await programStore.getProgramList()
 })
@@ -87,10 +89,16 @@ const delProgram = async (programId) => {
       max-height="800"
       border
     >
-      <el-table-column prop="estimateStartDate" label="开始时间" width="auto" align="center" />
-      <el-table-column prop="estimateFinishDate" label="预计完成时间" width="auto" align="center" />
+      <el-table-column prop="estimateStartTime" label="开始时间" width="auto" align="center" />
+      <el-table-column prop="estimateFinishTime" label="预计完成时间" width="auto" align="center" />
       <el-table-column prop="programName" label="项目" width="auto" align="center" />
-      <el-table-column prop="programCategoryId" label="项目分类" width="auto" align="center" />
+      <el-table-column prop="goalId" label="归属目标" width="auto" align="center">
+        <template #default="scope">
+          <el-tag type="primary">
+            {{ goalStore.goalOptions.find(item => item.id === scope.row.goalId)?.goalName }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="programStatus" label="项目状态" width="auto" align="center">
         <template #default="scope">
           <el-tag v-if="scope.row.programStatus === 0" type="info">待完成</el-tag>

@@ -7,8 +7,10 @@
       :ellipsis="false"
       @select="redirect_to"
     >
-      <el-menu-item index="project">
-        <el-icon><HomeFilled /></el-icon>
+      <el-menu-item index="goal">
+        <el-icon>
+          <HomeFilled />
+        </el-icon>
         <h1>浮生录事</h1>
       </el-menu-item>
       <el-sub-menu index="2">
@@ -21,25 +23,25 @@
   <el-row style="height: 100vh">
     <el-col :span="isCollapse?1:3">
       <el-menu
-        default-active="2"
+        default-active="Work"
         class="tab-bar"
         :collapse="isCollapse"
         @select="redirect_to"
       >
-        <el-sub-menu index="1">
+        <el-sub-menu index="Work">
           <template #title>
             <el-icon>
               <Coin />
             </el-icon>
             <span>事业</span>
           </template>
-          <el-menu-item index="GoalPage">目标管理</el-menu-item>
+          <el-menu-item index="goal">目标管理</el-menu-item>
           <el-menu-item index="program">项目管理</el-menu-item>
           <el-menu-item index="OkrPage">OKR管理</el-menu-item>
           <el-menu-item index="TodoPage">todo管理</el-menu-item>
           <el-menu-item index="project">IT项目管理</el-menu-item>
         </el-sub-menu>
-        <el-sub-menu index="2">
+        <el-sub-menu index="Finance">
           <template #title>
             <el-icon>
               <List />
@@ -49,7 +51,7 @@
           <el-menu-item index="2-1">支出管理</el-menu-item>
           <el-menu-item index="2-2">收入管理</el-menu-item>
         </el-sub-menu>
-        <el-sub-menu index="3">
+        <el-sub-menu index="Live">
           <template #title>
             <el-icon>
               <ColdDrink />
@@ -92,9 +94,8 @@ import { useRouter } from 'vue-router'
 import useUserStore from '@/stores/user'
 // 用户状态
 const userStore = useUserStore()
-console.log(userStore.userInfo)
 
-const activeIndex = ref('1')
+const activeIndex = ref('goal')
 
 const isCollapse = ref(false)
 
