@@ -5,14 +5,16 @@ import useTodoStore from '@/stores/todo/todo.js'
 import useOkrStore from '@/stores/okr/okr.js'
 import { dayjs } from 'element-plus'
 import todoDrawer from '@/views/todo/component/TodoDrawer.vue'
+import TodoLogDrawer from '@/views/todo/component/TodoLogDrawer.vue'
 // 数据容器
 const todoList = ref([]) // Todo分页列表
-
 const searchForm = ref({}) // 条件筛选器
 const DrawerVisible = ref(false)
+const logDrawerVisible = ref(false)
 const todoForm = ref({
   deadline: dayjs().format('YYYY-MM-DD')
 })
+const todoId = ref(0)
 
 // 状态管理
 const todoStore = useTodoStore()
@@ -45,6 +47,12 @@ const handleDrawerChange = async (bool) => {
   DrawerVisible.value = bool
   todoList.value = await todoStore.getTodoList(searchForm.value)
 }
+
+// 更改日志抽屉显示状态
+const handleLogDrawerVisible = async (bool) => {
+  DrawerVisible.value = bool
+  todoList.value = await todoStore.getTodoList(searchForm.value)
+}
 const search = (searchForm) => {
 
 }
@@ -52,6 +60,11 @@ const search = (searchForm) => {
 const delTodo = async (todoId) => {
   await todoStore.delTodo(todoId)
   todoList.value = await todoStore.getTodoList(searchForm)
+}
+// 打开日志抽屉
+const openLogDrawer = async (id) => {
+  todoId.value = id
+  logDrawerVisible.value = true
 }
 
 </script>
@@ -133,6 +146,21 @@ const delTodo = async (todoId) => {
             @click="delTodo(scope.row.id)"
           >
           </el-button>
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="添加todo日志"
+            placement="bottom-end"
+          >
+            <el-button
+              type="primary"
+              size="small"
+              :icon="Plus"
+              circle
+              @click="openLogDrawer(scope.row.id)"
+            />
+          </el-tooltip>
+
 
         </template>
       </el-table-column>
@@ -144,6 +172,11 @@ const delTodo = async (todoId) => {
     v-model:drawer-visible="DrawerVisible"
     @update:drawer-visible="handleDrawerChange"
     :todo-form="todoForm"
+  />
+  <todo-log-drawer
+    v-model:drawer-visible="logDrawerVisible"
+    @update:drawer-visible="handleLogDrawerVisible"
+    :todo-id="todoId"
   />
 </template>
 

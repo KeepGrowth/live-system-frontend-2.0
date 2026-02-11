@@ -2,22 +2,22 @@ import { defineStore } from 'pinia'
 import api from '@/utils/request.js'
 import { ElLoading, ElMessage, ElNotification } from 'element-plus'
 import formatTime from '@/utils/date.js'
+import { ref } from 'vue'
 
 
 const useTodoStore = defineStore('Todo', () => {
+  const todoOptions = ref([])
   // 请求单子列表
   const getTodoList = async (searchForm) => {
-    const cleanParams = Object.fromEntries(
-      Object.entries(searchForm).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
-    )
+
     const loading = ElLoading.service({ fullscreen: true })
     const res = await api.get('/todo/list', {
       params:
-      cleanParams
+      searchForm
     })
     if (res.data.code === 200) {
       loading.close()
-      console.log(res.data)
+      todoOptions.value = res.data.data.todoList
       return res.data.data.todoList?.map(item => ({
         ...item,
         create_time: formatTime(item.create_time),
@@ -38,6 +38,7 @@ const useTodoStore = defineStore('Todo', () => {
       })
       return res
     }
+    loading.close
   }
 
   // 更新单子
@@ -75,6 +76,7 @@ const useTodoStore = defineStore('Todo', () => {
 
 
   return {
+    todoOptions,
     getTodoList,
     addTodo,
     updateTodo,

@@ -74,8 +74,7 @@ watch(
 
 :deep(.quill-editor) {
   width: 100%;
-  height: 400px;
-  min-height: 300px;
+  min-height: 200px;
 }
 
 :deep(.ql-toolbar.ql-snow) {
