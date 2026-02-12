@@ -25,6 +25,8 @@ import OkrPage from '@/views/okr/OkrPage.vue'
 import OkrTab from '@/views/okr/component/OkrTab.vue'
 import TodoTab from '@/views/todo/component/TodoTab.vue'
 import TodoPage from '@/views/todo/TodoPage.vue'
+import WeightTab from '@/views/weight/component/WeightTab.vue'
+import WeightPage from '@/views/weight/WeightPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -230,6 +232,19 @@ const router = createRouter({
             }
           ]
 
+        },
+        // 体重管理
+        {
+          path: 'weight',
+          name: 'weight',
+          component: WeightTab,
+          children: [
+            {
+              path: 'info',
+              name: 'WeightPage',
+              component: WeightPage
+            }
+          ]
         }
       ]
     }

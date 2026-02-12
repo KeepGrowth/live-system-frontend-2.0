@@ -13,7 +13,11 @@
         </el-icon>
         <h1>浮生录事</h1>
       </el-menu-item>
-      <el-sub-menu index="2">
+      <el-sub-menu>
+        <template #title>常用选项</template>
+        <el-menu-item @click="openWeightDialog({})">更新体重</el-menu-item>
+      </el-sub-menu>
+      <el-sub-menu index="person">
         <template #title>{{ userStore.userInfo.username }}</template>
         <el-menu-item index="2-1">个人中心</el-menu-item>
         <el-menu-item index="2-2">退出登录</el-menu-item>
@@ -60,6 +64,7 @@
           </template>
           <el-menu-item index="2-1">阅读管理</el-menu-item>
           <el-menu-item index="2-2">日记管理</el-menu-item>
+          <el-menu-item index="weight">体重管理</el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-col>
@@ -83,6 +88,7 @@
       </template>
     </el-button>
   </div>
+  <weight-dialog v-model="dialogVisible" @update:dialog-visible="handleDialogChange" :weight-form="weightForm" />
 
 
 </template>
@@ -92,6 +98,7 @@ import { ArrowLeft, ArrowRight, Coin, ColdDrink, HomeFilled, List } from '@eleme
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import useUserStore from '@/stores/user'
+import WeightDialog from '@/views/weight/component/WeightDialog.vue'
 // 用户状态
 const userStore = useUserStore()
 
@@ -112,6 +119,21 @@ const redirect_to = (index: string) => {
       throw err // 只忽略重复跳转错误，其他错误正常抛出
     }
   }
+}
+
+// 体重对话框相关变量与方法
+const dialogVisible = ref(false)
+const weightForm = ref({})
+
+// 打开体重对话框
+const openWeightDialog = (weightItem:object) => {
+  dialogVisible.value = true
+  weightForm.value = weightItem
+}
+
+// 处理对话框关闭
+const handleDialogChange = (bool:boolean) => {
+  dialogVisible.value = bool
 }
 
 </script>

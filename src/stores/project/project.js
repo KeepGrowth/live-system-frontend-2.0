@@ -51,16 +51,23 @@ const useProjectStore = defineStore('project', () => {
   // 删除单子
   const delProject = async (projectId) => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.delete('/project/delete', {
-      params: {
-        projectId
+    try {
+      const res = await api.delete('/project/delete', {
+        params: {
+          projectId
+        }
+      })
+      if (res.data.code === 200) {
+        ElNotification({
+          title: '成功',
+          message: res.data.message,
+          type: 'success'
+        })
       }
-    })
-    if (res.data.code === 200) {
-      ElNotification({
-        title: '成功',
-        message: res.data.message,
-        type: 'success'
+    } catch (e) {
+      ElNotification.error({
+        title: '错误',
+        message: '你可能正在删除一个有关联客户的项目，这是不被允许的，你可以把相关的客户信息解绑后删除。'
       })
     }
     loading.close()

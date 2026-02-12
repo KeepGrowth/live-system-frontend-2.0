@@ -11,15 +11,24 @@ const useGoalStore = defineStore('goal', () => {
     // 请求
     const getGoalList = async () => {
       const loading = ElLoading.service({ fullscreen: true })
-      const res = await api.get('/goal/list')
-      if (res.data.code === 200) {
+      try {
+        const res = await api.get('/goal/list')
+        if (res.data.code === 200) {
+          loading.close()
+          goalOptions.value = res.data.data.goalList || []
+          return res.data.data.goalList?.map(item => ({
+            ...item,
+            create_time: formatTime(item.create_time),
+            update_time: formatTime(item.update_time)
+          })) || []
+        }
+      } catch (e) {
+        ElNotification.error({
+          title: '错误',
+          message: '服务器接口出现错误'
+        })
+      } finally {
         loading.close()
-        goalOptions.value = res.data.data.goalList || []
-        return res.data.data.goalList?.map(item => ({
-          ...item,
-          create_time: formatTime(item.create_time),
-          update_time: formatTime(item.update_time)
-        })) || []
       }
 
     }
@@ -27,28 +36,46 @@ const useGoalStore = defineStore('goal', () => {
     // 新增
     const addGoal = async (goalForm) => {
       const loading = ElLoading.service({ fullscreen: true })
-      const res = await api.post('/goal/add', goalForm)
-      if (res.data.code === 200) {
-        ElNotification.success({
-          message: res.data.message
+      try {
+        const res = await api.post('/goal/add', goalForm)
+        if (res.data.code === 200) {
+          ElNotification.success({
+            message: res.data.message
+          })
+          return res
+        }
+      } catch (e) {
+        ElNotification.error({
+          title: '错误',
+          message: '服务器接口出现错误'
         })
-        return res
+      } finally {
+        loading.close()
       }
     }
 
     // 更新
     const updateGoal = async (goalForm) => {
       const loading = ElLoading.service({ fullscreen: true })
-      const res = await api.put('/goal/update', goalForm)
-      if (res.data.code === 200) {
-        ElNotification({
-          title: '成功',
-          message: res.data.message,
-          type: 'success'
+      try{
+        const res = await api.put('/goal/update', goalForm)
+        if (res.data.code === 200) {
+          ElNotification({
+            title: '成功',
+            message: res.data.message,
+            type: 'success'
+          })
+          return res
+        }
+      }catch (e){
+        ElNotification.error({
+          title: '错误',
+          message: '服务器接口出现错误'
         })
-        return res
+      }finally {
+        loading.close()
+
       }
-      loading.close()
     }
 
     // 删除

@@ -11,15 +11,24 @@ const useOkrStore = defineStore('okr', () => {
   // 请求单子列表
   const getOkrList = async () => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.get('/okr/list')
-    if (res.data.code === 200) {
+    try {
+      const res = await api.get('/okr/list')
+      if (res.data.code === 200) {
+        loading.close()
+        okrOptions.value = res.data.data.okrList || []
+        return res.data.data.okrList?.map(item => ({
+          ...item,
+          create_time: formatTime(item.create_time),
+          update_time: formatTime(item.update_time)
+        })) || []
+      }
+    } catch (e) {
+      ElNotification.error({
+        title: '错误',
+        message: '服务器接口出现错误'
+      })
+    } finally {
       loading.close()
-      okrOptions.value = res.data.data.okrList || []
-      return res.data.data.okrList?.map(item => ({
-        ...item,
-        create_time: formatTime(item.create_time),
-        update_time: formatTime(item.update_time)
-      })) || []
     }
 
   }
@@ -27,46 +36,69 @@ const useOkrStore = defineStore('okr', () => {
   // 新增单子
   const addOkr = async (okrForm) => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.post('/okr/add', okrForm)
-    if (res.data.code === 200) {
-      ElNotification.success({
-        message: res.data.message
+    try{
+      const res = await api.post('/okr/add', okrForm)
+      if (res.data.code === 200) {
+        ElNotification.success({
+          message: res.data.message
+        })
+        return res
+      }
+    }catch (e){
+      ElNotification.error({
+        title: '错误',
+        message: '服务器接口出现错误'
       })
-      return res
     }
   }
 
   // 更新单子
   const updateOkr = async (okrForm) => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.put('/okr/update', okrForm)
-    if (res.data.code === 200) {
-      ElNotification({
-        title: '成功',
-        message: res.data.message,
-        type: 'success'
+    try{
+      const res = await api.put('/okr/update', okrForm)
+      if (res.data.code === 200) {
+        ElNotification({
+          title: '成功',
+          message: res.data.message,
+          type: 'success'
+        })
+        return res
+      }
+    }catch (e){
+      ElNotification.error({
+        title: '错误',
+        message: '服务器接口出现错误'
       })
-      return res
+    }finally {
+      loading.close()
     }
-    loading.close()
   }
 
   // 删除单子
   const delOkr = async (okrId) => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.delete('/okr/delete', {
-      params: {
-        okrId
-      }
-    })
-    if (res.data.code === 200) {
-      ElNotification({
-        title: '成功',
-        message: res.data.message,
-        type: 'success'
+    try{
+      const res = await api.delete('/okr/delete', {
+        params: {
+          okrId
+        }
       })
+      if (res.data.code === 200) {
+        ElNotification({
+          title: '成功',
+          message: res.data.message,
+          type: 'success'
+        })
+      }
+    }catch (e){
+      ElNotification.error({
+        title: '错误',
+        message: '服务器接口出现错误'
+      })
+    }finally {
+      loading.close()
     }
-    loading.close()
   }
 
 

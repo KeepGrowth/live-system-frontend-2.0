@@ -59,16 +59,23 @@ const useTodoStore = defineStore('Todo', () => {
   // 删除单子
   const delTodo = async (todoId) => {
     const loading = ElLoading.service({ fullscreen: true })
-    const res = await api.delete('/todo/delete', {
-      params: {
-        todoId: todoId
+    try{
+      const res = await api.delete('/todo/delete', {
+        params: {
+          todoId: todoId
+        }
+      })
+      if (res.data.code === 200) {
+        ElNotification({
+          title: '成功',
+          message: res.data.message,
+          type: 'success'
+        })
       }
-    })
-    if (res.data.code === 200) {
-      ElNotification({
-        title: '成功',
-        message: res.data.message,
-        type: 'success'
+    }catch (e){
+      ElNotification.error({
+        title: '错误',
+        message: '你可能正在删除一个有关联OKR的待办，这是不被允许的，你可以把相关的OKR信息解绑后删除。'
       })
     }
     loading.close()
