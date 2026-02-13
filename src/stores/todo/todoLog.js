@@ -43,6 +43,7 @@ const useTodoLogStore = defineStore('todoLog', () => {
 
   // 新增
   const addTodoLog = async (todoLogForm) => {
+    console.log(todoLogForm)
     const loading = ElLoading.service({ fullscreen: true })
     const res = await api.post('/todo_log/add', todoLogForm)
     if (res.data.code === 200) {

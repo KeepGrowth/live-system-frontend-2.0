@@ -1,9 +1,12 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import { zhCn } from 'element-plus/es/locale/index'
 </script>
 
 <template>
+  <el-config-provider :locale="zhCn">
   <router-view></router-view>
+  </el-config-provider>
 </template>
 
 <!--专门修改富文本编辑器内部字体 -->

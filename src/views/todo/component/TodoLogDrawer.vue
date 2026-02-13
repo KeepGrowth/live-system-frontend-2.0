@@ -49,6 +49,7 @@ watch(
 // 提交按钮触发事件
 const handleSubmit = async () => {
   if (!form.value.id) {
+    console.log(form.value)
     await todoLogStore.addTodoLog(form.value)
     await fetchTodoLogRecord()
   } else {
