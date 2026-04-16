@@ -1,11 +1,17 @@
-import { createPinia } from 'pinia'
-import App from './App.vue'
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+import App from './App.vue'
 import router from './router'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import 'element-plus/dist/index.css'
+import ElementPlus from 'element-plus'
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const app = createApp(App)
-app.use(createPinia().use(piniaPluginPersistedstate))// ✅ 注册持久化Pinia插件
+
+app.use(ElementPlus)
 app.use(router)
+app.use(createPinia().use(piniaPluginPersistedstate))// ✅ 注册持久化Pinia插件
+
 app.mount('#app')

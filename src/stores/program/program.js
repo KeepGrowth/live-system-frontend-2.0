@@ -3,25 +3,34 @@ import api from '@/utils/request.js'
 import { ElLoading, ElMessage, ElNotification } from 'element-plus'
 import formatTime from '@/utils/date.js'
 import { ref } from 'vue'
+import cleanObject from '@/utils/common.js'
 
 
 const useProgramStore = defineStore('program', () => {
     const programOptions = ref([])
 
     // 请求列表
-    const getProgramList = async () => {
+    const getProgramList = async (queryParams) => {
+      const cleanParams = cleanObject(queryParams)
       const loading = ElLoading.service({ fullscreen: true })
-      const res = await api.get('/program/list')
+      const res = await api.get('/program/list', {
+        params: cleanParams
+      })
       if (res.data.code === 200) {
         loading.close()
-        programOptions.value = res.data.data.programList || []
-        return res.data.data.programList?.map(item => ({
-          ...item,
-          createTime: formatTime(item.createTime),
-          updateTime: formatTime(item.updateTime)
-        })) || []
+        return res
       }
 
+    }
+
+    // 获取项目详情
+    const getProgramDetail = async (programId) => {
+      const res = await api.get('/program/detail', {
+        params: {
+          programId
+        }
+      })
+      return res
     }
 
     // 新增
@@ -54,7 +63,7 @@ const useProgramStore = defineStore('program', () => {
     // 删除单子
     const delProgram = async (programId) => {
       const loading = ElLoading.service({ fullscreen: true })
-      try{
+      try {
         const res = await api.delete('/program/delete', {
           params: {
             programId: Number(programId)
@@ -67,7 +76,7 @@ const useProgramStore = defineStore('program', () => {
             type: 'success'
           })
         }
-      }catch (e){
+      } catch (e) {
         ElNotification.error({
           title: '错误',
           message: '你可能正在删除一个有关联目标的项目，这是不被允许的'
@@ -82,7 +91,8 @@ const useProgramStore = defineStore('program', () => {
       getProgramList,
       delProgram,
       updateProgram,
-      addProgram
+      addProgram,
+      getProgramDetail
     }
 
   },
