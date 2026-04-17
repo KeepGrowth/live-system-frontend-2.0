@@ -168,17 +168,17 @@
       </div>
       <swiper-component />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- 项目卡片循环 -->
-        <div v-for="program in programList.slice(0,9)" :key="program.id">
+        <!-- 卡片循环 -->
+        <div v-for="goal in goalList.slice(0,9)" :key="goal.id">
           <card-component
-            :id="program.id"
-            :title="program.programName"
-            :excerpt="program.programDesc"
-            :image-src="program.imageUrls[0].imageUrl"
-            :category="program.programStatus"
-            :author-name="'用户'+userStore.userInfo.username"
+            :id="goal.id"
+            :title="goal.goalName"
+            :excerpt="goal.description"
+            :image-src="goal.imageUrls[0].imageUrl"
+            :category="goal.goalStatus"
+            :author-name="'完成时间：' + goal.finishDate"
             :author-avatar="userStore.userInfo.avatar"
-            :date="formatTime(program.createTime)"
+            :date="'创建时间：' + goal.startDate"
             read-time="查看详情"
             type="goal"
           />
@@ -204,9 +204,9 @@
             :excerpt="program.programDesc"
             :image-src="program.imageUrls[0].imageUrl"
             :category="program.programStatus"
-            :author-name="'用户'+userStore.userInfo.username"
+            :author-name="'完成时间：'+program.estimateFinishTime"
             :author-avatar="userStore.userInfo.avatar"
-            :date="formatTime(program.createTime)"
+            :date="'立项时间：'+program.estimateStartTime"
             read-time="查看详情"
             type="program"
           />
@@ -280,8 +280,10 @@ import useProgramStore from '@/stores/program/program.js'
 import useUserStore from '@/stores/user.js'
 import { onMounted, ref } from 'vue'
 import formatTime from '@/utils/date.js'
+import useGoalStore from '@/stores/goal/goal.js'
 // 状态管理
 const programStore = useProgramStore()
+const goalStore = useGoalStore()
 const userStore = useUserStore()
 
 onMounted(async () => {
@@ -291,13 +293,29 @@ onMounted(async () => {
 // 请求数据
 const programList = ref([])
 const programImagesList = ref([])
-const fetchData = async () => {
+const goalList = ref([])
+const goalImagesList = ref([])
+
+//项目请求
+const fetchProgramData = async () => {
   const res = await programStore.getProgramList({})
   if (res.data.code === 200) {
     programList.value = res.data?.data.programList
-    programImagesList.value = programList.value?.flatMap(item => item.imageUrls) || [];
-    console.log(programImagesList.value)
+    programImagesList.value = programList.value?.flatMap(item => item.imageUrls) || []
   }
+}
+
+// 目标请求
+const fetchGoalData = async () => {
+  const res = await goalStore.getGoalList({})
+  if (res.data.code === 200) {
+    goalList.value = res.data?.data.goalList
+    goalImagesList.value = goalList.value?.flatMap(item => item.imageUrls) || []
+  }
+}
+const fetchData = async () => {
+  await fetchProgramData()
+  await fetchGoalData()
 }
 const goToBackend = async () => {
   await router.push({ name: 'home' })

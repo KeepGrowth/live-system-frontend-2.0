@@ -47,7 +47,6 @@
           <!-- 文字信息 -->
           <div
             class="absolute bottom-0 left-0 w-full p-3 bg-slate-900/80 border-t border-cyan-500/50 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-            <p class="text-cyan-300 text-xs font-mono tracking-wider">关联用户: {{ item.user.username }}</p>
             <p class="text-fuchsia-400 text-sm font-bold font-mono">关联项目ID: {{ item.programId }}</p>
             <p class="text-fuchsia-400 text-sm font-bold font-mono">关联目标ID:{{ item.goalId }}</p>
             <p class="text-fuchsia-400 text-sm font-bold font-mono">关联待办ID:{{ item.todoId }}</p>
@@ -73,7 +72,6 @@
             class="absolute inset-0 bg-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-overlay"></div>
           <div
             class="absolute bottom-0 left-0 w-full p-3 bg-slate-900/80 border-t border-cyan-500/50 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-            <p class="text-cyan-300 text-xs font-mono tracking-wider">关联用户: {{ item.user.username }}</p>
             <p class="text-fuchsia-400 text-sm font-bold font-mono">关联项目ID: {{ item.programId }}</p>
             <p class="text-fuchsia-400 text-sm font-bold font-mono">关联目标ID:{{ item.goalId }}</p>
             <p class="text-fuchsia-400 text-sm font-bold font-mono">关联待办ID:{{ item.todoId }}</p>

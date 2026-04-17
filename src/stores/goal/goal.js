@@ -3,32 +3,22 @@ import api from '@/utils/request.js'
 import { ElLoading, ElMessage, ElNotification } from 'element-plus'
 import formatTime from '@/utils/date.js'
 import { ref } from 'vue'
+import cleanObject from '@/utils/common.js'
 
 
 const useGoalStore = defineStore('goal', () => {
     const goalOptions = ref([])
 
     // 请求
-    const getGoalList = async () => {
+    const getGoalList = async (queryParams) => {
+      const cleanParams = cleanObject(queryParams)
       const loading = ElLoading.service({ fullscreen: true })
-      try {
-        const res = await api.get('/goal/list')
-        if (res.data.code === 200) {
-          loading.close()
-          goalOptions.value = res.data.data.goalList || []
-          return res.data.data.goalList?.map(item => ({
-            ...item,
-            create_time: formatTime(item.create_time),
-            update_time: formatTime(item.update_time)
-          })) || []
-        }
-      } catch (e) {
-        ElNotification.error({
-          title: '错误',
-          message: '服务器接口出现错误'
-        })
-      } finally {
+      const res = await api.get('/goal/list', {
+        params: cleanParams
+      })
+      if (res.data.code === 200) {
         loading.close()
+        return res
       }
 
     }
