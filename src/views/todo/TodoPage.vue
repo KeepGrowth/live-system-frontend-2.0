@@ -28,15 +28,21 @@
           <!-- 快速按钮组 -->
           <div class="flex gap-2">
             <button
-              class="cursor-pointer px-3 py-1.5 text-xs font-bold text-cyan-900 bg-cyan-500 rounded shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-all hover:scale-105">
+              @click="chooseDateRangeType('today')"
+              :class="getButtonClass('today')"
+            >
               今日
             </button>
             <button
-              class="cursor-pointer px-3 py-1.5 text-xs font-bold text-cyan-400 border border-cyan-500/30 bg-cyan-950/30 rounded hover:bg-cyan-500/20 transition-all hover:border-cyan-400">
+              @click="chooseDateRangeType('thisWeek')"
+              :class="getButtonClass('thisWeek')"
+            >
               本周
             </button>
             <button
-              class="cursor-pointer px-3 py-1.5 text-xs font-bold text-cyan-400 border border-cyan-500/30 bg-cyan-950/30 rounded hover:bg-cyan-500/20 transition-all hover:border-cyan-400">
+              @click="chooseDateRangeType('month')"
+              :class="getButtonClass('month')"
+            >
               本月
             </button>
           </div>
@@ -46,11 +52,15 @@
 
           <!-- 日期范围输入 -->
           <div class="flex items-center gap-2">
-            <input type="date"
-                   class="bg-black/40 border border-cyan-800 text-cyan-300 text-xs rounded px-2 py-1.5 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_8px_rgba(34,211,238,0.4)] font-mono">
+            <input
+              v-model="queryParams.startDate"
+              type="date"
+              class="bg-black/40 border border-cyan-800 text-cyan-300 text-xs rounded px-2 py-1.5 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_8px_rgba(34,211,238,0.4)] font-mono">
             <span class="text-cyan-600">至</span>
-            <input type="date"
-                   class="bg-black/40 border border-cyan-800 text-cyan-300 text-xs rounded px-2 py-1.5 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_8px_rgba(34,211,238,0.4)] font-mono">
+            <input
+              v-model="queryParams.endDate"
+              type="date"
+              class="bg-black/40 border border-cyan-800 text-cyan-300 text-xs rounded px-2 py-1.5 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_8px_rgba(34,211,238,0.4)] font-mono">
           </div>
         </div>
 
@@ -65,19 +75,20 @@
         </div>
 
       </header>
-      <swiper-component/>
+      <swiper-component class="mb-5" v-if="tasks.length > 0" />
       <!-- 任务列表网格 -->
       <!--待办-->
-      <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10">
+      <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10" v-if="todoTasks.length>0">
         <div class="flex items-end gap-4 mb-12 border-b border-slate-800 pb-4">
           <h2 class="text-3xl font-bold text-white">
-            <span class="text-zinc-400 text-shadow-lg text-shadow-zinc-400/50">待办</span>
+            <span class="text-purple-400 text-shadow-lg text-shadow-purple-400/50 glitch-text"
+                  data-text="待办">待办</span>
           </h2>
           <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了，慢点，看看花是怎么开的</span>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div
-            v-for="task in tasks"
+            v-for="task in todoTasks"
             :key="task.id"
             class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
             :class="getStatusColor(task.status)"
@@ -98,13 +109,13 @@
             <!-- 标题 -->
             <h3 class="text-xl font-bold text-slate-100 mb-2 group-hover:text-cyan-300 transition-colors line-clamp-1"
                 :title="task.title">
-              {{ task.title }}
+              任务ID：{{ task.id }} - {{ task.title }}
             </h3>
 
             <!-- 目标简述 -->
             <p
               class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors">
-              {{ task.todo_goal || '无详细描述' }}
+              {{ task.todoGoal || '无详细描述' }}
             </p>
 
             <!-- 数据网格 -->
@@ -114,7 +125,7 @@
                 <span class="text-fuchsia-400">{{ task.deadline || 'N/A' }}</span>
               </div>
               <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase">专注时间</span>
+                <span class="text-slate-600 text-[10px] uppercase" disabled>专注时间</span>
                 <span class="text-cyan-400">{{ task.focusTime || 0 }} min</span>
               </div>
               <div class="flex flex-col">
@@ -125,7 +136,7 @@
                 <span class="text-slate-600 text-[10px] uppercase">重要性</span>
                 <div class="flex justify-end gap-1 mt-1">
                   <div v-for="i in 5" :key="i" class="w-1.5 h-3"
-                       :class="i <= task.importance ? 'bg-yellow-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
+                       :class="i <= task.importance ? 'bg-blue-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
                 </div>
               </div>
             </div>
@@ -136,6 +147,10 @@
                 OKR: <span class="text-slate-400">{{ task.okrId || '--' }}</span>
               </div>
               <div class="flex gap-2">
+                <button @click="goToDetail(task.id)"
+                        class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all">
+                  查看详情
+                </button>
                 <button @click="openModal(task)"
                         class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all">
                   编辑
@@ -150,16 +165,16 @@
         </div>
       </section>
       <!--进行中-->
-      <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10">
+      <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10" v-if="runingTasks.length>0">
         <div class="flex items-end gap-4 mb-12 border-b border-slate-800 pb-4">
           <h2 class="text-3xl font-bold text-white">
-            <span class="text-yellow-400 text-shadow-lg text-shadow-yellow-400/50">正在进行中</span>
+            <span class="text-yellow-400 text-shadow-lg text-shadow-yellow-400/50 glitch-text" data-text="正在进行中">正在进行中</span>
           </h2>
           <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了，慢点，看看花是怎么开的</span>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div
-            v-for="task in tasks"
+            v-for="task in runingTasks"
             :key="task.id"
             class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
             :class="getStatusColor(task.status)"
@@ -186,7 +201,7 @@
             <!-- 目标简述 -->
             <p
               class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors">
-              {{ task.todo_goal || '无详细描述' }}
+              {{ task.todoGoal || '无详细描述' }}
             </p>
 
             <!-- 数据网格 -->
@@ -196,7 +211,7 @@
                 <span class="text-fuchsia-400">{{ task.deadline || 'N/A' }}</span>
               </div>
               <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase">专注时间</span>
+                <span class="text-slate-600 text-[10px] uppercase" disabled>专注时间</span>
                 <span class="text-cyan-400">{{ task.focusTime || 0 }} min</span>
               </div>
               <div class="flex flex-col">
@@ -232,16 +247,17 @@
         </div>
       </section>
       <!--已完成-->
-      <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10">
+      <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10" v-if="finishedTasks.length>0">
         <div class="flex items-end gap-4 mb-12 border-b border-slate-800 pb-4">
           <h2 class="text-3xl font-bold text-white">
-            <span class="text-green-400 text-shadow-lg text-shadow-green-400/50">已完成</span>
+            <span class="text-green-400 text-shadow-lg text-shadow-green-400/50 glitch-text"
+                  data-text="已完成">已完成</span>
           </h2>
           <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了，慢点，看看花是怎么开的</span>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div
-            v-for="task in tasks"
+            v-for="task in finishedTasks"
             :key="task.id"
             class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
             :class="getStatusColor(task.status)"
@@ -268,7 +284,7 @@
             <!-- 目标简述 -->
             <p
               class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors">
-              {{ task.todo_goal || '无详细描述' }}
+              {{ task.todoGoal || '无详细描述' }}
             </p>
 
             <!-- 数据网格 -->
@@ -278,7 +294,7 @@
                 <span class="text-fuchsia-400">{{ task.deadline || 'N/A' }}</span>
               </div>
               <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase">专注时间</span>
+                <span class="text-slate-600 text-[10px] uppercase" disabled>专注时间</span>
                 <span class="text-cyan-400">{{ task.focusTime || 0 }} min</span>
               </div>
               <div class="flex flex-col">
@@ -289,7 +305,7 @@
                 <span class="text-slate-600 text-[10px] uppercase">重要性</span>
                 <div class="flex justify-end gap-1 mt-1">
                   <div v-for="i in 5" :key="i" class="w-1.5 h-3"
-                       :class="i <= task.importance ? 'bg-yellow-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
+                       :class="i <= task.importance ? 'bg-green-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
                 </div>
               </div>
             </div>
@@ -314,7 +330,7 @@
         </div>
       </section>
       <!--已放弃-->
-      <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10">
+      <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10" v-if="giveUpTasks.length>0">
         <div class="flex items-end gap-4 mb-12 border-b border-slate-800 pb-4">
           <h2 class="text-3xl font-bold text-white">
             <span class="text-red-400 text-shadow-lg text-shadow-red-400/50">已放弃</span>
@@ -323,7 +339,7 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div
-            v-for="task in tasks"
+            v-for="task in giveUpTasks"
             :key="task.id"
             class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
             :class="getStatusColor(task.status)"
@@ -350,7 +366,7 @@
             <!-- 目标简述 -->
             <p
               class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors">
-              {{ task.todo_goal || '无详细描述' }}
+              {{ task.todoGoal || '无详细描述' }}
             </p>
 
             <!-- 数据网格 -->
@@ -360,7 +376,7 @@
                 <span class="text-fuchsia-400">{{ task.deadline || 'N/A' }}</span>
               </div>
               <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase">专注时间</span>
+                <span class="text-slate-600 text-[10px] uppercase" disabled>专注时间</span>
                 <span class="text-cyan-400">{{ task.focusTime || 0 }} min</span>
               </div>
               <div class="flex flex-col">
@@ -395,6 +411,7 @@
           </div>
         </div>
       </section>
+      <el-empty description="暂无待办，新建一个开始你的一天吧。" v-if="tasks.length===0" />
 
     </div>
 
@@ -411,7 +428,7 @@
 
         <div class="bg-slate-950 p-6 md:p-8 relative overflow-y-auto max-h-[90vh]">
           <h2 class="text-2xl font-bold text-cyan-400 mb-6 uppercase tracking-widest border-b border-slate-800 pb-2">
-            {{ editMode ? '>> 修改指令' : '>> 新建指令' }}
+            {{ editMode ? '>> 修改Todo' : '>> 新建Todo' }}
           </h2>
 
           <form @submit.prevent="saveTask" class="space-y-4">
@@ -433,7 +450,7 @@
             <!-- 第二行：目标与描述 -->
             <div class="space-y-1">
               <label class="text-xs text-cyan-500 uppercase font-bold">核心目标 (Goal)</label>
-              <textarea v-model="form.todo_goal" rows="3"
+              <textarea v-model="form.todoGoal" rows="12"
                         class="w-full bg-slate-900 border border-slate-700 text-slate-200 p-2 focus:outline-none focus:border-cyan-500 transition-all resize-none"
                         placeholder="详细描述任务目标..."></textarea>
             </div>
@@ -444,7 +461,10 @@
                 <label class="text-[10px] text-slate-500 uppercase">重要性</label>
                 <select v-model="form.importance"
                         class="w-full bg-slate-900 border border-slate-700 text-yellow-400 p-2 focus:outline-none focus:border-yellow-500">
-                  <option v-for="n in 5" :key="n" :value="n">Level {{ n }}</option>
+                  <option :value="0" class="text-green-400">不紧急不重要</option>
+                  <option :value="1" class="text-purple-400">不紧急重要</option>
+                  <option :value="2" class="text-yellow-400">紧急不重要</option>
+                  <option :value="3" class="text-red-400">紧急重要</option>
                 </select>
               </div>
 
@@ -460,10 +480,11 @@
               </div>
 
               <div class="space-y-1">
-                <label class="text-[10px] text-slate-500 uppercase">专注时间</label>
-                <input v-model.number="form.focusTime" type="number"
-                       class="w-full bg-slate-900 border border-slate-700 text-slate-200 p-2 focus:outline-none focus:border-cyan-500"
-                       placeholder="分钟">
+                <label class="text-[10px] text-slate-500 uppercase" disabled>专注时间（分钟）</label>
+                <el-input disabled v-model.number="form.focusTime" type="number"
+
+                          placeholder="分钟">
+                </el-input>
               </div>
 
             </div>
@@ -471,16 +492,10 @@
             <!-- 隐藏字段模拟 -->
             <div class="grid grid-cols-2 gap-4 opacity-50 hover:opacity-100 transition-opacity">
               <div class="space-y-1">
-                <label class="text-[10px] text-slate-600 uppercase">Goal ID</label>
-                <input v-model="form.goal_id" type="number"
-                       class="w-full bg-slate-900 border border-slate-800 text-slate-500 p-2 text-sm"
-                       placeholder="关联目标ID">
-              </div>
-              <div class="space-y-1">
-                <label class="text-[10px] text-slate-600 uppercase">OKR ID</label>
+                <label class="text-[15px] uppercase">关联OKR（可选）</label>
                 <input v-model="form.okrId" type="number"
                        class="w-full bg-slate-900 border border-slate-800 text-slate-500 p-2 text-sm"
-                       placeholder="关联OKRID">
+                       placeholder="选择关联的OKR">
               </div>
             </div>
 
@@ -490,8 +505,9 @@
                       class="cursor-pointer px-6 py-2 border border-slate-600 text-slate-400 hover:text-white hover:border-white transition-colors uppercase text-sm font-bold">
                 取消
               </button>
-              <button type="submit"
-                      class="cursor-pointer px-6 py-2 bg-cyan-600 text-black hover:bg-cyan-400 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] transition-all uppercase text-sm font-black tracking-wider clip-path-slant">
+              <button
+                type="submit"
+                class="cursor-pointer px-6 py-2 bg-cyan-600 text-black hover:bg-cyan-400 hover:shadow-[0_0_15px_rgba(34,211,238,0.6)] transition-all uppercase text-sm font-black tracking-wider clip-path-slant">
                 提交
               </button>
             </div>
@@ -503,210 +519,129 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, watch, computed } from 'vue'
 import useUserStore from '@/stores/user.js'
 import TodoCard from '@/views/todo/component/TodoCard.vue'
 import SwiperComponent from '@/components/SwiperComponent.vue'
+import useTodoStore from '@/stores/todo/todo.js'
+import { dayjs, ElMessageBox, ElNotification } from 'element-plus'
+import isoWeek from 'dayjs/plugin/isoWeek'
 
+dayjs.extend(isoWeek)
 const userStore = useUserStore()
 // 模拟当前用户名称
 const currentUser = userStore.userInfo.username
 
-// 任务列表数据
-const tasks = ref([
-  {
-    id: 101,
-    user_id: 8080,
-    title: '系统核心升级',
-    todo_goal: '将神经网络核心升级至v2.0，优化算法效率。',
-    finish_desc: '',
-    quit_desc: '',
-    importance: 5,
-    status: 1, // 进行中
-    focusTime: 120,
-    deadline: '2026-04-20',
-    emotion: 'Focused',
-    goal_id: 9,
-    programId: 4,
-    okrId: 1,
-    create_time: '2026-04-17 10:00:00',
-    update_time: '2026-04-17 10:00:00'
-  },
-  {
-    id: 102,
-    user_id: 8080,
-    title: '数据清洗任务',
-    todo_goal: '清理Q1季度的冗余日志数据。',
-    importance: 3,
-    status: 0, // 待办
-    focusTime: 0,
-    deadline: '2026-04-25',
-    emotion: 'Neutral',
-    goal_id: 2,
-    programId: null,
-    okrId: null
-  },
-  {
-    id: 101,
-    user_id: 8080,
-    title: '系统核心升级',
-    todo_goal: '将神经网络核心升级至v2.0，优化算法效率。',
-    finish_desc: '',
-    quit_desc: '',
-    importance: 5,
-    status: 1, // 进行中
-    focusTime: 120,
-    deadline: '2026-04-20',
-    emotion: 'Focused',
-    goal_id: 9,
-    programId: 4,
-    okrId: 1,
-    create_time: '2026-04-17 10:00:00',
-    update_time: '2026-04-17 10:00:00'
-  },
-  {
-    id: 102,
-    user_id: 8080,
-    title: '数据清洗任务',
-    todo_goal: '清理Q1季度的冗余日志数据。',
-    importance: 3,
-    status: 0, // 待办
-    focusTime: 0,
-    deadline: '2026-04-25',
-    emotion: 'Neutral',
-    goal_id: 2,
-    programId: null,
-    okrId: null
-  },
-  {
-    id: 101,
-    user_id: 8080,
-    title: '系统核心升级',
-    todo_goal: '将神经网络核心升级至v2.0，优化算法效率。',
-    finish_desc: '',
-    quit_desc: '',
-    importance: 5,
-    status: 1, // 进行中
-    focusTime: 120,
-    deadline: '2026-04-20',
-    emotion: 'Focused',
-    goal_id: 9,
-    programId: 4,
-    okrId: 1,
-    create_time: '2026-04-17 10:00:00',
-    update_time: '2026-04-17 10:00:00'
-  },
-  {
-    id: 102,
-    user_id: 8080,
-    title: '数据清洗任务',
-    todo_goal: '清理Q1季度的冗余日志数据。',
-    importance: 3,
-    status: 0, // 待办
-    focusTime: 0,
-    deadline: '2026-04-25',
-    emotion: 'Neutral',
-    goal_id: 2,
-    programId: null,
-    okrId: null
-  },
-  {
-    id: 101,
-    user_id: 8080,
-    title: '系统核心升级',
-    todo_goal: '将神经网络核心升级至v2.0，优化算法效率。',
-    finish_desc: '',
-    quit_desc: '',
-    importance: 5,
-    status: 1, // 进行中
-    focusTime: 120,
-    deadline: '2026-04-20',
-    emotion: 'Focused',
-    goal_id: 9,
-    programId: 4,
-    okrId: 1,
-    create_time: '2026-04-17 10:00:00',
-    update_time: '2026-04-17 10:00:00'
-  },
-  {
-    id: 102,
-    user_id: 8080,
-    title: '数据清洗任务',
-    todo_goal: '清理Q1季度的冗余日志数据。',
-    importance: 3,
-    status: 0, // 待办
-    focusTime: 0,
-    deadline: '2026-04-25',
-    emotion: 'Neutral',
-    goal_id: 2,
-    programId: null,
-    okrId: null
-  }
-])
 
 // 模态框状态
 const isModalOpen = ref(false)
 const editMode = ref(false)
 
-// 表单数据模型 (对应数据库字段)
+// 表单数据模型
 const defaultForm = {
   id: null,
-  user_id: currentUser,
+  userId: null,
   title: '',
-  todo_goal: '',
-  finish_desc: '',
-  quit_desc: '',
-  importance: 1,
+  todoGoal: '',
+  finishDesc: '',
+  quitDesc: '',
+  importance: null,
   status: 0,
   focusTime: 0,
   deadline: '',
   emotion: '',
-  goal_id: null,
+  goalId: null,
   programId: null,
   okrId: null
 }
 
-const form = reactive({ ...defaultForm })
+const form = ref({
+  id: null,
+  userId: null,
+  title: '',
+  todoGoal: '',
+  finishDesc: '',
+  quitDesc: '',
+  importance: null,
+  status: 0,
+  focusTime: 0,
+  deadline: '',
+  emotion: '',
+  goalId: null,
+  programId: null,
+  okrId: null
+})
 
 // 打开模态框
 const openModal = (task = null) => {
   if (task) {
     editMode.value = true
-    Object.assign(form, task) // 填充数据
+    form.value = task
   } else {
     editMode.value = false
-    Object.assign(form, defaultForm) // 重置表单
-    form.user_id = currentUser // 确保User ID正确
+    form.value = {}
+    form.userId = currentUser // 确保User ID正确
   }
   isModalOpen.value = true
 }
 
 // 保存任务 (新增/修改)
-const saveTask = () => {
+const saveTask = async () => {
   if (editMode.value) {
     // 模拟更新
-    const index = tasks.value.findIndex(t => t.id === form.id)
-    if (index !== -1) {
-      tasks.value[index] = { ...form }
+    const res = await todoStore.updateTodo(form.value)
+    if (res.data.code === 200) {
+      ElNotification.success({
+        title: '成功',
+        message: res.data.msg
+      })
+      await fetchTodoData()
+      isModalOpen.value = false
+    } else {
+      ElNotification.error({
+        title: '更新todo失败',
+        message: res.data.msg
+      })
     }
   } else {
     // 模拟新增
-    const newId = tasks.value.length ? Math.max(...tasks.value.map(t => t.id)) + 1 : 100
-    tasks.value.unshift({
-      ...form,
-      id: newId,
-      create_time: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      update_time: new Date().toISOString().slice(0, 19).replace('T', ' ')
-    })
+    const res = await todoStore.addTodo(form.value)
+    if (res.data.code === 200) {
+      ElNotification.success({
+        title: '成功',
+        message: res.data.msg
+      })
+      isModalOpen.value = false
+      await fetchTodoData()
+    } else {
+      ElNotification.error({
+        title: '新增todo失败',
+        message: res.data.msg
+      })
+    }
   }
   isModalOpen.value = false
 }
 
 // 删除任务
-const deleteTask = (id) => {
-  if (confirm('确认删除该数据块？此操作不可逆。')) {
-    tasks.value = tasks.value.filter(t => t.id !== id)
+const deleteTask = async (id) => {
+  try {
+    await ElMessageBox.confirm('确定删除此任务吗？', '提示', {
+      type: 'warning'
+    })
+    const res = await todoStore.delTodo(id)
+    if (res.data.code === 200) {
+      ElNotification.success('删除成功')
+      await fetchTodoData()
+    } else {
+      ElNotification.error(res.data.msg)
+    }
+
+
+  } catch (error) {
+
   }
+
 }
 
 // 辅助函数：状态样式
@@ -735,6 +670,207 @@ const getStatusLabel = (status) => {
       return { text: '待开始', color: 'border-cyan-500/50 text-cyan-500 bg-cyan-500/10' }
   }
 }
+
+// 条件筛选的选择方法
+// 定义当前选中的类型，默认可以是 'today'
+const activeType = ref('today')
+
+// 定义基础样式（所有按钮共有的样式）
+const baseClass = 'cursor-pointer px-3 py-1.5 text-xs font-bold rounded transition-all duration-300'
+
+// 定义高亮样式（选中时的样式）
+const activeClass = 'text-cyan-900 bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.5)] hover:scale-105'
+
+// 定义默认样式（未选中时的样式）
+const inactiveClass = 'text-cyan-400 border border-cyan-500/30 bg-cyan-950/30 hover:bg-cyan-500/20 hover:border-cyan-400'
+// 获取完整类名的函数
+const getButtonClass = (type) => {
+  const isActive = activeType.value === type
+  return `${baseClass} ${isActive ? activeClass : inactiveClass}`
+}
+
+// 计算属性
+const todoTasks = computed(() => {
+  return tasks.value.filter(item => item.status === 0)
+})
+
+const runingTasks = computed(() => {
+  return tasks.value.filter(item => item.status === 1)
+})
+const finishedTasks = computed(() => {
+  return tasks.value.filter(item => item.status === 2)
+})
+const giveUpTasks = computed(() => {
+  return tasks.value.filter(item => item.status === 3)
+})
+
+// 筛选条件
+const chooseDateRangeType = async (dateType) => {
+  activeType.value = dateType
+  const day = dayjs()
+  if (dateType === 'today') {
+    queryParams.value.startDate = day.format('YYYY-MM-DD')
+    queryParams.value.endDate = day.format('YYYY-MM-DD')
+    await fetchTodoData()
+  } else if (dateType === 'thisWeek') {
+    queryParams.value.startDate = dayjs().startOf('isoWeek').format('YYYY-MM-DD')
+    queryParams.value.endDate = dayjs().endOf('isoWeek').format('YYYY-MM-DD')
+    await fetchTodoData()
+  } else {
+    queryParams.value.startDate = dayjs().startOf('month').format('YYYY-MM-DD')
+    queryParams.value.endDate = dayjs().endOf('month').format('YYYY-MM-DD')
+    await fetchTodoData()
+  }
+}
+// 获取数据/监听数据
+const tasks = ref([
+  {
+    id: 101,
+    userId: 8080,
+    title: '系统核心升级',
+    todoGoal: '将神经网络核心升级至v2.0，优化算法效率。',
+    finishDesc: '',
+    quitDesc: '',
+    importance: 5,
+    status: 1, // 进行中
+    focusTime: 120,
+    deadline: '2026-04-20',
+    emotion: 'Focused',
+    goalId: 9,
+    programId: 4,
+    okrId: 1,
+    createTime: '2026-04-17 10:00:00',
+    updateTime: '2026-04-17 10:00:00'
+  },
+  {
+    id: 102,
+    userId: 8080,
+    title: '数据清洗任务',
+    todoGoal: '清理Q1季度的冗余日志数据。',
+    importance: 3,
+    status: 0, // 待办
+    focusTime: 0,
+    deadline: '2026-04-25',
+    emotion: 'Neutral',
+    goalId: 2,
+    programId: null,
+    okrId: null
+  },
+  {
+    id: 101,
+    userId: 8080,
+    title: '系统核心升级',
+    todoGoal: '将神经网络核心升级至v2.0，优化算法效率。',
+    finishDesc: '',
+    quitDesc: '',
+    importance: 5,
+    status: 1, // 进行中
+    focusTime: 120,
+    deadline: '2026-04-20',
+    emotion: 'Focused',
+    goalId: 9,
+    programId: 4,
+    okrId: 1,
+    createTime: '2026-04-17 10:00:00',
+    updateTime: '2026-04-17 10:00:00'
+  },
+  {
+    id: 102,
+    userId: 8080,
+    title: '数据清洗任务',
+    todoGoal: '清理Q1季度的冗余日志数据。',
+    importance: 3,
+    status: 0, // 待办
+    focusTime: 0,
+    deadline: '2026-04-25',
+    emotion: 'Neutral',
+    goalId: 2,
+    programId: null,
+    okrId: null
+  },
+  {
+    id: 101,
+    userId: 8080,
+    title: '系统核心升级',
+    todoGoal: '将神经网络核心升级至v2.0，优化算法效率。',
+    finishDesc: '',
+    quitDesc: '',
+    importance: 5,
+    status: 1, // 进行中
+    focusTime: 120,
+    deadline: '2026-04-20',
+    emotion: 'Focused',
+    goalId: 9,
+    programId: 4,
+    okrId: 1,
+    createTime: '2026-04-17 10:00:00',
+    updateTime: '2026-04-17 10:00:00'
+  },
+  {
+    id: 102,
+    userId: 8080,
+    title: '数据清洗任务',
+    todoGoal: '清理Q1季度的冗余日志数据。',
+    importance: 3,
+    status: 0, // 待办
+    focusTime: 0,
+    deadline: '2026-04-25',
+    emotion: 'Neutral',
+    goalId: 2,
+    programId: null,
+    okrId: null
+  },
+  {
+    id: 101,
+    userId: 8080,
+    title: '系统核心升级',
+    todoGoal: '将神经网络核心升级至v2.0，优化算法效率。',
+    finishDesc: '',
+    quitDesc: '',
+    importance: 5,
+    status: 1, // 进行中
+    focusTime: 120,
+    deadline: '2026-04-20',
+    emotion: 'Focused',
+    goalId: 9,
+    programId: 4,
+    okrId: 1,
+    createTime: '2026-04-17 10:00:00',
+    updateTime: '2026-04-17 10:00:00'
+  },
+  {
+    id: 102,
+    userId: 8080,
+    title: '数据清洗任务',
+    todoGoal: '清理Q1季度的冗余日志数据。',
+    importance: 3,
+    status: 0, // 待办
+    focusTime: 0,
+    deadline: '2026-04-25',
+    emotion: 'Neutral',
+    goalId: 2,
+    programId: null,
+    okrId: null
+  }
+]) // 任务列表数据
+
+const queryParams = ref({
+  startDate: '',
+  endDate: ''
+})
+const todoStore = useTodoStore()
+const fetchTodoData = async () => {
+  const res = await todoStore.getTodoList(queryParams.value)
+  if (res.data.code === 200) {
+    tasks.value = res.data.data.todoList
+  }
+}
+watch(queryParams.value, async (old, newParams) => {
+  await fetchTodoData()
+})
+onMounted(async () => {
+  await fetchTodoData()
+})
 </script>
 
 <style scoped>

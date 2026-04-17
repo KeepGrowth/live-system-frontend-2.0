@@ -23,9 +23,10 @@
           <a href="#"
              class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">首页</a>
           <router-link
-             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all"
-             to="/todo"
-          >事业</router-link>
+            class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all"
+            to="/todo"
+          >事业
+          </router-link>
           <a href="#"
              class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">生活</a>
           <a href="#"
@@ -168,7 +169,7 @@
         </h2>
         <span class="font-mono text-xs text-slate-500 mb-1">:: 你费尽心力完成的目标</span>
       </div>
-      <swiper-component class="mb-5" />
+      <swiper-component class="mb-5" v-if="goalList?.imageUrls?.length>0" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 卡片循环 -->
         <div v-for="goal in goalList.slice(0,9)" :key="goal.id">
@@ -176,7 +177,7 @@
             :id="goal.id"
             :title="goal.goalName"
             :excerpt="goal.description"
-            :image-src="goal.imageUrls[0].imageUrl"
+            :image-src="goal.imageUrls[0]?.imageUrl || 'https://placehold.co/1920x600/1e1b4b/06b6d4?text=BeYourself' "
             :category="goal.goalStatus"
             :author-name="'完成时间：' + goal.finishDate"
             :author-avatar="userStore.userInfo.avatar"
@@ -196,7 +197,8 @@
         </h2>
         <span class="font-mono text-xs text-slate-500 mb-1">:: 值得你骄傲的成就</span>
       </div>
-      <swiper-component class="mb-5" :images="programImagesList.slice(0,12)" :backup-images="programImagesList.slice(12,24)" />
+      <swiper-component class="mb-5" :images="programImagesList?.slice(0,12) || []"
+                        :backup-images="programImagesList?.slice(12,24) || []" v-if="programImagesList.length>0" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 项目卡片循环 -->
         <div v-for="program in programList.slice(0,9)" :key="program.id">
@@ -204,7 +206,7 @@
             :id="program.id"
             :title="program.programName"
             :excerpt="program.programDesc"
-            :image-src="program.imageUrls[0].imageUrl"
+            :image-src="program.imageUrls[0]?.imageUrl || 'https://placehold.co/1920x600/1e1b4b/06b6d4?text=BeYourself'"
             :category="program.programStatus"
             :author-name="'完成时间：'+program.estimateFinishTime"
             :author-avatar="userStore.userInfo.avatar"
