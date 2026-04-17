@@ -14,7 +14,7 @@
           </div>
           <span
             class="text-2xl font-black tracking-wider italic text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">
-            浮生<span class="text-white">录事</span>
+            浮生<span class="text-white glitch-text data-text=录事">录事</span>
           </span>
         </div>
 
@@ -22,8 +22,10 @@
         <div class="hidden md:flex gap-8 font-mono text-sm tracking-widest">
           <a href="#"
              class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">首页</a>
-          <a href="#"
-             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">事业</a>
+          <router-link
+             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all"
+             to="/todo"
+          >事业</router-link>
           <a href="#"
              class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">生活</a>
           <a href="#"
@@ -58,14 +60,14 @@
       <!-- 内容层 -->
       <div class="absolute inset-0 z-20 flex flex-col justify-center items-center text-center px-4">
         <h2
-          class="text-5xl md:text-7xl font-black italic tracking-tighter mb-4 drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
-          浮生 <span class="text-fuchsia-500 drop-shadow-[0_0_10px_rgba(192,38,211,0.8)]">录事</span>
+          class=" glitch-text text-5xl md:text-7xl font-black italic tracking-tighter mb-4 drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
+          浮生 <span class="text-fuchsia-500 drop-shadow-[0_0_10px_rgba(192,38,211,0.8)] " data-text="录事">录事</span>
         </h2>
         <p
           class="font-mono text-cyan-200 w-[100ch] max-w-full bg-slate-900/80 p-4 border-l-2 border-fuchsia-500 overflow-hidden whitespace-nowrap">
 
           <!-- 内部文字：负责动画效果 -->
-          <span class="inline-block animate-typewriter border-r-2 border-cyan-200 pr-1">
+          <span class="glitch-text inline-block animate-typewriter border-r-2 border-cyan-200 pr-1">
     知不足而奋进，望远山而前行，旅行者，欢迎开始属于你的人生管理系统。
   </span>
 
@@ -166,7 +168,7 @@
         </h2>
         <span class="font-mono text-xs text-slate-500 mb-1">:: 你费尽心力完成的目标</span>
       </div>
-      <swiper-component />
+      <swiper-component class="mb-5" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 卡片循环 -->
         <div v-for="goal in goalList.slice(0,9)" :key="goal.id">
@@ -194,7 +196,7 @@
         </h2>
         <span class="font-mono text-xs text-slate-500 mb-1">:: 值得你骄傲的成就</span>
       </div>
-      <swiper-component :images="programImagesList.slice(0,12)" :backup-images="programImagesList.slice(12,24)" />
+      <swiper-component class="mb-5" :images="programImagesList.slice(0,12)" :backup-images="programImagesList.slice(12,24)" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 项目卡片循环 -->
         <div v-for="program in programList.slice(0,9)" :key="program.id">
@@ -322,4 +324,100 @@ const goToBackend = async () => {
 }
 </script>
 
+<style scoped>
+/* 基础设置：确保父容器有相对定位，文字保持白色 */
+.glitch-text {
+  position: relative;
+  display: inline-block;
+  color: #ffffff;
+  font-weight: 900; /* 加粗字体让效果更明显 */
+}
+
+/* 创建两个伪元素用于制作故障层 */
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text); /* 关键：获取 HTML 中的文本内容 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #1a1a1a; /* 背景色，用于遮盖原本文字 */
+  opacity: 0.8;
+}
+
+/* 故障层 1：青色偏移 */
+.glitch-text::before {
+  color: #00ffff; /* 青色 */
+  z-index: -1;
+  /* 动画：播放名为 glitch-anim-1 的关键帧，时长 3s，无限循环 */
+  animation: glitch-anim-1 2.5s infinite linear alternate-reverse;
+}
+
+/* 故障层 2：红色/粉色偏移 */
+.glitch-text::after {
+  color: #ff00ff; /* 洋红色 */
+  z-index: -2;
+  /* 动画：播放名为 glitch-anim-2 的关键帧 */
+  animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+/* --- 关键帧动画定义 --- */
+
+/* 动画 1：主要控制剪切路径和横向位移 */
+@keyframes glitch-anim-1 {
+  0% {
+    clip-path: inset(20% 0 80% 0);
+    transform: translate(-2px, 0);
+  }
+  20% {
+    clip-path: inset(60% 0 10% 0);
+    transform: translate(2px, 0);
+  }
+  40% {
+    clip-path: inset(40% 0 50% 0);
+    transform: translate(-2px, 0);
+  }
+  60% {
+    clip-path: inset(80% 0 5% 0);
+    transform: translate(2px, 0);
+  }
+  80% {
+    clip-path: inset(10% 0 70% 0);
+    transform: translate(-1px, 0);
+  }
+  100% {
+    clip-path: inset(30% 0 20% 0);
+    transform: translate(1px, 0);
+  }
+}
+
+/* 动画 2：主要控制反向剪切和更剧烈的抖动 */
+@keyframes glitch-anim-2 {
+  0% {
+    clip-path: inset(10% 0 60% 0);
+    transform: translate(2px, 0);
+  }
+  20% {
+    clip-path: inset(80% 0 5% 0);
+    transform: translate(-2px, 0);
+  }
+  40% {
+    clip-path: inset(30% 0 20% 0);
+    transform: translate(2px, 0);
+  }
+  60% {
+    clip-path: inset(10% 0 80% 0);
+    transform: translate(-1px, 0);
+  }
+  80% {
+    clip-path: inset(50% 0 30% 0);
+    transform: translate(1px, 0);
+  }
+  100% {
+    clip-path: inset(70% 0 10% 0);
+    transform: translate(-2px, 0);
+  }
+}
+</style>
 

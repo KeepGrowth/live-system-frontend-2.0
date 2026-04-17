@@ -4,17 +4,15 @@
     <div class="fixed inset-0 z-0 opacity-10 pointer-events-none"
          style="background-image: linear-gradient(0deg, transparent 24%, #06b6d4 25%, #06b6d4 26%, transparent 27%, transparent 74%, #06b6d4 75%, #06b6d4 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #06b6d4 25%, #06b6d4 26%, transparent 27%, transparent 74%, #06b6d4 75%, #06b6d4 76%, transparent 77%, transparent); background-size: 50px 50px;">
     </div>
-
     <!-- 主容器 -->
     <div class="relative z-10 max-w-6xl mx-auto space-y-6">
-
       <!-- 顶部标题栏 -->
       <header
         class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-cyan-500/50 pb-4 mb-8">
         <div>
-          <h2 class="text-cyan-500 text-sm tracking-[0.2em] uppercase mb-1">项目详情</h2>
-          <h1 class="text-3xl md:text-4xl font-bold text-white uppercase glitch-text" data-text="project_name">
-            {{ program.programName }}
+          <h1 class="text-cyan-500 text-sm tracking-[0.2em] uppercase mb-1">{{ program?.programName || '无项目名称' }}</h1>
+          <h1 class="text-3xl md:text-4xl font-bold text-white uppercase glitch-text" :data-text="program.programName">
+            {{ program?.programName || '无项目名称' }} 项目档案
           </h1>
         </div>
         <div class="mt-4 md:mt-0 flex items-center space-x-2">
@@ -28,7 +26,6 @@
           <span class="text-slate-500 text-xs font-mono">项目ID: {{ program.id }}</span>
         </div>
       </header>
-
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         <!-- 左侧主要信息 -->
@@ -57,12 +54,14 @@
             <div class="bg-slate-900/80 p-5 border border-slate-800 relative">
               <div class="flex justify-between items-end mb-2">
                 <span class="text-slate-500 text-xs uppercase">项目满意度</span>
-                <span class="text-2xl font-bold text-fuchsia-400">{{ program.satisfactionScore }}<span
-                  class="text-sm text-slate-600">/100</span></span>
+                <span
+                  class="text-2xl font-bold text-fuchsia-400">{{ program.satisfactionScore > 100 ? 100 : program.satisfactionScore
+                  }}<span
+                    class="text-sm text-slate-600">/100</span></span>
               </div>
               <div class="w-full bg-slate-800 h-1">
                 <div class="bg-fuchsia-500 h-full shadow-[0_0_10px_#d946ef]"
-                     :style="{ width: program.satisfactionScore + '%' }"></div>
+                     :style="{ width: program.satisfactionScore > 100 ? 100 : program.satisfactionScore + '%' }"></div>
               </div>
             </div>
 
@@ -74,7 +73,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
                 </svg>
-                <span class="font-bold tracking-wider">目标ID-{{ program.goalId }}</span>
+                <span class="font-bold tracking-wider">查看目标-{{ program.goalId }}</span>
               </div>
             </div>
           </div>
@@ -84,7 +83,8 @@
         <!-- 右侧时间轴/元数据 -->
         <div class="lg:col-span-1">
           <!-- 用户ID展示 -->
-          <div class="mt-6 mb-4 p-4 border border-slate-800 bg-slate-900/30 flex justify-between items-center">
+          <div @click="isUserModalOpen=true"
+               class="cursor-pointer mt-6 mb-4 p-4 border border-slate-800 bg-slate-900/30 flex justify-between items-center">
             <span class="text-xs text-slate-200 uppercase">项目发起人</span>
             <span
               class="cursor-pointer font-mono text-sm text-slate-300 border-b border-dotted border-slate-600 hover:text-cyan-400 transition-colors">
@@ -119,7 +119,8 @@
               <!-- 项目时间线 -->
               <li class="cursor-pointer relative pl-8" v-for="(item,index) in program.okrList" :key="item.id">
                 <span class="absolute -left-1 top-1.5 flex h-3 w-3">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" v-if="index === program.okrList.length - 1"></span>
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"
+                        v-if="index === program.okrList.length - 1"></span>
                   <span class="relative inline-flex rounded-full h-3 w-3 border border-slate-500 bg-slate-900"></span>
                 </span>
                 <p class="text-xs text-slate-500 uppercase">{{ item.krName }}</p>
@@ -134,7 +135,11 @@
 
       </div>
     </div>
+
+
   </div>
+  <!--    用户模态框-->
+  <user-modal v-model="isUserModalOpen" :user="userInfo" @close="isUserModalOpen=false" />
 </template>
 
 <script setup>
@@ -142,6 +147,8 @@ import { onBeforeMount, ref } from 'vue'
 import SwiperComponent from '@/components/SwiperComponent.vue'
 import useProgramStore from '@/stores/program/program.js'
 import { ElNotification } from 'element-plus'
+import UserModal from '@/views/user/component/UserModal.vue'
+import useUserStore from '@/stores/user.js'
 
 const props = defineProps({
   id: {
@@ -191,6 +198,7 @@ const fetchProgramDetail = async () => {
 // 初始化加载数据
 onBeforeMount(async () => {
   await fetchProgramDetail()
+
 })
 
 // 时间格式化
@@ -198,6 +206,12 @@ const formatDateTime = (dateStr) => {
   if (!dateStr) return 'N/A'
   return new Date(dateStr).toLocaleString('en-GB', { hour12: false })
 }
+
+// 用户模态框交互
+const userStore = useUserStore()
+const isUserModalOpen = ref(false)
+const userInfo = userStore.userInfo
+console.log(userInfo)
 </script>
 
 <style scoped>
