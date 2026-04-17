@@ -169,12 +169,12 @@
       <swiper-component />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 项目卡片循环 -->
-        <div v-for="program in programList.slice(0,10)" :key="program.id">
+        <div v-for="program in programList.slice(0,9)" :key="program.id">
           <card-component
             :id="program.id"
             :title="program.programName"
             :excerpt="program.programDesc"
-            :image-src="program.attachmentPath"
+            :image-src="program.imageUrls[0].imageUrl"
             :category="program.programStatus"
             :author-name="'用户'+userStore.userInfo.username"
             :author-avatar="userStore.userInfo.avatar"
@@ -194,15 +194,15 @@
         </h2>
         <span class="font-mono text-xs text-slate-500 mb-1">:: 值得你骄傲的成就</span>
       </div>
-      <swiper-component/>
+      <swiper-component :images="programImagesList.slice(0,12)" :backup-images="programImagesList.slice(12,24)" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 项目卡片循环 -->
-        <div v-for="program in programList.slice(0,10)" :key="program.id">
+        <div v-for="program in programList.slice(0,9)" :key="program.id">
           <card-component
             :id="program.id"
             :title="program.programName"
             :excerpt="program.programDesc"
-            :image-src="program.attachmentPath"
+            :image-src="program.imageUrls[0].imageUrl"
             :category="program.programStatus"
             :author-name="'用户'+userStore.userInfo.username"
             :author-avatar="userStore.userInfo.avatar"
@@ -290,10 +290,13 @@ onMounted(async () => {
 
 // 请求数据
 const programList = ref([])
+const programImagesList = ref([])
 const fetchData = async () => {
   const res = await programStore.getProgramList({})
   if (res.data.code === 200) {
     programList.value = res.data?.data.programList
+    programImagesList.value = programList.value?.flatMap(item => item.imageUrls) || [];
+    console.log(programImagesList.value)
   }
 }
 const goToBackend = async () => {

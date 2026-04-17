@@ -87,7 +87,7 @@
           <div class="mt-6 mb-4 p-4 border border-slate-800 bg-slate-900/30 flex justify-between items-center">
             <span class="text-xs text-slate-200 uppercase">项目发起人</span>
             <span
-              class="font-mono text-sm text-slate-300 border-b border-dotted border-slate-600 hover:text-cyan-400 transition-colors">
+              class="cursor-pointer font-mono text-sm text-slate-300 border-b border-dotted border-slate-600 hover:text-cyan-400 transition-colors">
                USER-{{ program.userId }}
              </span>
           </div>
@@ -110,33 +110,20 @@
               <!-- Start Time -->
               <li class="relative pl-8">
                 <span class="absolute -left-1 top-1.5 flex h-3 w-3">
-                  <span
-                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
                 </span>
                 <p class="text-xs text-slate-500 uppercase">项目开始时间</p>
                 <p class="text-sm text-cyan-100 font-medium">{{ formatDate(program.estimateStartTime) }}</p>
               </li>
 
-              <!-- Finish Time -->
-              <li class="relative pl-8">
+              <!-- 项目时间线 -->
+              <li class="cursor-pointer relative pl-8" v-for="(item,index) in program.okrList" :key="item.id">
                 <span class="absolute -left-1 top-1.5 flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" v-if="index === program.okrList.length - 1"></span>
                   <span class="relative inline-flex rounded-full h-3 w-3 border border-slate-500 bg-slate-900"></span>
                 </span>
-                <p class="text-xs text-slate-500 uppercase">项目结束时间</p>
-                <p class="text-sm text-slate-300">{{ formatDate(program.estimateFinishTime) }}</p>
-              </li>
-
-              <!-- Create Time -->
-              <li class="relative pl-8 pt-4 border-t border-slate-800/50">
-                <p class="text-[10px] text-slate-600 uppercase mb-1">系统日志 // 起源</p>
-                <p class="text-xs font-mono text-slate-500">{{ formatDateTime(program.createTime) }}</p>
-              </li>
-
-              <!-- Update Time -->
-              <li class="relative pl-8">
-                <p class="text-[10px] text-slate-600 uppercase mb-1">系统日志 // 更新</p>
-                <p class="text-xs font-mono text-slate-500">{{ formatDateTime(program.updateTime) }}</p>
+                <p class="text-xs text-slate-500 uppercase">{{ item.krName }}</p>
+                <p class="text-sm text-cyan-100 font-medium">{{ formatDate(item.createTime) }}</p>
               </li>
 
             </ul>
