@@ -51,7 +51,7 @@ const useProgramStore = defineStore('program', () => {
       const res = await api.put('/program/update', programForm)
       if (res.data.code === 200) {
         ElNotification({
-          title: '成功',
+          goalName: '成功',
           message: res.data.message,
           type: 'success'
         })
@@ -71,14 +71,14 @@ const useProgramStore = defineStore('program', () => {
         })
         if (res.data.code === 200) {
           ElNotification({
-            title: '成功',
+            goalName: '成功',
             message: res.data.message,
             type: 'success'
           })
         }
       } catch (e) {
         ElNotification.error({
-          title: '错误',
+          goalName: '错误',
           message: '你可能正在删除一个有关联目标的项目，这是不被允许的'
         })
       }

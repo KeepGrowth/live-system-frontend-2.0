@@ -27,8 +27,8 @@
             to="/todo"
           >事业
           </router-link>
-          <a href="#"
-             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">生活</a>
+          <router-link to="/goal"
+             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">目标</router-link>
           <a href="#"
              class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">财务</a>
           <a href="#"

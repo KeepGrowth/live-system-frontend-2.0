@@ -50,7 +50,7 @@ const useWeightStore = defineStore('weight', () => {
         const res = await api.put('/weight/update', weightForm)
         if (res.data.code === 200) {
           ElNotification({
-            title: '成功',
+            goalName: '成功',
             message: res.data.message,
             type: 'success'
           })
@@ -72,7 +72,7 @@ const useWeightStore = defineStore('weight', () => {
         })
         if (res.data.code === 200) {
           ElNotification({
-            title: '成功',
+            goalName: '成功',
             message: res.data.message,
             type: 'success'
           })

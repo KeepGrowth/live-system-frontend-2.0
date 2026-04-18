@@ -189,7 +189,7 @@ const fetchProgramDetail = async () => {
     program.value = res.data.data
   } else {
     ElNotification.error({
-      title: '详情获取失败',
+      goalName: '详情获取失败',
       message: res.data.msg
     })
   }

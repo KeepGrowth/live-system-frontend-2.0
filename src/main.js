@@ -7,7 +7,10 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import 'element-plus/dist/index.css'
 import ElementPlus from 'element-plus'
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
+// main.js
+import 'element-plus/theme-chalk/dark/css-vars.css'
+import '@/styles/el-date-picker.css'
+import '@/styles/el-select.css'
 const app = createApp(App)
 
 app.use(ElementPlus)

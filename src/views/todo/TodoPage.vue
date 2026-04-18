@@ -436,7 +436,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-1">
                 <label class="text-xs text-cyan-500 uppercase font-bold">任务标题</label>
-                <input v-model="form.title" type="text" required
+                <input v-model="form.goalName" type="text" required
                        class="w-full bg-slate-900 border border-slate-700 text-slate-200 p-2 focus:outline-none focus:border-cyan-500 focus:shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all"
                        placeholder="输入任务名称...">
               </div>
@@ -592,14 +592,14 @@ const saveTask = async () => {
     const res = await todoStore.updateTodo(form.value)
     if (res.data.code === 200) {
       ElNotification.success({
-        title: '成功',
+        goalName: '成功',
         message: res.data.msg
       })
       await fetchTodoData()
       isModalOpen.value = false
     } else {
       ElNotification.error({
-        title: '更新todo失败',
+        goalName: '更新todo失败',
         message: res.data.msg
       })
     }
@@ -608,14 +608,14 @@ const saveTask = async () => {
     const res = await todoStore.addTodo(form.value)
     if (res.data.code === 200) {
       ElNotification.success({
-        title: '成功',
+        goalName: '成功',
         message: res.data.msg
       })
       isModalOpen.value = false
       await fetchTodoData()
     } else {
       ElNotification.error({
-        title: '新增todo失败',
+        goalName: '新增todo失败',
         message: res.data.msg
       })
     }

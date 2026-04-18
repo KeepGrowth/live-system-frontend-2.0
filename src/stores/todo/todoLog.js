@@ -62,7 +62,7 @@ const useTodoLogStore = defineStore('todoLog', () => {
     const res = await api.put('/todo_log/update', todoLogForm)
     if (res.data.code === 200) {
       ElNotification({
-        title: '成功',
+        goalName: '成功',
         message: res.data.message,
         type: 'success'
       })
@@ -81,7 +81,7 @@ const useTodoLogStore = defineStore('todoLog', () => {
     })
     if (res.data.code === 200) {
       ElNotification({
-        title: '成功',
+        goalName: '成功',
         message: res.data.message,
         type: 'success'
       })

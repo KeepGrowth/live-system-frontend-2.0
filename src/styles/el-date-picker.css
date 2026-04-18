@@ -1,0 +1,121 @@
+/* --- 赛博朋克风格：日期选择器 (Date Picker) --- */
+
+html.dark {
+    /* 1. 面板基础背景 */
+    --el-datepicker-bg-color: #1e1b4b;
+    --el-datepicker-text-color: #e0f8ff;
+    --el-datepicker-header-text-color: #00f3ff; /* 头部月份文字 */
+    --el-datepicker-border-color: #2b2b52; /* 面板外边框 */
+
+    /* 2. 单元格样式 */
+    --el-datepicker-cell-text-color: #aebbc4; /* 普通日期文字 */
+    --el-datepicker-cell-hover-text-color: #00f3ff; /* 悬停文字 */
+    --el-datepicker-current-cell-text-color: #ff00ff; /* "今天" 的文字颜色 */
+
+    /* 3. 选中状态 - 关键视觉 */
+    --el-datepicker-active-color: #00f3ff; /* 选中后的背景色 */
+}
+
+/* --- 深度定制 DOM 样式 --- */
+
+/* 1. 去除圆角，打造硬朗的科幻感 */
+html.dark .el-picker-panel {
+    border-radius: 4px; /* 稍微保留一点圆角，或者设为 0 变成直角 */
+    border: 1px solid var(--el-color-primary); /* 给整个面板加个霓虹边框 */
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); /* 面板整体发光 */
+}
+
+/* 2. 头部（年份/月份）样式 */
+html.dark .el-picker-panel__header {
+    border-bottom: 1px solid rgba(0, 243, 255, 0.3); /* 分割线变成霓虹半透明 */
+    margin: 0;
+    padding: 12px 20px;
+}
+
+html.dark .el-picker-panel__icon-btn {
+    color: var(--el-color-primary);
+}
+html.dark .el-picker-panel__icon-btn:hover {
+    color: #fff;
+}
+
+/* 3. 星期栏（日一二三四五六） */
+html.dark .el-picker-panel__content th {
+    border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+    color: var(--el-color-warning); /* 星期文字用警示黄，增加对比 */
+    font-weight: bold;
+    font-size: 12px;
+}
+
+/* 4. 日期单元格 (td) */
+html.dark .el-date-table td {
+    color: var(--el-text-color-regular);
+    border: 1px solid transparent; /* 预留边框位置 */
+}
+
+/* 悬停效果：像全息扫描一样的边框 */
+html.dark .el-date-table td:hover:not(.disabled) {
+    background-color: transparent;
+    border: 1px solid var(--el-color-primary);
+    box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2); /* 内发光 */
+}
+
+/* 5. 选中状态 (Selected) */
+html.dark .el-date-table td.selected {
+    background-color: var(--el-color-primary);
+    color: #000; /* 选中后文字变黑，保证高对比度 */
+    font-weight: bold;
+    border: none;
+    box-shadow: 0 0 15px var(--el-color-primary); /* 选中日期发光 */
+}
+
+/* 6. "今天" (Current) */
+html.dark .el-date-table td.today .el-date-table-cell__text {
+    color: var(--el-color-primary);
+    font-weight: bold;
+}
+html.dark .el-date-table td.today {
+    border: 1px solid var(--el-color-primary);
+}
+
+/* 7. 范围选择 (Range) - 开始和结束 */
+html.dark .el-date-table td.start-date,
+html.dark .el-date-table td.end-date {
+    background-color: var(--el-color-primary);
+    color: #000;
+}
+
+/* 范围选择的中间连接部分 */
+html.dark .el-date-table td.in-range {
+    background-color: rgba(0, 243, 255, 0.1);
+    border: 1px solid rgba(0, 243, 255, 0.1);
+}
+html.dark .el-date-table td.in-range:hover {
+    background-color: rgba(0, 243, 255, 0.2);
+}
+
+/* 8. 禁用状态 */
+html.dark .el-date-table td.disabled {
+    background-color: #0a0a1f;
+    color: #333;
+    border-color: transparent;
+    cursor: not-allowed;
+}
+
+/* 9. 时间选择器 (Time Picker) 的确认按钮区域 */
+html.dark .el-time-panel {
+    background-color: #050510;
+    border: 1px solid var(--el-color-primary);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+}
+html.dark .el-time-panel__btn {
+    color: var(--el-text-color-regular);
+}
+html.dark .el-time-panel__btn.confirm {
+    color: var(--el-color-primary);
+    font-weight: bold;
+}
+
+
+
+

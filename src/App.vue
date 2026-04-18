@@ -17,8 +17,6 @@ import { zhCn } from 'element-plus/es/locale/index'
 
 </style>
 <style>
-/* 引入赛博朋克风格字体 */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
 /* 全局设置 */
 html, body {

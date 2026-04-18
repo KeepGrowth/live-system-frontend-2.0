@@ -24,7 +24,7 @@ const useOkrStore = defineStore('okr', () => {
       }
     } catch (e) {
       ElNotification.error({
-        title: '错误',
+        goalName: '错误',
         message: '服务器接口出现错误'
       })
     } finally {
@@ -46,7 +46,7 @@ const useOkrStore = defineStore('okr', () => {
       }
     }catch (e){
       ElNotification.error({
-        title: '错误',
+        goalName: '错误',
         message: '服务器接口出现错误'
       })
     }
@@ -59,7 +59,7 @@ const useOkrStore = defineStore('okr', () => {
       const res = await api.put('/okr/update', okrForm)
       if (res.data.code === 200) {
         ElNotification({
-          title: '成功',
+          goalName: '成功',
           message: res.data.message,
           type: 'success'
         })
@@ -67,7 +67,7 @@ const useOkrStore = defineStore('okr', () => {
       }
     }catch (e){
       ElNotification.error({
-        title: '错误',
+        goalName: '错误',
         message: '服务器接口出现错误'
       })
     }finally {
@@ -86,14 +86,14 @@ const useOkrStore = defineStore('okr', () => {
       })
       if (res.data.code === 200) {
         ElNotification({
-          title: '成功',
+          goalName: '成功',
           message: res.data.message,
           type: 'success'
         })
       }
     }catch (e){
       ElNotification.error({
-        title: '错误',
+        goalName: '错误',
         message: '服务器接口出现错误'
       })
     }finally {

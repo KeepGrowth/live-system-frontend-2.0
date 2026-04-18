@@ -245,13 +245,13 @@ const login = async () => {
   console.log(res.data)
   if (res.data.code === 200) {
     ElNotification.success({
-      title: res.data.msg,
+      goalName: res.data.msg,
       message: '即将跳转到首页'
     })
     await router.push({ name: 'index' })
   } else {
     ElNotification.error({
-      title: '状态码：' + res.data.code,
+      goalName: '状态码：' + res.data.code,
       message: res.data.msg
     })
   }
@@ -279,12 +279,12 @@ const sendCode = async () => {
   const res = await userStore.sendCode(registerForm.value)
   if (res.data.code === 200) {
     ElNotification.success({
-      title: res.data.msg,
+      goalName: res.data.msg,
       message: '请输入验证码后点击注册'
     })
   } else {
     ElNotification.error({
-      title: '状态码：' + res.data.code,
+      goalName: '状态码：' + res.data.code,
       message: res.data.msg
     })
   }

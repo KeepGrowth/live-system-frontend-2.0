@@ -1,0 +1,73 @@
+/* 定义赛博朋克主题变量 */
+:root {
+    --cyber-primary: #00f3ff;   /* 赛博蓝 - 主色调 */
+    --cyber-secondary: #bc13fe; /* 赛博紫 - 辅助色/悬停 */
+    --cyber-bg: #050505;        /* 深黑背景 */
+    --cyber-surface: #0a0a0a;   /* 组件背景 */
+    --cyber-border: #333;       /* 默认边框 */
+    --cyber-glow: 0 0 10px rgba(0, 243, 255, 0.5); /* 发光效果 */
+}
+
+/*
+  注意：如果你使用的是 Vue scoped 样式，必须使用 :deep()
+  如果是全局样式，去掉 :deep() 即可
+*/
+
+/* 1. 输入框主体样式 */
+:deep(.el-select .el-input__wrapper) {
+    background-color: var(--cyber-surface) !important;
+    box-shadow: 0 0 0 1px var(--cyber-border) inset !important; /* 内边框 */
+    border-radius: 0 !important; /* 去除圆角，增加硬朗感 */
+    transition: all 0.3s ease;
+}
+
+/* 2. 聚焦状态 - 霓虹发光 */
+:deep(.el-select .el-input__wrapper.is-focus),
+:deep(.el-select .el-input__wrapper:hover) {
+    box-shadow: 0 0 0 1px var(--cyber-primary) inset, var(--cyber-glow) !important;
+    background-color: #000 !important;
+}
+
+/* 3. 下拉菜单容器 */
+:deep(.el-select-dropdown) {
+    background-color: var(--cyber-bg) !important;
+    border: 1px solid var(--cyber-primary) !important;
+    border-radius: 0 !important;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) !important; /* 外部辉光 */
+    padding: 0;
+}
+
+/* 4. 下拉选项列表 */
+:deep(.el-select-dropdown__list) {
+    padding: 0;
+}
+
+/* 5. 单个选项样式 */
+:deep(.el-select-dropdown__item) {
+    color: #fff !important;
+    background-color: transparent !important;
+    border-bottom: 1px solid #222 !important; /* 分割线 */
+    transition: all 0.2s ease;
+    font-family: 'Courier New', Courier, monospace; /* 等宽字体增加科技感 */
+}
+
+/* 6. 选项悬停效果 */
+:deep(.el-select-dropdown__item:hover) {
+    background-color: rgba(0, 243, 255, 0.1) !important;
+    color: var(--cyber-primary) !important;
+    text-shadow: 0 0 5px var(--cyber-primary); /* 文字发光 */
+    padding-left: 20px !important; /* 悬停时向右位移 */
+}
+
+/* 7. 选中状态 */
+:deep(.el-select-dropdown__item.selected) {
+    color: var(--cyber-secondary) !important;
+    background-color: rgba(188, 19, 254, 0.1) !important;
+    border-left: 3px solid var(--cyber-secondary) !important; /* 左侧高亮条 */
+    font-weight: bold;
+}
+
+/* 8. 下拉图标颜色 */
+:deep(.el-select .el-input__suffix .el-icon) {
+    color: var(--cyber-primary) !important;
+}

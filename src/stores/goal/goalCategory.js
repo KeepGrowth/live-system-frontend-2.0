@@ -40,7 +40,7 @@ const useGoalCateStore = defineStore('goalCate', () => {
     const res = await api.put('/goal/cate/update', cateForm)
     if (res.data.code === 200) {
       ElNotification({
-        title: '成功', message: res.data.message, type: 'success'
+        goalName: '成功', message: res.data.message, type: 'success'
       })
       return res
     }
@@ -57,7 +57,7 @@ const useGoalCateStore = defineStore('goalCate', () => {
     if (res.data.code === 200) {
 
       ElNotification({
-        title: '成功', message: res.data.message, type: 'success'
+        goalName: '成功', message: res.data.message, type: 'success'
       })
     }
 

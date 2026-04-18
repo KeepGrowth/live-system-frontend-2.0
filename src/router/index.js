@@ -17,21 +17,26 @@ const router = createRouter({
     {
       path: '/',
       name: 'login',
-      component:  () => import('@/views/LoginPage.vue')
+      component: () => import('@/views/LoginPage.vue')
     },
     // 项目详情页
     {
       path: '/program/:id',
       name: 'ProgramDetail',
-      props:true,
+      props: true,
       component: () => import('@/views/program/ProgramDetail.vue')
     },
     // todo待办页
     {
       path: '/todo',
       name: 'TodoPage',
-      props:true,
       component: () => import('@/views/todo/TodoPage.vue')
+    },
+    // 目标作战室
+    {
+      path: '/goal',
+      name: 'GoalPage',
+      component: () => import('@/views/goal/GoalPage.vue')
     },
     {
       path: '/home',
