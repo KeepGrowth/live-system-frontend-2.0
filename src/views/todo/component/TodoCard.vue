@@ -56,7 +56,7 @@
                  :class="i <= task.importance ? 'bg-red-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
           </div>
         </div>
-        <div class="flex flex-col text-right">
+        <div class="cursor-pointer flex flex-col text-right" @click="openLogDrawer(task.todoLogList)">
           <span class="text-slate-600 text-[10px] uppercase">关联日志数</span>
           <span class="text-emerald-400">{{ task.todoLogList?.length || 0 }}</span>
         </div>
@@ -97,11 +97,27 @@
       </div>
     </div>
   </div>
+  <todo-log-drawer
+    v-model="isLogDrawerOpen"
+    :logs="currentLogList"
+    @edit="editLog"
+    @delete="delLog"
+  />
+
+  <TodoLogModal
+    v-model="isLogModalOpen"
+    :initial-data="logForm"
+    @submit="handleLogSubmit"
+    @close="isLogModalOpen=false"
+  />
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { computed, ref } from 'vue'
+import { ElMessageBox, ElNotification } from 'element-plus'
+import TodoLogDrawer from '@/views/todo_log/component/TodoLogDrawer.vue'
+import TodoLogModal from '@/views/todo_log/component/TodoLogModal.vue'
+import useTodoLogStore from '@/stores/todo/todoLog.js'
 
 // Props 定义
 const props = defineProps({
@@ -144,6 +160,85 @@ const handleDelete = (id) => {
 // 处理新增日志
 const handleAppendLog = (todoId) => {
   emit('appendLog', todoId)
+}
+
+// 日志抽屉展开操作
+const isLogDrawerOpen = ref(false)
+const currentLogList = ref([])
+const openLogDrawer = async (todoLogList) => {
+  isLogDrawerOpen.value = true
+  currentLogList.value = todoLogList
+}
+
+// 处理日志的编辑与删除
+const todoLogStore = useTodoLogStore()
+const isLogModalOpen = ref(false)
+const logForm = ref({})
+const editLog = async (originLogForm) => {
+  isLogModalOpen.value = true
+  logForm.value = originLogForm
+}
+const delLog = async (logForm) => {
+  const res = await todoLogStore.delTodoLog(logForm.id)
+  if (res.data.code === 200) {
+    ElNotification.success({
+      title: '成功，请刷新界面。',
+      message: res.data.msg
+    })
+    await fetchCurrentLogList(logForm.todoId)
+  } else {
+    ElNotification.error({
+      title: '失败',
+      message: res.data.msg
+    })
+  }
+}
+// 加载日志数据
+const fetchCurrentLogList = async (todoId) => {
+  const res = await todoLogStore.getLogByTodo(todoId)
+  if (res.data.code===200){
+    currentLogList.value = res.data.data.todoLogList
+  }else{
+    ElNotification.error({
+      title:'刷新日志数据失败',
+      message:res.data.msg
+    })
+  }
+}
+
+// 日志提交
+const handleLogSubmit = async (todoLogForm) => {
+  if (!todoLogForm.id) {
+    const res = await todoLogStore.addTodoLog(todoLogForm)
+    if (res.data.code === 200) {
+      ElNotification.success({
+        title: '成功',
+        message: res.data.msg
+      })
+      await fetchCurrentLogList(todoLogForm.todoId)
+    } else {
+      ElNotification.error({
+        title: '失败',
+        message: res.data.msg
+      })
+    }
+  } else {
+    const res = await todoLogStore.updateTodoLog(todoLogForm)
+    if (res.data.code === 200) {
+      ElNotification.success({
+        title: '成功',
+        message: res.data.msg
+      })
+      await fetchCurrentLogList(todoLogForm.todoId)
+    } else {
+      ElNotification.error({
+        title: '失败',
+        message: res.data.msg
+      })
+    }
+  }
+
+  isLogModalOpen.value = false
 }
 </script>
 

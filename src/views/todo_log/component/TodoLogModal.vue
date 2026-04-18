@@ -83,7 +83,7 @@
               日志内容
             </label>
             <textarea
-              v-model="formData.logSec"
+              v-model="formData.logDesc"
               rows="4"
               class="w-full bg-slate-950/50 border border-slate-700 px-3 py-2 text-slate-300 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_10px_rgba(34,211,238,0.4)] transition-all duration-300 font-mono resize-none"
               placeholder="记录这段经历的的经历与反思..."
@@ -156,7 +156,7 @@ const formData = ref({
   okrId: null,
   title: '',
   score: 0,
-  logSec: '',
+  logDesc: '',
   emotion: 'calm'
 })
 
@@ -180,7 +180,7 @@ watch(() => props.initialData, (newVal) => {
       okrId: null,
       title: '',
       score: 0,
-      logSec: '',
+      logDesc: '',
       emotion: 'calm'
     }
   }

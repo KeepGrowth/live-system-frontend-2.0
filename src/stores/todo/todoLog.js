@@ -49,35 +49,26 @@ const useTodoLogStore = defineStore('todoLog', () => {
 
   // 更新
   const updateTodoLog = async (todoLogForm) => {
-
     const res = await api.put('/todo_log/update', todoLogForm)
-    if (res.data.code === 200) {
-      ElNotification({
-        goalName: '成功',
-        message: res.data.message,
-        type: 'success'
-      })
-      return res
-    }
-    loading.close()
+    return res
   }
 
   // 删除
-  const delTodoLog = async (todoLogId) => {
-
-    const res = await api.delete('/todo_log/delete', {
-      params: {
-        todoLogId: todoLogId
-      }
-    })
-    if (res.data.code === 200) {
-      ElNotification({
-        goalName: '成功',
-        message: res.data.message,
-        type: 'success'
-      })
-    }
+  const delTodoLog = async (logId) => {
+    const loading = ElLoading.service({ fullscreen: true })
+    const res = await api.delete(`/todo_log/delete/${logId}`)
     loading.close()
+    return res
+  }
+
+  //根据todoId查询日志
+  const getLogByTodo = async (todoId) => {
+    const loading = ElLoading.service({ fullscreen: true })
+    const res = await api.get('/todo_log/list_by_todo', {
+      params: { todoId: todoId }
+    })
+    loading.close()
+    return res
   }
 
 
@@ -86,7 +77,8 @@ const useTodoLogStore = defineStore('todoLog', () => {
     getTodoLogList,
     addTodoLog,
     updateTodoLog,
-    delTodoLog
+    delTodoLog,
+    getLogByTodo
   }
 
 })
