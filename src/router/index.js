@@ -11,13 +11,19 @@ const router = createRouter({
       // 数据首页
       path: '/index',
       name: 'index',
-      component: Index
+      component: () => import('@/views/index.vue')
     },
     // 登录页面
     {
       path: '/',
       name: 'login',
       component: () => import('@/views/LoginPage.vue')
+    },
+    // 项目作战室
+    {
+      path: '/program',
+      name: 'ProgramPage',
+      component: () => import('@/views/program/ProgramPage.vue')
     },
     // 项目详情页
     {
@@ -26,7 +32,7 @@ const router = createRouter({
       props: true,
       component: () => import('@/views/program/ProgramDetail.vue')
     },
-    // todo待办页
+    // todo作战室
     {
       path: '/todo',
       name: 'TodoPage',
@@ -38,17 +44,23 @@ const router = createRouter({
       name: 'GoalPage',
       component: () => import('@/views/goal/GoalPage.vue')
     },
+    // OKR作战室
+    {
+      path: '/okr',
+      name: 'OkrPage',
+      component: () => import('@/views/okr/OkrPage.vue')
+    },
     {
       path: '/home',
       name: 'home',
       component: HomeTab,
       children: [
         // 项目信息管理路由
-        {
-          path: 'info',
-          name: 'ProgramPage',
-          component: ProgramPage
-        }
+        // {
+        //   path: 'info',
+        //   name: 'ProgramPage',
+        //   component: ProgramPage
+        // }
       ]
     }
 

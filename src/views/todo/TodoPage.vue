@@ -86,83 +86,11 @@
           </h2>
           <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了，慢点，看看花是怎么开的</span>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="task in todoTasks"
-            :key="task.id"
-            class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
-            :class="getStatusColor(task.status)"
-          >
-            <!-- 装饰角标 -->
-            <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-500 opacity-50"></div>
-            <div class="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-fuchsia-500 opacity-50"></div>
-
-            <!-- 状态标签 -->
-            <div class="flex justify-between items-start mb-4">
-            <span class="text-[10px] uppercase border px-2 py-0.5 rounded-none tracking-wider"
-                  :class="getStatusLabel(task.status).color">
-              {{ getStatusLabel(task.status).text }}
-            </span>
-              <span class="text-xs text-slate-500 font-bold">ID: {{ task.id }}</span>
-            </div>
-
-            <!-- 标题 -->
-            <h3 class="text-xl font-bold text-slate-100 mb-2 group-hover:text-cyan-300 transition-colors line-clamp-1"
-                :title="task.title">
-              任务ID：{{ task.id }} - {{ task.title }}
-            </h3>
-
-            <!-- 目标简述 -->
-            <p
-              class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors">
-              {{ task.todoGoal || '无详细描述' }}
-            </p>
-
-            <!-- 数据网格 -->
-            <div class="grid grid-cols-2 gap-2 text-xs mb-6 font-mono">
-              <div class="flex flex-col">
-                <span class="text-slate-600 text-[10px] uppercase">截止日期</span>
-                <span class="text-fuchsia-400">{{ task.deadline || 'N/A' }}</span>
-              </div>
-              <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase" disabled>专注时间</span>
-                <span class="text-cyan-400">{{ task.focusTime || 0 }} min</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-slate-600 text-[10px] uppercase">情绪</span>
-                <span class="text-emerald-400">{{ task.emotion || 'Neutral' }}</span>
-              </div>
-              <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase">重要性</span>
-                <div class="flex justify-end gap-1 mt-1">
-                  <div v-for="i in 5" :key="i" class="w-1.5 h-3"
-                       :class="i <= task.importance ? 'bg-blue-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 操作栏 -->
-            <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-2">
-              <div class="text-[10px] text-slate-600">
-                OKR: <span class="text-slate-400">{{ task.okrId || '--' }}</span>
-              </div>
-              <div class="flex gap-2">
-                <button @click="goToDetail(task.id)"
-                        class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all">
-                  查看详情
-                </button>
-                <button @click="openModal(task)"
-                        class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all">
-                  编辑
-                </button>
-                <button @click="deleteTask(task.id)"
-                        class="cursor-pointer text-xs bg-slate-800 hover:bg-red-900/50 hover:text-red-400 border border-transparent hover:border-red-500 px-3 py-1 transition-all">
-                  删除
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <todo-card
+          :todo-list="todoTasks"
+          @edit="openModal"
+          @delete="deleteTask"
+        />
       </section>
       <!--进行中-->
       <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10" v-if="runingTasks.length>0">
@@ -172,79 +100,11 @@
           </h2>
           <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了，慢点，看看花是怎么开的</span>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="task in runingTasks"
-            :key="task.id"
-            class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
-            :class="getStatusColor(task.status)"
-          >
-            <!-- 装饰角标 -->
-            <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-500 opacity-50"></div>
-            <div class="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-fuchsia-500 opacity-50"></div>
-
-            <!-- 状态标签 -->
-            <div class="flex justify-between items-start mb-4">
-            <span class="text-[10px] uppercase border px-2 py-0.5 rounded-none tracking-wider"
-                  :class="getStatusLabel(task.status).color">
-              {{ getStatusLabel(task.status).text }}
-            </span>
-              <span class="text-xs text-slate-500 font-bold">ID: {{ task.id }}</span>
-            </div>
-
-            <!-- 标题 -->
-            <h3 class="text-xl font-bold text-slate-100 mb-2 group-hover:text-cyan-300 transition-colors line-clamp-1"
-                :title="task.title">
-              {{ task.title }}
-            </h3>
-
-            <!-- 目标简述 -->
-            <p
-              class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors">
-              {{ task.todoGoal || '无详细描述' }}
-            </p>
-
-            <!-- 数据网格 -->
-            <div class="grid grid-cols-2 gap-2 text-xs mb-6 font-mono">
-              <div class="flex flex-col">
-                <span class="text-slate-600 text-[10px] uppercase">截止日期</span>
-                <span class="text-fuchsia-400">{{ task.deadline || 'N/A' }}</span>
-              </div>
-              <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase" disabled>专注时间</span>
-                <span class="text-cyan-400">{{ task.focusTime || 0 }} min</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-slate-600 text-[10px] uppercase">情绪</span>
-                <span class="text-emerald-400">{{ task.emotion || 'Neutral' }}</span>
-              </div>
-              <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase">重要性</span>
-                <div class="flex justify-end gap-1 mt-1">
-                  <div v-for="i in 5" :key="i" class="w-1.5 h-3"
-                       :class="i <= task.importance ? 'bg-yellow-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 操作栏 -->
-            <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-2">
-              <div class="text-[10px] text-slate-600">
-                OKR: <span class="text-slate-400">{{ task.okrId || '--' }}</span>
-              </div>
-              <div class="flex gap-2">
-                <button @click="openModal(task)"
-                        class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all">
-                  编辑
-                </button>
-                <button @click="deleteTask(task.id)"
-                        class="cursor-pointer text-xs bg-slate-800 hover:bg-red-900/50 hover:text-red-400 border border-transparent hover:border-red-500 px-3 py-1 transition-all">
-                  删除
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <todo-card
+          :todo-list="runingTasks"
+          @edit="openModal"
+          @delete="deleteTask"
+        />
       </section>
       <!--已完成-->
       <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10" v-if="finishedTasks.length>0">
@@ -255,79 +115,11 @@
           </h2>
           <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了，慢点，看看花是怎么开的</span>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="task in finishedTasks"
-            :key="task.id"
-            class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
-            :class="getStatusColor(task.status)"
-          >
-            <!-- 装饰角标 -->
-            <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-500 opacity-50"></div>
-            <div class="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-fuchsia-500 opacity-50"></div>
-
-            <!-- 状态标签 -->
-            <div class="flex justify-between items-start mb-4">
-            <span class="text-[10px] uppercase border px-2 py-0.5 rounded-none tracking-wider"
-                  :class="getStatusLabel(task.status).color">
-              {{ getStatusLabel(task.status).text }}
-            </span>
-              <span class="text-xs text-slate-500 font-bold">ID: {{ task.id }}</span>
-            </div>
-
-            <!-- 标题 -->
-            <h3 class="text-xl font-bold text-slate-100 mb-2 group-hover:text-cyan-300 transition-colors line-clamp-1"
-                :title="task.title">
-              {{ task.title }}
-            </h3>
-
-            <!-- 目标简述 -->
-            <p
-              class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors">
-              {{ task.todoGoal || '无详细描述' }}
-            </p>
-
-            <!-- 数据网格 -->
-            <div class="grid grid-cols-2 gap-2 text-xs mb-6 font-mono">
-              <div class="flex flex-col">
-                <span class="text-slate-600 text-[10px] uppercase">截止日期</span>
-                <span class="text-fuchsia-400">{{ task.deadline || 'N/A' }}</span>
-              </div>
-              <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase" disabled>专注时间</span>
-                <span class="text-cyan-400">{{ task.focusTime || 0 }} min</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-slate-600 text-[10px] uppercase">情绪</span>
-                <span class="text-emerald-400">{{ task.emotion || 'Neutral' }}</span>
-              </div>
-              <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase">重要性</span>
-                <div class="flex justify-end gap-1 mt-1">
-                  <div v-for="i in 5" :key="i" class="w-1.5 h-3"
-                       :class="i <= task.importance ? 'bg-green-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 操作栏 -->
-            <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-2">
-              <div class="text-[10px] text-slate-600">
-                OKR: <span class="text-slate-400">{{ task.okrId || '--' }}</span>
-              </div>
-              <div class="flex gap-2">
-                <button @click="openModal(task)"
-                        class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all">
-                  编辑
-                </button>
-                <button @click="deleteTask(task.id)"
-                        class="cursor-pointer text-xs bg-slate-800 hover:bg-red-900/50 hover:text-red-400 border border-transparent hover:border-red-500 px-3 py-1 transition-all">
-                  删除
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <todo-card
+          :todo-list="finishedTasks"
+          @edit="openModal"
+          @delete="deleteTask"
+        />
       </section>
       <!--已放弃-->
       <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10" v-if="giveUpTasks.length>0">
@@ -337,79 +129,11 @@
           </h2>
           <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了，慢点，看看花是怎么开的</span>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="task in giveUpTasks"
-            :key="task.id"
-            class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
-            :class="getStatusColor(task.status)"
-          >
-            <!-- 装饰角标 -->
-            <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-500 opacity-50"></div>
-            <div class="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-fuchsia-500 opacity-50"></div>
-
-            <!-- 状态标签 -->
-            <div class="flex justify-between items-start mb-4">
-            <span class="text-[10px] uppercase border px-2 py-0.5 rounded-none tracking-wider"
-                  :class="getStatusLabel(task.status).color">
-              {{ getStatusLabel(task.status).text }}
-            </span>
-              <span class="text-xs text-slate-500 font-bold">ID: {{ task.id }}</span>
-            </div>
-
-            <!-- 标题 -->
-            <h3 class="text-xl font-bold text-slate-100 mb-2 group-hover:text-cyan-300 transition-colors line-clamp-1"
-                :title="task.title">
-              {{ task.title }}
-            </h3>
-
-            <!-- 目标简述 -->
-            <p
-              class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors">
-              {{ task.todoGoal || '无详细描述' }}
-            </p>
-
-            <!-- 数据网格 -->
-            <div class="grid grid-cols-2 gap-2 text-xs mb-6 font-mono">
-              <div class="flex flex-col">
-                <span class="text-slate-600 text-[10px] uppercase">截止日期</span>
-                <span class="text-fuchsia-400">{{ task.deadline || 'N/A' }}</span>
-              </div>
-              <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase" disabled>专注时间</span>
-                <span class="text-cyan-400">{{ task.focusTime || 0 }} min</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-slate-600 text-[10px] uppercase">情绪</span>
-                <span class="text-emerald-400">{{ task.emotion || 'Neutral' }}</span>
-              </div>
-              <div class="flex flex-col text-right">
-                <span class="text-slate-600 text-[10px] uppercase">重要性</span>
-                <div class="flex justify-end gap-1 mt-1">
-                  <div v-for="i in 5" :key="i" class="w-1.5 h-3"
-                       :class="i <= task.importance ? 'bg-yellow-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 操作栏 -->
-            <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-2">
-              <div class="text-[10px] text-slate-600">
-                OKR: <span class="text-slate-400">{{ task.okrId || '--' }}</span>
-              </div>
-              <div class="flex gap-2">
-                <button @click="openModal(task)"
-                        class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all">
-                  编辑
-                </button>
-                <button @click="deleteTask(task.id)"
-                        class="cursor-pointer text-xs bg-slate-800 hover:bg-red-900/50 hover:text-red-400 border border-transparent hover:border-red-500 px-3 py-1 transition-all">
-                  删除
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <todo-card
+          :todo-list="giveUpTasks"
+          @edit="openModal"
+          @delete="deleteTask"
+        />
       </section>
       <el-empty description="暂无待办，新建一个开始你的一天吧。" v-if="tasks.length===0" />
 
@@ -436,7 +160,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-1">
                 <label class="text-xs text-cyan-500 uppercase font-bold">任务标题</label>
-                <input v-model="form.goalName" type="text" required
+                <input v-model="form.title" type="text" required
                        class="w-full bg-slate-900 border border-slate-700 text-slate-200 p-2 focus:outline-none focus:border-cyan-500 focus:shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all"
                        placeholder="输入任务名称...">
               </div>
@@ -492,10 +216,13 @@
             <!-- 隐藏字段模拟 -->
             <div class="grid grid-cols-2 gap-4 opacity-50 hover:opacity-100 transition-opacity">
               <div class="space-y-1">
-                <label class="text-[15px] uppercase">关联OKR（可选）</label>
-                <input v-model="form.okrId" type="number"
-                       class="w-full bg-slate-900 border border-slate-800 text-slate-500 p-2 text-sm"
-                       placeholder="选择关联的OKR">
+                <label class="text-[10px] uppercase">关联OKR（可选）</label>
+                <el-cascader
+                  v-model="form.okrId"
+                  :options="okrOptions"
+                  :show-all-levels="false"
+                  :props="{ emitPath: false }"
+                />
               </div>
             </div>
 
@@ -526,6 +253,7 @@ import SwiperComponent from '@/components/SwiperComponent.vue'
 import useTodoStore from '@/stores/todo/todo.js'
 import { dayjs, ElMessageBox, ElNotification } from 'element-plus'
 import isoWeek from 'dayjs/plugin/isoWeek'
+import useOkrStore from '@/stores/okr/okr.js'
 
 dayjs.extend(isoWeek)
 const userStore = useUserStore()
@@ -592,14 +320,14 @@ const saveTask = async () => {
     const res = await todoStore.updateTodo(form.value)
     if (res.data.code === 200) {
       ElNotification.success({
-        goalName: '成功',
+        title: '成功',
         message: res.data.msg
       })
       await fetchTodoData()
       isModalOpen.value = false
     } else {
       ElNotification.error({
-        goalName: '更新todo失败',
+        title: '更新todo失败',
         message: res.data.msg
       })
     }
@@ -608,14 +336,14 @@ const saveTask = async () => {
     const res = await todoStore.addTodo(form.value)
     if (res.data.code === 200) {
       ElNotification.success({
-        goalName: '成功',
+        title: '成功',
         message: res.data.msg
       })
       isModalOpen.value = false
       await fetchTodoData()
     } else {
       ElNotification.error({
-        goalName: '新增todo失败',
+        title: '新增todo失败',
         message: res.data.msg
       })
     }
@@ -723,141 +451,16 @@ const chooseDateRangeType = async (dateType) => {
   }
 }
 // 获取数据/监听数据
-const tasks = ref([
-  {
-    id: 101,
-    userId: 8080,
-    title: '系统核心升级',
-    todoGoal: '将神经网络核心升级至v2.0，优化算法效率。',
-    finishDesc: '',
-    quitDesc: '',
-    importance: 5,
-    status: 1, // 进行中
-    focusTime: 120,
-    deadline: '2026-04-20',
-    emotion: 'Focused',
-    goalId: 9,
-    programId: 4,
-    okrId: 1,
-    createTime: '2026-04-17 10:00:00',
-    updateTime: '2026-04-17 10:00:00'
-  },
-  {
-    id: 102,
-    userId: 8080,
-    title: '数据清洗任务',
-    todoGoal: '清理Q1季度的冗余日志数据。',
-    importance: 3,
-    status: 0, // 待办
-    focusTime: 0,
-    deadline: '2026-04-25',
-    emotion: 'Neutral',
-    goalId: 2,
-    programId: null,
-    okrId: null
-  },
-  {
-    id: 101,
-    userId: 8080,
-    title: '系统核心升级',
-    todoGoal: '将神经网络核心升级至v2.0，优化算法效率。',
-    finishDesc: '',
-    quitDesc: '',
-    importance: 5,
-    status: 1, // 进行中
-    focusTime: 120,
-    deadline: '2026-04-20',
-    emotion: 'Focused',
-    goalId: 9,
-    programId: 4,
-    okrId: 1,
-    createTime: '2026-04-17 10:00:00',
-    updateTime: '2026-04-17 10:00:00'
-  },
-  {
-    id: 102,
-    userId: 8080,
-    title: '数据清洗任务',
-    todoGoal: '清理Q1季度的冗余日志数据。',
-    importance: 3,
-    status: 0, // 待办
-    focusTime: 0,
-    deadline: '2026-04-25',
-    emotion: 'Neutral',
-    goalId: 2,
-    programId: null,
-    okrId: null
-  },
-  {
-    id: 101,
-    userId: 8080,
-    title: '系统核心升级',
-    todoGoal: '将神经网络核心升级至v2.0，优化算法效率。',
-    finishDesc: '',
-    quitDesc: '',
-    importance: 5,
-    status: 1, // 进行中
-    focusTime: 120,
-    deadline: '2026-04-20',
-    emotion: 'Focused',
-    goalId: 9,
-    programId: 4,
-    okrId: 1,
-    createTime: '2026-04-17 10:00:00',
-    updateTime: '2026-04-17 10:00:00'
-  },
-  {
-    id: 102,
-    userId: 8080,
-    title: '数据清洗任务',
-    todoGoal: '清理Q1季度的冗余日志数据。',
-    importance: 3,
-    status: 0, // 待办
-    focusTime: 0,
-    deadline: '2026-04-25',
-    emotion: 'Neutral',
-    goalId: 2,
-    programId: null,
-    okrId: null
-  },
-  {
-    id: 101,
-    userId: 8080,
-    title: '系统核心升级',
-    todoGoal: '将神经网络核心升级至v2.0，优化算法效率。',
-    finishDesc: '',
-    quitDesc: '',
-    importance: 5,
-    status: 1, // 进行中
-    focusTime: 120,
-    deadline: '2026-04-20',
-    emotion: 'Focused',
-    goalId: 9,
-    programId: 4,
-    okrId: 1,
-    createTime: '2026-04-17 10:00:00',
-    updateTime: '2026-04-17 10:00:00'
-  },
-  {
-    id: 102,
-    userId: 8080,
-    title: '数据清洗任务',
-    todoGoal: '清理Q1季度的冗余日志数据。',
-    importance: 3,
-    status: 0, // 待办
-    focusTime: 0,
-    deadline: '2026-04-25',
-    emotion: 'Neutral',
-    goalId: 2,
-    programId: null,
-    okrId: null
-  }
-]) // 任务列表数据
-
 const queryParams = ref({
   startDate: '',
   endDate: ''
 })
+watch(queryParams, async (newVal, oldValue) => {
+  await fetchTodoData()
+}, { deep: true })
+const tasks = ref([]) // 任务列表数据
+
+
 const todoStore = useTodoStore()
 const fetchTodoData = async () => {
   const res = await todoStore.getTodoList(queryParams.value)
@@ -865,12 +468,28 @@ const fetchTodoData = async () => {
     tasks.value = res.data.data.todoList
   }
 }
-watch(queryParams.value, async (old, newParams) => {
-  await fetchTodoData()
-})
+
+// 级联选项
+const okrStore = useOkrStore()
+let okrOptions = ref([])
+const fetchOkrOptions = async () => {
+  const res = await okrStore.getOptions()
+  if (res.data.code === 200) {
+    okrOptions.value = res.data.data
+  } else {
+    ElNotification.error({
+        title: 'OKR选项获取失败',
+        message: res.data.msg
+      }
+    )
+  }
+}
 onMounted(async () => {
   await fetchTodoData()
+  await fetchOkrOptions()
 })
+
+
 </script>
 
 <style scoped>

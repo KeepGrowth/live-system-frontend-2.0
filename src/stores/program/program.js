@@ -3,7 +3,7 @@ import api from '@/utils/request.js'
 import { ElLoading, ElMessage, ElNotification } from 'element-plus'
 import formatTime from '@/utils/date.js'
 import { ref } from 'vue'
-import cleanObject from '@/utils/common.js'
+import utils from '@/utils/common.js'
 
 
 const useProgramStore = defineStore('program', () => {
@@ -11,7 +11,7 @@ const useProgramStore = defineStore('program', () => {
 
     // 请求列表
     const getProgramList = async (queryParams) => {
-      const cleanParams = cleanObject(queryParams)
+      const cleanParams = utils.cleanObject(queryParams)
       const loading = ElLoading.service({ fullscreen: true })
       const res = await api.get('/program/list', {
         params: cleanParams
@@ -63,26 +63,16 @@ const useProgramStore = defineStore('program', () => {
     // 删除单子
     const delProgram = async (programId) => {
       const loading = ElLoading.service({ fullscreen: true })
-      try {
-        const res = await api.delete('/program/delete', {
-          params: {
-            programId: Number(programId)
-          }
-        })
-        if (res.data.code === 200) {
-          ElNotification({
-            goalName: '成功',
-            message: res.data.message,
-            type: 'success'
-          })
-        }
-      } catch (e) {
-        ElNotification.error({
-          goalName: '错误',
-          message: '你可能正在删除一个有关联目标的项目，这是不被允许的'
-        })
-      }
+      const res = await api.delete(`/program/delete/${programId}`)
       loading.close()
+      return res
+    }
+
+    // 获取级联选项。
+    // 获取级联选项
+    const getOptions = async () => {
+      const res = await api.get('/program/multi-options')
+      return res
     }
 
 
@@ -92,7 +82,8 @@ const useProgramStore = defineStore('program', () => {
       delProgram,
       updateProgram,
       addProgram,
-      getProgramDetail
+      getProgramDetail,
+      getOptions
     }
 
   },

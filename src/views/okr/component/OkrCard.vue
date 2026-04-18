@@ -4,7 +4,7 @@
   <!-- 卡片网格 -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div
-      v-for="task in todoList"
+      v-for="task in okrList"
       :key="task.id"
       class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
       :class="getStatusColor(task.status)"
@@ -27,45 +27,42 @@
       <!-- 标题 -->
       <h3
         class="text-xl font-bold text-slate-100 mb-2 group-hover:text-cyan-300 transition-colors line-clamp-1"
-        :title="task.title"
+        :title="task.krName"
       >
-        {{ task.title }}
+        {{ task.krName }}
       </h3>
 
       <!-- 目标简述 -->
       <p
         class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors"
       >
-        {{ task.todoGoal || '无详细描述' }}
+        {{ task.krDesc || '无详细描述' }}
       </p>
 
       <!-- 数据网格 -->
       <div class="grid grid-cols-2 gap-2 text-xs mb-6 font-mono">
         <div class="flex flex-col">
-          <span class="text-slate-600 text-[10px] uppercase">截止日期</span>
-          <span class="text-fuchsia-400">{{ task.deadline || 'N/A' }}</span>
+          <span class="text-slate-600 text-[10px] uppercase">创建时间</span>
+          <span class="text-fuchsia-400">{{ task.createTimeStr || 'N/A' }}</span>
         </div>
         <div class="flex flex-col text-right">
-          <span class="text-slate-600 text-[10px] uppercase">专注时间</span>
-          <span class="text-cyan-400">{{ task.focusTime || '等待完成' }}</span>
+          <span class="text-slate-600 text-[10px] uppercase">更新时间</span>
+          <span class="text-cyan-400">{{ task.updateTimeStr || '等待完成' }}</span>
         </div>
-        <div class="flex flex-col">
-          <span class="text-slate-600 text-[10px] uppercase">重要性</span>
-          <div class="flex justify-start gap-1 mt-1">
-            <div v-for="i in 4" :key="i" class="w-1.5 h-3"
-                 :class="i <= task.importance ? 'bg-red-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
-          </div>
+        <div class="hover:text-cyan-400 cursor-pointer flex flex-col text-left">
+          <span class="  text-slate-600 text-[10px] uppercase">关联目标</span>
+          <span class="text-emerald-400">{{ task.goalId }}</span>
         </div>
         <div class="flex flex-col text-right">
-          <span class="text-slate-600 text-[10px] uppercase">关联日志数</span>
-          <span class="text-emerald-400">{{ task.todoLogList?.length || 0 }}</span>
+          <span class="text-slate-600 text-[10px] uppercase">关联todo数</span>
+          <span class="text-emerald-400">{{ task.todoList?.length || 0 }}</span>
         </div>
       </div>
 
       <!-- 操作栏 -->
       <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-2">
-        <div class="text-[10px] text-slate-600">
-          情绪: <span class="text-slate-400">{{ task.emotion || '--' }}</span>
+        <div class="hover:text-cyan-400 cursor-pointer text-[10px] text-slate-600">
+          关联项目: <span class="text-slate-400">{{ task.programId || '--' }}</span>
         </div>
         <div class="flex gap-2">
           <button
@@ -82,7 +79,6 @@
           </button>
           <button
             @click="handleDelete(task.id)"
-            v-if="!task.programList || task.programList.length === 0"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-red-900/50 hover:text-red-400 border border-transparent hover:border-red-500 px-3 py-1 transition-all"
           >
             删除
@@ -96,10 +92,11 @@
 <script setup>
 import { computed } from 'vue'
 import { ElMessageBox } from 'element-plus'
+import router from '@/router/index.js'
 
 // Props 定义
 const props = defineProps({
-  todoList: {
+  okrList: {
     type: Array,
     default: () => []
   }
@@ -116,23 +113,30 @@ const getStatusColor = (status) => {
 // 状态标签映射
 const getStatusLabel = (status) => {
   const map = {
-    1: { text: '进行中', color: 'border-yellow-500/30 text-yellow-400 bg-yellow-950/30' },
+    1: { text: '已完成', color: 'border-green-500/30 text-green-400 bg-green-950/30' },
     0: { text: '待开始', color: 'border-cyan-500/30 text-cyan-400 bg-cyan-950/30' },
-    2: { text: '已完成', color: 'border-emerald-500/30 text-emerald-400 bg-emerald-950/30' },
-    3: { text: '已放弃', color: 'border-red-500/30 text-red-400 bg-red-950/30' }
+    2: { text: '已放弃', color: 'border-red-500/30 text-red-400 bg-red-950/30' }
   }
   return map[status] || { text: status || '未知', color: 'border-slate-500/30 text-slate-400' }
 }
 
 // 处理编辑
-const handleEdit = (goal) => {
-  emit('edit', goal)
+const handleEdit = (okr) => {
+  emit('edit', okr)
 }
 
 // 处理删除
 const handleDelete = (id) => {
   emit('delete', id)
 
+}
+
+// 跳转到详情页面
+const goToDetail = (okrId) => {
+  router.push({
+    name: 'OkrDetail',
+    params: { id: okrId }
+  })
 }
 </script>
 

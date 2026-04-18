@@ -20,19 +20,21 @@
 
         <!-- 菜单 -->
         <div class="hidden md:flex gap-8 font-mono text-sm tracking-widest">
-          <a href="#"
+          <a href="/index"
              class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">首页</a>
           <router-link
             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all"
             to="/todo"
-          >事业
+          >Todo
           </router-link>
           <router-link to="/goal"
-             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">目标</router-link>
-          <a href="#"
-             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">财务</a>
-          <a href="#"
-             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">数据</a>
+                       class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">目标
+          </router-link>
+          <router-link to="/program"
+                       class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">项目
+          </router-link>
+          <router-link to="/okr"
+             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">OKR</router-link>
         </div>
 
         <!-- 登录按钮 -->
@@ -46,7 +48,7 @@
     </nav>
 
     <!-- 2. 图片轮播 -->
-    <section class="relative w-full h-[500px] overflow-hidden border-b border-fuchsia-500/30">
+    <section class="relative mx-auto h-[500px] overflow-hidden  ">
       <!-- 背景遮罩 -->
       <div class="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/50 to-slate-950 z-10">
       </div>
@@ -54,8 +56,8 @@
       <!-- 模拟轮播图片 (使用占位图) -->
       <div
         class="absolute inset-0 bg-[url('https://placehold.co/1920x600/1e1b4b/06b6d4?text=BeYourself')] bg-cover bg-center opacity-60 animate-pulse-slow">
-        <swiper-component />
-        <swiper-component />
+        <swiper-component :images="programImagesList" />
+        <swiper-component :images="goalImagesList" />
       </div>
 
       <!-- 内容层 -->
@@ -86,78 +88,14 @@
         <h2 class="text-3xl font-bold text-white">
           你已<span class="text-cyan-400">达成</span>
         </h2>
-        <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了，慢点，看看花是怎么开的</span>
+        <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了!</span>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- 卡片 1 -->
-        <div
-          class="bg-slate-900/90 border border-cyan-500/50 p-6 backdrop-blur-sm relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-          <div
-            class="absolute top-0 right-0 w-16 h-16 bg-cyan-500/10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:bg-cyan-500/20"></div>
-          <h3 class="text-cyan-400 font-mono text-sm mb-1">累计目标</h3>
-          <div class="text-4xl font-bold text-white mb-2">8,902,114</div>
-          <div class="text-xs text-fuchsia-400 flex items-center gap-1">
-            <span>⭐ 12%</span> 达成率
-          </div>
+        <div>
+          <!-- 核心指标卡片 -->
+          <indicator-card />
         </div>
 
-        <!-- 卡片 2 -->
-        <div
-          class="bg-slate-900/90 border border-fuchsia-500/50 p-6 backdrop-blur-sm relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-          <div
-            class="absolute top-0 right-0 w-16 h-16 bg-fuchsia-500/10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:bg-fuchsia-500/20"></div>
-          <h3 class="text-fuchsia-400 font-mono text-sm mb-1">累计项目</h3>
-          <div class="text-4xl font-bold text-white mb-2">45,231</div>
-          <div class="text-xs text-cyan-400 flex items-center gap-1">
-            <span>⭐ 12%</span> 达成率
-          </div>
-        </div>
-
-        <!-- 卡片 3 -->
-        <div
-          class="bg-slate-900/90 border border-cyan-500/50 p-6 backdrop-blur-sm relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-          <div
-            class="absolute top-0 right-0 w-16 h-16 bg-cyan-500/10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:bg-cyan-500/20"></div>
-          <h3 class="text-cyan-400 font-mono text-sm mb-1">累计OKR</h3>
-          <div class="text-4xl font-bold text-white mb-2">124 TB/s</div>
-          <div class="text-xs text-fuchsia-400 flex items-center gap-1">
-            <span>⭐ 12%</span> 达成率
-          </div>
-        </div>
-
-        <!-- 卡片 3 -->
-        <div
-          class="bg-slate-900/90 border border-cyan-500/50 p-6 backdrop-blur-sm relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-          <div
-            class="absolute top-0 right-0 w-16 h-16 bg-cyan-500/10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:bg-cyan-500/20"></div>
-          <h3 class="text-cyan-400 font-mono text-sm mb-1">累计Todo</h3>
-          <div class="text-4xl font-bold text-white mb-2">124 TB/s</div>
-          <div class="text-xs text-fuchsia-400 flex items-center gap-1">
-            <span>⭐ 12%</span> 完成率
-          </div>
-        </div>
-        <!-- 卡片 3 -->
-        <div
-          class="bg-slate-900/90 border border-cyan-500/50 p-6 backdrop-blur-sm relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-          <div
-            class="absolute top-0 right-0 w-16 h-16 bg-cyan-500/10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:bg-cyan-500/20"></div>
-          <h3 class="text-cyan-400 font-mono text-sm mb-1">累计支出</h3>
-          <div class="text-4xl font-bold text-white mb-2">124 TB/s</div>
-          <div class="text-xs text-fuchsia-400 flex items-center gap-1">
-            <span>⭐ 12%</span> 完成率
-          </div>
-        </div>
-        <!-- 卡片 3 -->
-        <div
-          class="bg-slate-900/90 border border-cyan-500/50 p-6 backdrop-blur-sm relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-          <div
-            class="absolute top-0 right-0 w-16 h-16 bg-cyan-500/10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:bg-cyan-500/20"></div>
-          <h3 class="text-cyan-400 font-mono text-sm mb-1">累计收入</h3>
-          <div class="text-4xl font-bold text-white mb-2">124 TB/s</div>
-          <div class="text-xs text-fuchsia-400 flex items-center gap-1">
-            <span>⭐ 12%</span> 完成率
-          </div>
-        </div>
       </div>
     </section>
 
@@ -169,10 +107,10 @@
         </h2>
         <span class="font-mono text-xs text-slate-500 mb-1">:: 你费尽心力完成的目标</span>
       </div>
-      <swiper-component class="mb-5" v-if="goalList?.imageUrls?.length>0" />
+      <swiper-component :images="goalImagesList" class="mb-5" v-if="goalImagesList.length>0" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 卡片循环 -->
-        <div v-for="goal in goalList.slice(0,9)" :key="goal.id">
+        <div v-for="goal in goalList.slice(0,9)" :key="goal.id" v-if="goalList.length>0">
           <card-component
             :id="goal.id"
             :title="goal.goalName"
@@ -186,6 +124,7 @@
             type="goal"
           />
         </div>
+        <el-empty style="margin: 0 auto" v-else description="咱没有完成的可展示目标，快去作战室加油奋斗吧。" />
       </div>
     </section>
 
@@ -197,11 +136,10 @@
         </h2>
         <span class="font-mono text-xs text-slate-500 mb-1">:: 值得你骄傲的成就</span>
       </div>
-      <swiper-component class="mb-5" :images="programImagesList?.slice(0,12) || []"
-                        :backup-images="programImagesList?.slice(12,24) || []" v-if="programImagesList.length>0" />
+      <swiper-component class="mb-5" :images="programImagesList" v-if="programImagesList.length>0" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 项目卡片循环 -->
-        <div v-for="program in programList.slice(0,9)" :key="program.id">
+        <div v-for="program in programList.slice(0,9)" :key="program.id" v-if="programList.length>0">
           <card-component
             :id="program.id"
             :title="program.programName"
@@ -215,8 +153,8 @@
             type="program"
           />
         </div>
+        <el-empty style="margin: 0 auto" v-else description="咱没有完成的可展示项目，快去作战室加油奋斗吧。" />
       </div>
-
 
     </section>
 
@@ -285,6 +223,8 @@ import useUserStore from '@/stores/user.js'
 import { onMounted, ref } from 'vue'
 import formatTime from '@/utils/date.js'
 import useGoalStore from '@/stores/goal/goal.js'
+import IndicatorCard from '@/components/IndicatorCard.vue'
+import ProgramPage from '@/views/program/ProgramPage.vue'
 // 状态管理
 const programStore = useProgramStore()
 const goalStore = useGoalStore()

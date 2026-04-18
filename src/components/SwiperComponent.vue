@@ -47,37 +47,15 @@
           <!-- 文字信息 -->
           <div
             class="absolute bottom-0 left-0 w-full p-3 bg-slate-900/80 border-t border-cyan-500/50 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-            <p class="text-fuchsia-400 text-sm font-bold font-mono">关联项目ID: {{ item.programId }}</p>
-            <p class="text-fuchsia-400 text-sm font-bold font-mono">关联目标ID:{{ item.goalId }}</p>
-            <p class="text-fuchsia-400 text-sm font-bold font-mono">关联待办ID:{{ item.todoId }}</p>
+            <p class="text-cyan-400 text-sm font-bold font-mono">关联项目ID: {{ item.programId }}</p>
+            <p class="text-yellow-400 text-sm font-bold font-mono">关联目标ID:{{ item.goalId }}</p>
+            <p class="text-red-400 text-sm font-bold font-mono">关联待办ID:{{ item.todoId }}</p>
           </div>
 
           <!-- 装饰性角标 -->
           <div class="absolute top-2 right-2 w-2 h-2 bg-fuchsia-500"></div>
         </div>
 
-        <!-- 重复列表 (用于无缝循环) -->
-        <div
-          v-if="images.length<24"
-          v-for="(item, index) in backupImages"
-          :key="`dup-${index}`"
-          class="cyber-card group relative flex-shrink-0 w-64 h-40 overflow-hidden border border-slate-700 bg-slate-800/50"
-        >
-          <img
-            :src="item.imageUrl"
-            :alt="item.createTimeStr"
-            class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-125"
-          />
-          <div
-            class="absolute inset-0 bg-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-overlay"></div>
-          <div
-            class="absolute bottom-0 left-0 w-full p-3 bg-slate-900/80 border-t border-cyan-500/50 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-            <p class="text-fuchsia-400 text-sm font-bold font-mono">关联项目ID: {{ item.programId }}</p>
-            <p class="text-fuchsia-400 text-sm font-bold font-mono">关联目标ID:{{ item.goalId }}</p>
-            <p class="text-fuchsia-400 text-sm font-bold font-mono">关联待办ID:{{ item.todoId }}</p>
-          </div>
-          <div class="absolute top-2 right-2 w-2 h-2 bg-fuchsia-500"></div>
-        </div>
       </div>
     </div>
   </div>
@@ -92,11 +70,21 @@ const isPaused = ref(false)
 const props = defineProps({
   images: {
     type: Array,
-    default: () => []
+    default: () => [
+      {
+        id:1,
+        imageUrl:'https://placehold.co/1920x600/1e1b4b/06b6d4?text=BeYourself'
+      }
+    ]
   },
   backupImages: {
     type: Array,
-    default: () => []
+    default: () => [
+      {
+        id:1,
+        imageUrl:'https://placehold.co/1920x600/1e1b4b/06b6d4?text=BeYourself'
+      }
+    ]
   },
   type: {
     type: String,
@@ -108,7 +96,7 @@ const props = defineProps({
 const trackRef = ref(null)
 
 // 配置：每张卡片显示时长（毫秒）
-const CARD_DURATION = 1000
+const CARD_DURATION = 3000
 // 配置：卡片宽度 (对应 w-64 = 16rem = 256px)
 const CARD_WIDTH = 256
 // 配置：卡片间距 (对应 gap-6 = 1.5rem = 24px)
@@ -145,50 +133,95 @@ const goToDetail = async (imageItem) => {
 </script>
 
 <style scoped>
-/* 赛博朋克字体 */
+/* 引入赛博朋克核心字体 */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
-.font-mono {
-  font-family: 'Orbitron', sans-serif;
-}
-
 /* 核心滚动动画 */
+/* 使用 CSS 变量接收 JS 计算的值，实现动态无缝滚动 */
 @keyframes scroll {
   0% {
     transform: translateX(0);
   }
   100% {
-    /* 移动 50% 是因为我们复制了一份列表，移动到一半时重置即可实现无缝 */
-    transform: translateX(var(--scroll-distance));
+    transform: translateX(var(--scroll-distance, -1000px));
   }
 }
 
 .animate-scroll {
-  animation: scroll 180s linear infinite;
-  /* 添加 will-change 优化性能 */
+  animation: scroll var(--scroll-duration, 180s) linear infinite;
   will-change: transform;
 }
 
-/* 装饰性边框角标 */
+/* 赛博朋克主题样式 */
+:root {
+  --cp-neon-pink: #ec4899; /* 故障艺术粉 */
+  --cp-neon-cyan: #06b6d4; /* 科技蓝 */
+  --cp-dark: #0f172a; /* 深邃黑 */
+  --cp-grid: #1e293b; /* 网格背景 */
+}
+
+.cyber-section {
+  background: linear-gradient(145deg, var(--cp-dark) 0%, #1a1a2e 100%);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 添加网格背景纹理 */
+.cyber-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(rgba(30, 41, 59, 0.5) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(30, 41, 59, 0.5) 1px, transparent 1px);
+  background-size: 20px 20px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* 装饰性标题角标 */
 .cyber-header {
   position: relative;
-  margin-bottom: 5px;
-  padding-left: 20px;
+  margin-bottom: 1.5rem;
+  padding-left: 2rem;
+  display: inline-block;
 }
 
 .cyber-title {
-  font-size: 1.5rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--cp-neon-pink), var(--cp-neon-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
   letter-spacing: 2px;
-  text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+  position: relative;
+  z-index: 1;
 }
 
+/* 故障艺术角标 */
 .cyber-corner {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  border: 2px solid #f0abfc; /* fuchsia-400 */
-  box-shadow: 0 0 8px #f0abfc;
+  width: 12px;
+  height: 12px;
+  border: 2px solid;
+  border-image: linear-gradient(45deg, var(--cp-neon-pink), var(--cp-neon-cyan)) 1;
+  box-shadow: 0 0 8px currentColor;
   transition: all 0.3s ease;
+}
+
+.cyber-corner::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
 }
 
 .top-right {
@@ -205,15 +238,71 @@ const goToDetail = async (imageItem) => {
   border-top: none;
 }
 
-/* 卡片悬停效果增强 */
+/* 滚动视窗增强 */
+.scroll-viewport {
+  position: relative;
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: 0.375rem;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+  0 2px 4px -1px rgba(6, 182, 212, 0.2);
+  overflow: hidden;
+}
+
+/* 卡片样式 */
 .cyber-card {
-  box-shadow: 4px 4px 0px rgba(6, 182, 212, 0.2);
-  transition: all 0.3s ease;
+  position: relative;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 0.375rem;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  transform: translateY(0);
 }
 
 .cyber-card:hover {
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
-  border-color: #22d3ee;
-  z-index: 10;
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--cp-neon-cyan);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.4),
+  0 0 30px rgba(236, 72, 153, 0.2);
+  z-index: 20;
+}
+
+/* 卡片内部图片 */
+.cyber-card img {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.cyber-card:hover img {
+  transform: scale(1.15) !important;
+  filter: brightness(1.2) contrast(1.1);
+}
+
+/* 卡片底部信息栏 */
+.cyber-card .p-info {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  padding: 0.5rem 0.75rem;
+  background: rgba(15, 23, 42, 0.9);
+  border-top: 1px solid rgba(6, 182, 212, 0.5);
+  backdrop-filter: blur(2px);
+  transform: translateY(100%);
+}
+
+.cyber-card:hover .p-info {
+  transform: translateY(0);
+}
+
+/* 霓虹文字颜色 */
+.text-fuchsia-400 {
+  color: #ec4899;
+}
+
+.text-cyan-400 {
+  color: #22d3ee;
 }
 </style>

@@ -4,10 +4,10 @@
   <!-- 卡片网格 -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div
-      v-for="task in todoList"
+      v-for="task in programList"
       :key="task.id"
       class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
-      :class="getStatusColor(task.status)"
+      :class="getStatusColor(task.programStatus)"
     >
       <!-- 装饰角标 -->
       <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-500 opacity-50"></div>
@@ -17,9 +17,9 @@
       <div class="flex justify-between items-start mb-4">
           <span
             class="text-[10px] uppercase border px-2 py-0.5 rounded-none tracking-wider"
-            :class="getStatusLabel(task.status).color"
+            :class="getStatusLabel(task.programStatus).color"
           >
-            {{ getStatusLabel(task.status).text }}
+            {{ getStatusLabel(task.programStatus).text }}
           </span>
         <span class="text-xs text-slate-500 font-bold">ID: {{ task.id }}</span>
       </div>
@@ -27,45 +27,45 @@
       <!-- 标题 -->
       <h3
         class="text-xl font-bold text-slate-100 mb-2 group-hover:text-cyan-300 transition-colors line-clamp-1"
-        :title="task.title"
+        :title="task.programName"
       >
-        {{ task.title }}
+        {{ task.programName }}
       </h3>
 
       <!-- 目标简述 -->
       <p
         class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors"
       >
-        {{ task.todoGoal || '无详细描述' }}
+        {{ task.programDesc || '无详细描述' }}
       </p>
 
       <!-- 数据网格 -->
       <div class="grid grid-cols-2 gap-2 text-xs mb-6 font-mono">
         <div class="flex flex-col">
-          <span class="text-slate-600 text-[10px] uppercase">截止日期</span>
-          <span class="text-fuchsia-400">{{ task.deadline || 'N/A' }}</span>
+          <span class="text-slate-600 text-[10px] uppercase">开始日期</span>
+          <span class="text-fuchsia-400">{{ task.estimateStartTime || 'N/A' }}</span>
         </div>
         <div class="flex flex-col text-right">
-          <span class="text-slate-600 text-[10px] uppercase">专注时间</span>
-          <span class="text-cyan-400">{{ task.focusTime || '等待完成' }}</span>
+          <span class="text-slate-600 text-[10px] uppercase">预计结束日期</span>
+          <span class="text-cyan-400">{{ task.estimateFinishTime || '等待完成' }}</span>
         </div>
         <div class="flex flex-col">
-          <span class="text-slate-600 text-[10px] uppercase">重要性</span>
+          <span class="text-slate-600 text-[10px] uppercase">满意度</span>
           <div class="flex justify-start gap-1 mt-1">
             <div v-for="i in 4" :key="i" class="w-1.5 h-3"
-                 :class="i <= task.importance ? 'bg-red-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
+                 :class="i <= task.satisfactionScore ? 'bg-red-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
           </div>
         </div>
         <div class="flex flex-col text-right">
-          <span class="text-slate-600 text-[10px] uppercase">关联日志数</span>
-          <span class="text-emerald-400">{{ task.todoLogList?.length || 0 }}</span>
+          <span class="text-slate-600 text-[10px] uppercase">关联OKR数</span>
+          <span class="text-emerald-400">{{ task.okrList?.length || 0 }}</span>
         </div>
       </div>
 
       <!-- 操作栏 -->
       <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-2">
         <div class="text-[10px] text-slate-600">
-          情绪: <span class="text-slate-400">{{ task.emotion || '--' }}</span>
+          关联目标: <span class="text-slate-400">{{ task.goalId || '--' }}</span>
         </div>
         <div class="flex gap-2">
           <button
@@ -82,7 +82,6 @@
           </button>
           <button
             @click="handleDelete(task.id)"
-            v-if="!task.programList || task.programList.length === 0"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-red-900/50 hover:text-red-400 border border-transparent hover:border-red-500 px-3 py-1 transition-all"
           >
             删除
@@ -96,10 +95,11 @@
 <script setup>
 import { computed } from 'vue'
 import { ElMessageBox } from 'element-plus'
+import router from '@/router/index.js'
 
 // Props 定义
 const props = defineProps({
-  todoList: {
+  programList: {
     type: Array,
     default: () => []
   }
@@ -133,6 +133,14 @@ const handleEdit = (goal) => {
 const handleDelete = (id) => {
   emit('delete', id)
 
+}
+
+// 跳转到详情页面
+const goToDetail = (programId)=>{
+  router.push({
+    name: 'ProgramDetail',
+    params: { id: programId }
+  })
 }
 </script>
 

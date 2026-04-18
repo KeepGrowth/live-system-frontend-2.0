@@ -59,13 +59,20 @@ const useGoalStore = defineStore('goal', () => {
       return res
     }
 
+    // 获取级联选项
+    const getOptions = async () => {
+      const res = await api.get('/okr/multi-options')
+      return res
+    }
+
 
     return {
       goalOptions,
       getGoalList,
       delGoal,
       updateGoal,
-      addGoal
+      addGoal,
+      getOptions
     }
 
   },
