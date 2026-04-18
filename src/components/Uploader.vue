@@ -3,21 +3,33 @@
     v-model:file-list="fileList"
     class="upload-demo"
     drag
-    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+    :auto-upload="true"
+    :http-request="customUpload"
     :on-preview="handlePreview"
     :on-remove="handleRemove"
     list-type="picture"
   >
-    <el-icon style="width: 10rem">拖拽或点击上传</el-icon>
+    <el-icon style="width: 10rem">拖拽或点击上传图片</el-icon>
   </el-upload>
 </template>
 
 <script lang="ts" setup>
 import { ref, watch, defineEmits } from 'vue'
-
-import type { UploadProps, UploadUserFile } from 'element-plus'
+import type { UploadProps, UploadUserFile, UploadRequestOptions } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
+import api from '@/utils/request'
+import useUserStore from '@/stores/user'
+import utils from '@/utils/common'
 
+const userStore = useUserStore()
+// 接受一些有关图片的ID
+const props = defineProps({
+  idParams: {
+    type: Object,
+    default: () => {
+    }
+  }
+})
 // 文件列表
 const fileList = ref<UploadUserFile[]>([])
 
@@ -29,19 +41,71 @@ const handlePreview: UploadProps['onPreview'] = (file) => {
   console.log(file)
 }
 
+// 🔥 核心修改：自定义上传方法
+const customUpload = (options: UploadRequestOptions) => {
+  const params = utils.cleanObject(props.idParams)
+  // 1. 构建 FormData 对象
+  const formData = new FormData()
+  // 后端要求的字段名通常是 'file'，具体看你后端定义
+  formData.append('file', options.file)
+  formData.append('userId', userStore.userInfo.id)
+  // 动态添加 params 中存在的字段
+  if (params.todoLogId) {
+    formData.append('todoLogId', params.todoLogId)
+  }
+  if (params.todoId) {
+    formData.append('todoId', params.todoId)
+  }
+  if (params.programId) {
+    formData.append('programId', params.programId)
+  }
+  if (params.goalId) {
+    formData.append('goalId', params.goalId)
+  }
+  if (params.okrId) {
+    formData.append('okrId', params.okrId)
+  }
+
+
+  // 2. 使用你的 axios 实例(api) 发送请求
+  // 这里会自动携带你在 api 拦截器里配置的 Token
+  return api
+    .post('/upload/image', formData, {
+      // ⚠️ 关键配置：
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      // 监听上传进度（可选，为了体验更好）
+      onUploadProgress: (e) => {
+        // 如果需要显示进度条，可以在这里更新 options.onProgress
+        if (e.total) {
+          options.onProgress({ percent: (e.loaded * 100) / e.total })
+        }
+      }
+    })
+    .then((res) => {
+      // 3. 上传成功后的回调
+      // ElementUI 需要知道后端返回的数据结构，通常 res.data 是你的后端返回值
+      options.onSuccess(res.data)
+    })
+    .catch((err) => {
+      // 4. 上传失败回调
+      options.onError(err)
+    })
+}
+
 // 监听文件列表的变化
 const emit = defineEmits<{
-  // 事件名：[参数类型]
   fileListChange: [{}]
 }>()
 watch(
   fileList,
-  (newVal, OldVal) => {
+  (newVal) => {
     emit('fileListChange', newVal)
   },
   {
     deep: true,
-    immediate:true
+    immediate: true
   }
 )
 </script>

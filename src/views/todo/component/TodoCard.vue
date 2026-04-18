@@ -69,6 +69,12 @@
         </div>
         <div class="flex gap-2">
           <button
+            @click="handleAppendLog(task.id)"
+            class="cursor-pointer text-xs bg-slate-800 hover:bg-green-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"
+          >
+            新增日志
+          </button>
+          <button
             @click="goToDetail(task.id)"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-green-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"
           >
@@ -106,7 +112,7 @@ const props = defineProps({
 })
 
 // Emits 定义
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits(['edit', 'delete', 'appendLog'])
 
 // 状态颜色映射
 const getStatusColor = (status) => {
@@ -133,6 +139,11 @@ const handleEdit = (goal) => {
 const handleDelete = (id) => {
   emit('delete', id)
 
+}
+
+// 处理新增日志
+const handleAppendLog = (todoId) => {
+  emit('appendLog', todoId)
 }
 </script>
 

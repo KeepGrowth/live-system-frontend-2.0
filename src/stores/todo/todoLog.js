@@ -9,7 +9,7 @@ const useTodoLogStore = defineStore('todoLog', () => {
   const todoLogOptions = ref([])
   // 请求
   const getTodoLogList = async (searchForm) => {
-    const loading = ElLoading.service({ fullscreen: true })
+
     try {
       const cleanParams = Object.fromEntries(
         Object.entries(searchForm).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
@@ -43,22 +43,13 @@ const useTodoLogStore = defineStore('todoLog', () => {
 
   // 新增
   const addTodoLog = async (todoLogForm) => {
-    console.log(todoLogForm)
-    const loading = ElLoading.service({ fullscreen: true })
     const res = await api.post('/todo_log/add', todoLogForm)
-    if (res.data.code === 200) {
-      loading.close()
-      ElNotification.success({
-        message: res.data.message
-      })
-      return res
-    }
-
+    return res
   }
 
   // 更新
   const updateTodoLog = async (todoLogForm) => {
-    const loading = ElLoading.service({ fullscreen: true })
+
     const res = await api.put('/todo_log/update', todoLogForm)
     if (res.data.code === 200) {
       ElNotification({
@@ -73,7 +64,7 @@ const useTodoLogStore = defineStore('todoLog', () => {
 
   // 删除
   const delTodoLog = async (todoLogId) => {
-    const loading = ElLoading.service({ fullscreen: true })
+
     const res = await api.delete('/todo_log/delete', {
       params: {
         todoLogId: todoLogId

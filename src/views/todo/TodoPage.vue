@@ -90,6 +90,7 @@
           :todo-list="todoTasks"
           @edit="openModal"
           @delete="deleteTask"
+          @append-log="openLogModal"
         />
       </section>
       <!--进行中-->
@@ -104,6 +105,7 @@
           :todo-list="runingTasks"
           @edit="openModal"
           @delete="deleteTask"
+          @append-log="openLogModal"
         />
       </section>
       <!--已完成-->
@@ -119,6 +121,7 @@
           :todo-list="finishedTasks"
           @edit="openModal"
           @delete="deleteTask"
+          @append-log="openLogModal"
         />
       </section>
       <!--已放弃-->
@@ -133,13 +136,14 @@
           :todo-list="giveUpTasks"
           @edit="openModal"
           @delete="deleteTask"
+          @append-log="openLogModal"
         />
       </section>
       <el-empty description="暂无待办，新建一个开始你的一天吧。" v-if="tasks.length===0" />
 
     </div>
 
-    <!-- 模态框 (新增/编辑) -->
+    <!-- todo模态框 (新增/编辑) -->
     <div v-if="isModalOpen"
          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <div
@@ -242,6 +246,13 @@
         </div>
       </div>
     </div>
+
+    <!--    todo日志模态框（新增、编辑）-->
+    <TodoLogModal
+      v-model="isLogModalOpen"
+      :initial-data="{todoId:currentTodoId}"
+      @submit="handleLogSubmit"
+    />
   </div>
 </template>
 
@@ -254,6 +265,8 @@ import useTodoStore from '@/stores/todo/todo.js'
 import { dayjs, ElMessageBox, ElNotification } from 'element-plus'
 import isoWeek from 'dayjs/plugin/isoWeek'
 import useOkrStore from '@/stores/okr/okr.js'
+import TodoLogModal from '@/views/todo_log/component/TodoLogModal.vue'
+import useTodoLogStore from '@/stores/todo/todoLog.js'
 
 dayjs.extend(isoWeek)
 const userStore = useUserStore()
@@ -484,6 +497,33 @@ const fetchOkrOptions = async () => {
     )
   }
 }
+
+// todo日志模态框处理
+const todoLogStore = useTodoLogStore()
+const isLogModalOpen = ref(false)
+const currentTodoId = ref()
+const openLogModal = async (todoId) => {
+  currentTodoId.value = todoId
+  isLogModalOpen.value = true
+}
+// 提交日志
+const handleLogSubmit = async (todoLogForm) => {
+  const res = await todoLogStore.addTodoLog(todoLogForm)
+  if (res.data.code===200){
+    ElNotification.success({
+      title:'成功',
+      message:res.data.msg
+    })
+    await fetchTodoData()
+  }else{
+    ElNotification.error({
+      title:'失败',
+      message:res.data.msg
+    })
+  }
+  isLogModalOpen.value = false
+}
+
 onMounted(async () => {
   await fetchTodoData()
   await fetchOkrOptions()
