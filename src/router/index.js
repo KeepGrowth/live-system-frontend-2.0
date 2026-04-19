@@ -44,6 +44,13 @@ const router = createRouter({
       name: 'GoalPage',
       component: () => import('@/views/goal/GoalPage.vue')
     },
+    // 目标详情页
+    {
+      path: '/goal/:id',
+      name: 'GoalDetail',
+      props: true,
+      component: () => import('@/views/goal/GoalDetail.vue')
+    },
     // OKR作战室
     {
       path: '/okr',

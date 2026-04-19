@@ -5,12 +5,13 @@
          style="background-image: linear-gradient(0deg, transparent 24%, #06b6d4 25%, #06b6d4 26%, transparent 27%, transparent 74%, #06b6d4 75%, #06b6d4 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #06b6d4 25%, #06b6d4 26%, transparent 27%, transparent 74%, #06b6d4 75%, #06b6d4 76%, transparent 77%, transparent); background-size: 50px 50px;">
     </div>
     <!-- 主容器 -->
-    <div class="relative z-10 max-w-6xl mx-auto space-y-6">
+    <div class="relative z-10 w-full space-y-6 px-4 md:px-8">
       <!-- 顶部标题栏 -->
       <header
         class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-cyan-500/50 pb-4 mb-8">
         <div>
-          <h1 class="text-cyan-500 text-sm tracking-[0.2em] uppercase mb-1">{{ program?.programName || '无项目名称' }}</h1>
+          <h1 class="text-cyan-500 text-sm tracking-[0.2em] uppercase mb-1">{{ program?.programName || '无项目名称'
+            }}</h1>
           <h1 class="text-3xl md:text-4xl font-bold text-white uppercase glitch-text" :data-text="program.programName">
             {{ program?.programName || '无项目名称' }} 项目档案
           </h1>
@@ -21,20 +22,23 @@
             class="px-4 py-1 border border-cyan-500 text-cyan-400 uppercase text-xs tracking-widest relative overflow-hidden group">
             <div
               class="absolute inset-0 w-0 bg-cyan-500 transition-all duration-[250ms] ease-out group-hover:w-full opacity-20"></div>
-            <span class="relative z-10">{{ getStatusText(program.programStatus) }}</span>
+            <span
+              :class="getStatusLabel(program.programStatus).color"
+              class="relative z-10"
+            >{{ getStatusText(program.programStatus) }}</span>
           </div>
           <span class="text-slate-500 text-xs font-mono">项目ID: {{ program.id }}</span>
         </div>
       </header>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
+      <!-- 附件区域 -->
+      <div v-if="program.imageUrls.length>0">
+        <swiper-component
+          :images="program.imageUrls"
+        />
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
         <!-- 左侧主要信息 -->
-        <div class="lg:col-span-2 space-y-8">
-          <!-- 附件区域 -->
-          <div v-if="program.attachment_path">
-            <h4 class="text-xl  uppercase mb-2 tracking-widest">项目附件集</h4>
-            <swiper-component />
-          </div>
+        <div class="lg:col-span-4 space-y-8">
           <!-- 描述卡片 -->
           <section
             class="bg-slate-900/50 border border-slate-800 p-6 relative overflow-hidden group hover:border-cyan-500/30 transition-colors">
@@ -47,26 +51,25 @@
               {{ program.programDesc || '暂无相关项目概述' }}
             </p>
           </section>
-
           <!-- 关键指标网格 -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- 满意度 -->
             <div class="bg-slate-900/80 p-5 border border-slate-800 relative">
               <div class="flex justify-between items-end mb-2">
                 <span class="text-slate-500 text-xs uppercase">项目满意度</span>
                 <span
-                  class="text-2xl font-bold text-fuchsia-400">{{ program.satisfactionScore > 100 ? 100 : program.satisfactionScore
+                  class="text-2xl font-bold text-fuchsia-400">{{ program.satisfactionScore > 5 ? 5 : program.satisfactionScore
                   }}<span
-                    class="text-sm text-slate-600">/100</span></span>
+                    class="text-sm text-slate-600">/5分</span></span>
               </div>
-              <div class="w-full bg-slate-800 h-1">
-                <div class="bg-fuchsia-500 h-full shadow-[0_0_10px_#d946ef]"
-                     :style="{ width: program.satisfactionScore > 100 ? 100 : program.satisfactionScore + '%' }"></div>
-              </div>
+              <el-rate v-model="program.satisfactionScore" disabled></el-rate>
             </div>
 
             <!-- 关联目标 -->
-            <div class="bg-slate-900/80 p-5 border border-slate-800 flex flex-col justify-center cursor-pointer">
+            <div
+              @click="goToGoalDetail(program.goalId)"
+              class="bg-slate-900/80 p-5 border border-slate-800 flex flex-col justify-center cursor-pointer"
+            >
               <span class="text-slate-500 text-xs uppercase mb-1">项目关联目标</span>
               <div class="flex items-center text-cyan-300">
                 <svg class="w-4 h-4 mr-2 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,9 +80,27 @@
               </div>
             </div>
           </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <indicator-card
+              :title="'此项目关联OKR数'"
+              :subtitle="''"
+              :value="program.okrList.length"
+              :target-value="program.okrList.length"
+            />
+            <indicator-card
+              :title="'此项目花费时间'"
+              :subtitle="'小时'"
+              :value="program.okrList.length"
+              :target-value="program.okrList.length"
+            />
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <line-chart />
+            <scatter-chart/>
+          </div>
+
 
         </div>
-
         <!-- 右侧时间轴/元数据 -->
         <div class="lg:col-span-1">
           <!-- 用户ID展示 -->
@@ -124,7 +145,7 @@
                   <span class="relative inline-flex rounded-full h-3 w-3 border border-slate-500 bg-slate-900"></span>
                 </span>
                 <p class="text-xs text-slate-500 uppercase">{{ item.krName }}</p>
-                <p class="text-sm text-cyan-100 font-medium">{{ formatDate(item.createTime) }}</p>
+                <p class="text-sm text-cyan-100 font-medium">{{ formatDate(item.createTimeStr) }}</p>
               </li>
 
             </ul>
@@ -149,6 +170,15 @@ import useProgramStore from '@/stores/program/program.js'
 import { ElNotification } from 'element-plus'
 import UserModal from '@/views/user/component/UserModal.vue'
 import useUserStore from '@/stores/user.js'
+import router from '@/router/index.js'
+import IndicatorCard from '@/components/IndicatorCard.vue'
+import LineChart from '@/components/chart/LineChart.vue'
+import BarChart from '@/components/chart/BarChart.vue'
+import ConsoleChart from '@/components/chart/ConsoleChart.vue'
+import PieChart from '@/components/chart/PieChart.vue'
+import WordCloudChart from '@/components/chart/WordCloudChart.vue'
+import HeatMap from '@/components/chart/HeatMap.vue'
+import ScatterChart from '@/components/chart/ScatterChart.vue'
 
 const props = defineProps({
   id: {
@@ -174,6 +204,16 @@ const getStatusText = (status) => {
     default:
       return 'Unknown'
   }
+}
+
+const getStatusLabel = (status) => {
+  const map = {
+    1: { text: '进行中', color: 'border-yellow-500/30 text-yellow-400 bg-yellow-950/30' },
+    0: { text: '待开始', color: 'border-cyan-500/30 text-cyan-400 bg-cyan-950/30' },
+    2: { text: '已完成', color: 'border-emerald-500/30 text-emerald-400 bg-emerald-950/30' },
+    3: { text: '已放弃', color: 'border-red-500/30 text-red-400 bg-red-950/30' }
+  }
+  return map[status] || { text: status || '未知', color: 'border-slate-500/30 text-slate-400' }
 }
 
 // 日期格式化
@@ -211,7 +251,15 @@ const formatDateTime = (dateStr) => {
 const userStore = useUserStore()
 const isUserModalOpen = ref(false)
 const userInfo = userStore.userInfo
-console.log(userInfo)
+
+// 跳转目标详情页
+const goToGoalDetail = async (goalId) => {
+  router.push({
+    name: 'GoalDetail', params: {
+      id: goalId
+    }
+  })
+}
 </script>
 
 <style scoped>

@@ -7,7 +7,8 @@
     <div class="scanlines"></div>
 
     <!-- 卡片主体 -->
-    <div class="relative z-10 flex flex-col h-full p-6 overflow-hidden bg-slate-900/90 border border-cyan-500/30 backdrop-blur-sm">
+    <div
+      class="relative z-10 flex flex-col h-full p-6 overflow-hidden bg-slate-900/90 border border-cyan-500/30 backdrop-blur-sm">
 
       <!-- 顶部装饰角标 -->
       <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-400 -mt-1 -ml-1"></div>
@@ -18,7 +19,8 @@
       <!-- 头部信息 -->
       <div class="flex justify-between items-start mb-4">
         <div>
-          <h3 class="text-cyan-400 text-sm font-bold tracking-widest uppercase font-mono glitch-text" :data-text="title">
+          <h3 class="text-cyan-400 text-sm font-bold tracking-widest uppercase font-mono glitch-text"
+              :data-text="title">
             {{ title }}
           </h3>
           <p class="text-cyan-700 text-xs mt-1 font-mono">{{ subtitle }}</p>
@@ -36,11 +38,14 @@
       <!-- 核心数值区域 -->
       <div class="flex-grow flex flex-col justify-center items-center py-4 relative">
         <!-- 动态背景圆环 -->
-        <div class="absolute w-32 h-32 border border-dashed border-cyan-500/20 rounded-full animate-[spin_10s_linear_infinite]"></div>
-        <div class="absolute w-24 h-24 border border-dotted border-pink-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+        <div
+          class="absolute w-32 h-32 border border-dashed border-cyan-500/20 rounded-full animate-[spin_10s_linear_infinite]"></div>
+        <div
+          class="absolute w-24 h-24 border border-dotted border-pink-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
 
         <div class="text-center z-10">
-          <div class="text-5xl font-black text-white font-mono tracking-tighter drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">
+          <div
+            class="text-5xl font-black text-white font-mono tracking-tighter drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">
             {{ displayValue }}
             <span class="text-lg text-cyan-500 align-top ml-1">{{ unit }}</span>
           </div>
@@ -56,7 +61,7 @@
       </div>
 
       <!-- 底部数据 -->
-      <div class="mt-4 grid grid-cols-2 gap-2 border-t border-cyan-500/20 pt-3">
+      <div class="mt-4 grid grid-cols-2 gap-2 border-t border-cyan-500/20 pt-3" v-if="isPositive">
         <div>
           <span class="text-slate-500 text-xs block font-mono">环比</span>
           <span :class="isPositive ? 'text-green-400' : 'text-red-400'" class="text-sm font-bold font-mono">
@@ -75,51 +80,71 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue'
 
 const props = defineProps({
-  title: { type: String, default: '累计达成目标' },
-  subtitle: { type: String, default: '实时监控指标' },
-  value: { type: Number, default: 0 },
-  targetValue: { type: Number, default: 100 },
-  unit: { type: String, default: '' },
-  delta: { type: Number, default: 12.5 },
-  isPositive: { type: Boolean, default: true },
-});
+  title: {
+    type: String,
+    default: '累计达成目标'
+  },
+  subtitle: {
+    type: String,
+    default: '实时监控指标'
+  },
+  value: {
+    type: Number,
+    default: 156
+  },
+  targetValue: {
+    type: Number,
+    default: 100
+  },
+  unit: {
+    type: String,
+    default: ''
+  },
+  delta: {
+    type: Number,
+    default: 12.5
+  },
+  isPositive: {
+    type: Boolean,
+  }
+})
 
-const displayValue = ref(0);
-const progress = ref(0);
+const displayValue = ref(0)
+const progress = ref(0)
 
 // 计算进度百分比 (假设最大值为 targetValue * 1.2)
-const maxVal = props.targetValue * 1.2;
-const progressPercent = Math.min((props.value / maxVal) * 100, 100);
+const maxVal = props.targetValue * 1.2
+const progressPercent = Math.min((props.value / maxVal) * 100, 100)
 
 // 数字滚动动画
 onMounted(() => {
-  const duration = 1500; // 动画时长 ms
-  const startTimestamp = performance.now();
+  const duration = 1500 // 动画时长 ms
+  const startTimestamp = performance.now()
 
   const step = (timestamp) => {
-    const elapsed = timestamp - startTimestamp;
-    const rawProgress = Math.min(elapsed / duration, 1);
+    const elapsed = timestamp - startTimestamp
+    const rawProgress = Math.min(elapsed / duration, 1)
 
     // 使用 easeOutQuart 缓动函数
-    const ease = 1 - Math.pow(1 - rawProgress, 4);
+    const ease = 1 - Math.pow(1 - rawProgress, 4)
 
-    const currentVal = Math.floor(ease * props.value);
-    displayValue.value = currentVal;
-    progress.value = ease * progressPercent;
+    const currentVal = Math.floor(ease * props.value)
+    displayValue.value = currentVal
+    progress.value = ease * progressPercent
 
     if (rawProgress < 1) {
-      requestAnimationFrame(step);
+      requestAnimationFrame(step)
     } else {
-      displayValue.value = props.value;
-      progress.value = progressPercent;
+      displayValue.value = props.value
+      progress.value = progressPercent
     }
-  };
+  }
 
-  requestAnimationFrame(step);
-});
+  requestAnimationFrame(step)
+})
 </script>
 
 <style scoped>
@@ -150,7 +175,7 @@ onMounted(() => {
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, rgba(0,0,0,0) 70%);
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -168,7 +193,7 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.2));
   background-size: 100% 4px;
   opacity: 0.15;
   pointer-events: none;
@@ -177,8 +202,12 @@ onMounted(() => {
 }
 
 @keyframes scanlineMove {
-  0% { background-position: 0 0; }
-  100% { background-position: 0 100%; }
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 100%;
+  }
 }
 
 /* 故障文字效果 (Glitch Text) */
@@ -211,20 +240,56 @@ onMounted(() => {
 }
 
 @keyframes glitch-anim-1 {
-  0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 0); }
-  20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, 0); }
-  40% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 0); }
-  60% { clip-path: inset(80% 0 5% 0); transform: translate(2px, 0); }
-  80% { clip-path: inset(10% 0 60% 0); transform: translate(-2px, 0); }
-  100% { clip-path: inset(30% 0 30% 0); transform: translate(2px, 0); }
+  0% {
+    clip-path: inset(20% 0 80% 0);
+    transform: translate(-2px, 0);
+  }
+  20% {
+    clip-path: inset(60% 0 10% 0);
+    transform: translate(2px, 0);
+  }
+  40% {
+    clip-path: inset(40% 0 50% 0);
+    transform: translate(-2px, 0);
+  }
+  60% {
+    clip-path: inset(80% 0 5% 0);
+    transform: translate(2px, 0);
+  }
+  80% {
+    clip-path: inset(10% 0 60% 0);
+    transform: translate(-2px, 0);
+  }
+  100% {
+    clip-path: inset(30% 0 30% 0);
+    transform: translate(2px, 0);
+  }
 }
 
 @keyframes glitch-anim-2 {
-  0% { clip-path: inset(10% 0 60% 0); transform: translate(2px, 0); }
-  20% { clip-path: inset(80% 0 5% 0); transform: translate(-2px, 0); }
-  40% { clip-path: inset(30% 0 20% 0); transform: translate(2px, 0); }
-  60% { clip-path: inset(10% 0 80% 0); transform: translate(-2px, 0); }
-  80% { clip-path: inset(50% 0 30% 0); transform: translate(2px, 0); }
-  100% { clip-path: inset(70% 0 10% 0); transform: translate(-2px, 0); }
+  0% {
+    clip-path: inset(10% 0 60% 0);
+    transform: translate(2px, 0);
+  }
+  20% {
+    clip-path: inset(80% 0 5% 0);
+    transform: translate(-2px, 0);
+  }
+  40% {
+    clip-path: inset(30% 0 20% 0);
+    transform: translate(2px, 0);
+  }
+  60% {
+    clip-path: inset(10% 0 80% 0);
+    transform: translate(-2px, 0);
+  }
+  80% {
+    clip-path: inset(50% 0 30% 0);
+    transform: translate(2px, 0);
+  }
+  100% {
+    clip-path: inset(70% 0 10% 0);
+    transform: translate(-2px, 0);
+  }
 }
 </style>

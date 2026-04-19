@@ -53,7 +53,10 @@
           <span class="  text-slate-600 text-[10px] uppercase">关联目标</span>
           <span class="text-emerald-400">{{ task.goalId }}</span>
         </div>
-        <div class="flex flex-col text-right">
+        <div
+          @click="openTodoDrawer(task.todoList)"
+          class="cursor-pointer flex flex-col text-right"
+        >
           <span class="text-slate-600 text-[10px] uppercase">关联todo数</span>
           <span class="text-emerald-400">{{ task.todoList?.length || 0 }}</span>
         </div>
@@ -87,12 +90,25 @@
       </div>
     </div>
   </div>
+<!--todo抽屉模态-->
+  <todo-drawer
+    v-model="isTodoDrawerOpen"
+    :todo-list="currentTodoList"
+    @edit="editTodo"
+    @delete="delTodo"
+  />
+
+
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { computed, ref } from 'vue'
+import { ElMessageBox, ElNotification } from 'element-plus'
 import router from '@/router/index.js'
+import TodoLogDrawer from '@/views/todo_log/component/TodoLogDrawer.vue'
+import TodoDrawer from '@/views/todo/component/TodoDrawer.vue'
+import useTodoLogStore from '@/stores/todo/todoLog.js'
+import useTodoStore from '@/stores/todo/todo.js'
 
 // Props 定义
 const props = defineProps({
@@ -137,6 +153,85 @@ const goToDetail = (okrId) => {
     name: 'OkrDetail',
     params: { id: okrId }
   })
+}
+
+// todo列表抽屉相关方法
+const isTodoDrawerOpen = ref(false)
+const currentTodoList = ref([])
+const openTodoDrawer = async (todoList) => {
+  isTodoDrawerOpen.value = true
+  currentTodoList.value = todoList
+}
+
+// 处理编辑与删除
+const todoStore = useTodoStore()
+const isTodoModalOpen = ref(false)
+const todoForm = ref({})
+const editTodo = async (originTodoForm) => {
+  isTodoModalOpen.value = true
+  todoForm.value = originTodoForm
+}
+const delTodo = async (todoForm) => {
+  const res = await todoStore.delTodo(todoForm.id)
+  if (res.data.code === 200) {
+    ElNotification.success({
+      title: '成功，请刷新界面。',
+      message: res.data.msg
+    })
+    await fetchCurrentTodoList(todoForm.id)
+  } else {
+    ElNotification.error({
+      title: '失败',
+      message: res.data.msg
+    })
+  }
+}
+// 加载日志数据
+const fetchCurrentTodoList = async (okrId) => {
+  const res = await todoStore.getTodoByOkr(okrId)
+  if (res.data.code===200){
+    currentTodoList.value = res.data.data.todoList
+  }else{
+    ElNotification.error({
+      title:'刷新数据失败',
+      message:res.data.msg
+    })
+  }
+}
+
+// 日志提交
+const handleLogSubmit = async (todoLogForm) => {
+  if (!todoLogForm.id) {
+    const res = await todoStore.addTodoLog(todoLogForm)
+    if (res.data.code === 200) {
+      ElNotification.success({
+        title: '成功',
+        message: res.data.msg
+      })
+      await fetchCurrentTodoList(todoLogForm.todoId)
+    } else {
+      ElNotification.error({
+        title: '失败',
+        message: res.data.msg
+      })
+    }
+  } else {
+    const res = await todoStore.updateTodoLog(todoLogForm)
+    if (res.data.code === 200) {
+      ElNotification.success({
+        title: '成功',
+        message: res.data.msg
+      })
+      await fetchCurrentTodoList(todoLogForm.todoId)
+    } else {
+      ElNotification.error({
+        title: '失败',
+        message: res.data.msg
+      })
+    }
+  }
+
+  isTodoModalOpen.value = false
 }
 </script>
 

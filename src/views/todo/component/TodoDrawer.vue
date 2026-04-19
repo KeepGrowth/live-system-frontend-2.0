@@ -18,8 +18,8 @@
       <div class="sticky top-0 z-10 border-b border-pink-500/50 bg-slate-900/95 p-6 backdrop-blur">
         <h2
           class="font-mono text-2xl font-bold uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-500">
-          日志数据流
-          <span class="text-xs text-cyan-500/70 ml-2">SYSTEM_LOG_V1.0</span>
+          Todo数据流
+          <span class="text-xs text-cyan-500/70 ml-2">SYSTEM_Todo_V2.0</span>
         </h2>
         <button
           @click="$emit('update:modelValue', false)"
@@ -36,13 +36,13 @@
         <!-- 时间线轴线 -->
         <div class="absolute left-8 top-0 h-full w-0.5 bg-slate-700"></div>
 
-        <div v-if="logs.length === 0" class="text-center py-10 text-slate-500 font-mono">
-          [ 无日志数据 ]
+        <div v-if="todoList.length === 0" class="text-center py-10 text-slate-500 font-mono">
+          [ 无Todo数据 ]
         </div>
 
         <div
-          v-for="(log, index) in sortedLogs"
-          :key="log.id"
+          v-for="(todo, index) in sortedTodos"
+          :key="todo.id"
           class="relative mb-10 pl-20 group"
         >
           <!-- 时间线节点 -->
@@ -59,46 +59,40 @@
             <!-- 标题与操作 -->
             <div class="flex justify-between items-start mb-2">
               <h3 class="font-mono text-lg font-bold text-cyan-100 truncate pr-4">
-                {{ log.title || '未命名日志' }}
+                {{ todo.title || '未命名Todo' }}
               </h3>
               <div class=" flex space-x-2 opacity-0 transition-opacity group-hover:opacity-100">
-                <button @click="handleEdit(log)"
-                        class="cursor-pointer text-xs font-bold text-pink-400 hover:text-white hover:underline">
-                  编辑
-                </button>
-                <button @click="handleDelete(log)"
-                        class="cursor-pointer text-xs font-bold text-red-400 hover:text-white hover:underline">
-                  删除
-                </button>
+<!--                <button @click="handleEdit(todo)"-->
+<!--                        class="cursor-pointer text-xs font-bold text-pink-400 hover:text-white hover:underline">-->
+<!--                  编辑-->
+<!--                </button>-->
+<!--                <button @click="handleDelete(todo)"-->
+<!--                        class="cursor-pointer text-xs font-bold text-red-400 hover:text-white hover:underline">-->
+<!--                  删除-->
+<!--                </button>-->
               </div>
             </div>
 
             <!-- 描述 -->
             <p class="mb-4 text-sm text-slate-400 font-mono leading-relaxed border-l-2 border-slate-700 pl-3">
-              {{ log.logDesc || '无详细描述' }}
+              {{ todo.todoGoal || '无详细描述' }}
             </p>
 
             <!-- 数据网格 -->
             <div class="grid grid-cols-2 gap-2 text-xs font-mono">
               <div class="flex justify-between border-b border-slate-700/50 pb-1">
-                <span class="text-slate-500">得分:</span>
-                <span :class="getScoreColor(log.score)" class="font-bold">{{ log.score }}</span>
-              </div>
-              <div class="flex justify-between border-b border-slate-700/50 pb-1">
-                <span class="text-slate-500">情绪:</span>
-                <span class="text-pink-300">{{ log.emotion || '-' }}</span>
+                <span class="text-slate-500">状态:</span>
+                <span class="text-pink-300">{{ todo.status || '-' }}</span>
               </div>
               <div class="flex justify-between border-b border-slate-700/50 pb-1 col-span-2">
-                <span class="text-slate-500">时间戳:</span>
-                <span class="text-cyan-300/80">{{ formatDate(log.createTime) }}</span>
+                <span class="text-slate-500">截止时间</span>
+                <span class="text-cyan-300/80">{{ formatDate(todo.deadline) }}</span>
               </div>
             </div>
 
             <!-- 隐藏字段展示 (可选，用于调试或详细查看) -->
             <div class="mt-3 flex flex-wrap gap-2 text-[10px] text-slate-600 font-mono uppercase">
-              <span v-if="log.todoId" class="bg-slate-950 px-1 py-0.5 rounded">TODO_ID:{{ log.todoId }}</span>
-              <span v-if="log.goalId" class="bg-slate-950 px-1 py-0.5 rounded">GOAL_ID:{{ log.goalId }}</span>
-              <span v-if="log.okrId" class="bg-slate-950 px-1 py-0.5 rounded">OKR_ID:{{ log.okrId }}</span>
+              <span v-if="todo.okrId" class="bg-slate-950 px-1 py-0.5 rounded">OKR_ID:{{ todo.okrId }}</span>
             </div>
           </div>
         </div>
@@ -116,7 +110,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  logs: {
+  todoList: {
     type: Array,
     default: () => []
   }
@@ -126,17 +120,17 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'edit', 'delete'])
 
 // 计算属性：按时间倒序排列
-const sortedLogs = computed(() => {
-  return [...props.logs].sort((a, b) => new Date(b.createTime) - new Date(a.createTime))
+const sortedTodos = computed(() => {
+  return [...props.todoList].sort((a, b) => new Date(b.createTime) - new Date(a.createTime))
 })
 
 // 方法
-const handleEdit = (log) => {
-  emit('edit', log)
+const handleEdit = (todo) => {
+  emit('edit', todo)
 }
 
-const handleDelete = (log) => {
-  emit('delete', log)
+const handleDelete = (todo) => {
+  emit('delete', todo)
 }
 
 // 格式化日期
