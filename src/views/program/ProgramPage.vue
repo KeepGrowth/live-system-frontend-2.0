@@ -6,7 +6,7 @@
          style="background-image: linear-gradient(0deg, transparent 24%, #22d3ee 25%, #22d3ee 26%, transparent 27%, transparent), linear-gradient(90deg, transparent 24%, #e879f9 25%, #e879f9 26%, transparent 27%, transparent); background-size: 50px 50px;"></div>
     <div class="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-slate-950/80 to-slate-950"></div>
 
-    <div class="relative z-10 container mx-auto p-4 md:p-8">
+    <div class="relative z-10 w-full space-y-6 px-4 md:px-8">
       <!-- 头部区域 -->
       <header class="mb-10 border-b-2 border-cyan-500 pb-6 flex flex-col lg:flex-row justify-between items-end gap-6">
 
@@ -52,6 +52,19 @@
 
       </header>
       <swiper-component class="mb-5" v-if="swiperImagesList.length > 0" :images="swiperImagesList" />
+      <div>
+        <el-pagination
+          class="mt-8 flex justify-center" v-if="programList.length > 0"
+          v-model:current-page="queryParams.page"
+          v-model:page-size="queryParams.pageSize"
+          :page-sizes="[5, 10, 15, 20]"
+          :background="true"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="fetchProgramData"
+          @current-change="fetchProgramData"
+        />
+      </div>
       <!-- 任务列表网格 -->
       <!--待开始-->
       <section
@@ -428,11 +441,13 @@ const queryParams = ref({
   startYear: yearRange[0],
   endYear: yearRange[1]
 })
+const total = ref(0)
 const goalStore = useGoalStore()
 const fetchProgramData = async () => {
   const res = await programStore.getProgramList(queryParams.value)
   if (res.data.code === 200) {
     programList.value = res.data.data.programList
+    total.value = res.data.data.total
   }
 }
 // 监听数据

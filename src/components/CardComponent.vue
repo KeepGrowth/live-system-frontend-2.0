@@ -130,6 +130,11 @@ const goToDetail = async () => {
       name: 'ProgramDetail',
       params: { id: props.id }
     })
+  }else{
+    router.push({
+      name: 'GoalDetail',
+      params: { id: props.id }
+    })
   }
 }
 </script>

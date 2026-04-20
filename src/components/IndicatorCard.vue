@@ -19,7 +19,7 @@
       <!-- 头部信息 -->
       <div class="flex justify-between items-start mb-4">
         <div>
-          <h3 class="text-cyan-400 text-sm font-bold tracking-widest uppercase font-mono glitch-text"
+          <h3 class="text-cyan-400 text-xl font-bold tracking-widest uppercase font-mono glitch-text"
               :data-text="title">
             {{ title }}
           </h3>
@@ -31,7 +31,6 @@
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-500 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-3 w-3 bg-pink-500"></span>
           </span>
-          <span class="text-pink-500 text-xs font-mono">实时</span>
         </div>
       </div>
 

@@ -34,7 +34,12 @@
                        class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">项目
           </router-link>
           <router-link to="/okr"
-             class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">OKR</router-link>
+                       class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">
+            OKR
+          </router-link>
+          <router-link to="/okr"
+                       class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">复盘
+          </router-link>
         </div>
 
         <!-- 登录按钮 -->
@@ -86,14 +91,22 @@
     <section class="container mx-auto px-6 -mt-10 relative z-30">
       <div class="flex items-end gap-4 mb-12 border-b border-slate-800 pb-4">
         <h2 class="text-3xl font-bold text-white">
-          你已<span class="text-cyan-400">达成</span>
+          累计<span class="text-cyan-400">达成</span>
         </h2>
         <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了!</span>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div v-for="item in statCardList" :key="item">
           <!-- 核心指标卡片 -->
-          <indicator-card />
+          <indicator-card
+            :title="item.title"
+            :subtitle="item.subtitle"
+            :value="item.value"
+            :target-value="item.targetValue"
+            :delta="item.delta"
+            :unit="item.unit"
+            :is-positive="item.isPositive"
+          />
         </div>
 
       </div>
@@ -101,12 +114,30 @@
 
     <!-- 目标列表卡片 -->
     <section class="container mx-auto px-6 py-20">
+
       <div class="flex items-end gap-4 mb-12 border-b border-slate-800 pb-4">
         <h2 class="text-3xl font-bold text-white">
           目标<span class="text-cyan-400">走马灯</span>
         </h2>
+
         <span class="font-mono text-xs text-slate-500 mb-1">:: 你费尽心力完成的目标</span>
+        <!-- 分页组件 -->
+        <div class="">
+          <el-pagination
+            class="mt-8 flex justify-center" v-if="goalList.length > 0"
+            v-model:current-page="queryParams.page"
+            v-model:page-size="queryParams.pageSize"
+            :page-sizes="[5, 10, 15, 20]"
+            :background="true"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="fetchGoalData"
+            @current-change="fetchGoalData"
+          />
+        </div>
       </div>
+
+
       <swiper-component :images="goalImagesList" class="mb-5" v-if="goalImagesList.length>0" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 卡片循环 -->
@@ -125,8 +156,11 @@
           />
         </div>
         <el-empty style="margin: 0 auto" v-else description="咱没有完成的可展示目标，快去作战室加油奋斗吧。" />
+
       </div>
+
     </section>
+
 
     <!-- 项目列表卡片 -->
     <section class="container mx-auto px-6 py-20">
@@ -135,6 +169,20 @@
           项目<span class="text-cyan-400">走马灯</span>
         </h2>
         <span class="font-mono text-xs text-slate-500 mb-1">:: 值得你骄傲的成就</span>
+        <!-- 分页组件 -->
+        <div class="">
+          <el-pagination
+            class="mt-8 flex justify-center" v-if="goalList.length > 0"
+            v-model:current-page="queryParams.page"
+            v-model:page-size="queryParams.pageSize"
+            :page-sizes="[5, 10, 15, 20]"
+            :background="true"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="programTotal"
+            @size-change="fetchProgramData"
+            @current-change="fetchProgramData"
+          />
+        </div>
       </div>
       <swiper-component class="mb-5" :images="programImagesList" v-if="programImagesList.length>0" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -225,13 +273,17 @@ import formatTime from '@/utils/date.js'
 import useGoalStore from '@/stores/goal/goal.js'
 import IndicatorCard from '@/components/IndicatorCard.vue'
 import ProgramPage from '@/views/program/ProgramPage.vue'
+import useDashboardStore from '@/stores/dashboard.js'
 // 状态管理
 const programStore = useProgramStore()
 const goalStore = useGoalStore()
 const userStore = useUserStore()
 
-onMounted(async () => {
-  await fetchData()
+
+// 筛选条件
+const queryParams = ref({
+  page: 1,
+  pageSize: 10
 })
 
 // 请求数据
@@ -239,31 +291,50 @@ const programList = ref([])
 const programImagesList = ref([])
 const goalList = ref([])
 const goalImagesList = ref([])
+const total = ref(0)
+const programTotal = ref(0)
+const statCardList = ref([])
 
 //项目请求
 const fetchProgramData = async () => {
-  const res = await programStore.getProgramList({})
+  const res = await programStore.getProgramList(queryParams.value)
   if (res.data.code === 200) {
     programList.value = res.data?.data.programList
+    programTotal.value = res.data.data.total
     programImagesList.value = programList.value?.flatMap(item => item.imageUrls) || []
   }
 }
 
 // 目标请求
 const fetchGoalData = async () => {
-  const res = await goalStore.getGoalList({})
+  const res = await goalStore.getGoalList(queryParams.value)
   if (res.data.code === 200) {
-    goalList.value = res.data?.data.goalList
+    goalList.value = res.data.data.goalList
+    total.value = res.data.data.total
     goalImagesList.value = goalList.value?.flatMap(item => item.imageUrls) || []
   }
 }
 const fetchData = async () => {
   await fetchProgramData()
   await fetchGoalData()
+  await getStatCard()
 }
 const goToBackend = async () => {
   await router.push({ name: 'home' })
 }
+
+// 指标卡请求
+const dashBoardStore = useDashboardStore()
+const getStatCard = async () => {
+  const res = await dashBoardStore.getDashboardList()
+  if (res.data.code === 200) {
+    statCardList.value = res.data.data
+  }
+}
+
+onMounted(async () => {
+  await fetchData()
+})
 </script>
 
 <style scoped>

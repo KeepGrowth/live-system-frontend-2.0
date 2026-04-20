@@ -5,14 +5,15 @@
          style="background-image: linear-gradient(0deg, transparent 24%, #06b6d4 25%, #06b6d4 26%, transparent 27%, transparent 74%, #06b6d4 75%, #06b6d4 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #06b6d4 25%, #06b6d4 26%, transparent 27%, transparent 74%, #06b6d4 75%, #06b6d4 76%, transparent 77%, transparent); background-size: 50px 50px;">
     </div>
     <!-- 主容器 -->
-    <div class="relative z-10 max-w-6xl mx-auto space-y-6">
+    <div class="relative z-10 w-full space-y-6 px-4 md:px-8">
       <!-- 顶部标题栏 -->
       <header
         class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-cyan-500/50 pb-4 mb-8">
         <div>
-          <h1 class="text-cyan-500 text-sm tracking-[0.2em] uppercase mb-1">{{ goal?.goalName || '无目标名称' }}</h1>
-          <h1 class="text-3xl md:text-4xl font-bold text-white uppercase glitch-text" :data-text="goal.goalName">
-            {{ goal?.goalName || '无目标名称' }} 目标档案
+          <h1 class="text-cyan-500 text-sm tracking-[0.2em] uppercase mb-1">{{ program?.programName || '无项目名称'
+            }}</h1>
+          <h1 class="text-3xl md:text-4xl font-bold text-white uppercase glitch-text" :data-text="program.programName">
+            {{ program?.programName || '无项目名称' }} 项目档案
           </h1>
         </div>
         <div class="mt-4 md:mt-0 flex items-center space-x-2">
@@ -21,15 +22,23 @@
             class="px-4 py-1 border border-cyan-500 text-cyan-400 uppercase text-xs tracking-widest relative overflow-hidden group">
             <div
               class="absolute inset-0 w-0 bg-cyan-500 transition-all duration-[250ms] ease-out group-hover:w-full opacity-20"></div>
-            <span class="relative z-10">{{ getStatusText(goal.goalStatus) }}</span>
+            <span
+              :class="getStatusLabel(program.programStatus).color"
+              class="relative z-10"
+            >{{ getStatusText(program.programStatus) }}</span>
           </div>
-          <span class="text-slate-500 text-xs font-mono">目标ID: {{ goal.id }}</span>
+          <span class="text-slate-500 text-xs font-mono">项目ID: {{ program.id }}</span>
         </div>
       </header>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
+      <!-- 附件区域 -->
+      <div v-if="program.imageUrls.length>0">
+        <swiper-component
+          :images="program.imageUrls"
+        />
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
         <!-- 左侧主要信息 -->
-        <div class="lg:col-span-2 space-y-8">
+        <div class="lg:col-span-4 space-y-8">
           <!-- 描述卡片 -->
           <section
             class="bg-slate-900/50 border border-slate-800 p-6 relative overflow-hidden group hover:border-cyan-500/30 transition-colors">
@@ -39,31 +48,59 @@
               项目概述
             </h3>
             <p class="text-slate-500 leading-relaxed text-justify border-l-2 border-slate-800 pl-4">
-              {{ goal.description || '暂无相关目标概述' }}
+              {{ program.programDesc || '暂无相关项目概述' }}
             </p>
           </section>
-
           <!-- 关键指标网格 -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- 满意度 -->
             <div class="bg-slate-900/80 p-5 border border-slate-800 relative">
               <div class="flex justify-between items-end mb-2">
-                <span class="text-slate-500 text-xs uppercase">目标满意度</span>
+                <span class="text-slate-500 text-xs uppercase">项目满意度</span>
                 <span
-                  class="text-2xl font-bold text-fuchsia-400">{{ goal.satisfactionScore > 5 ? 5 : goal.satisfactionScore
+                  class="text-2xl font-bold text-fuchsia-400">{{ program.satisfactionScore > 5 ? 5 : program.satisfactionScore
                   }}<span
-                    class="text-sm text-slate-600">/5</span></span>
+                    class="text-sm text-slate-600">/5分</span></span>
               </div>
-              <div class="w-full bg-slate-800 h-1">
-                <div class="bg-fuchsia-500 h-full shadow-[0_0_10px_#d946ef]"
-                     :style="{ width: goal.satisfactionScore > 5 ? 5 : goal.satisfactionScore + '%' }"></div>
-              </div>
+              <el-rate v-model="program.satisfactionScore" disabled></el-rate>
             </div>
 
+            <!-- 关联目标 -->
+            <div
+              @click="goToGoalDetail(program.goalId)"
+              class="bg-slate-900/80 p-5 border border-slate-800 flex flex-col justify-center cursor-pointer"
+            >
+              <span class="text-slate-500 text-xs uppercase mb-1">项目关联目标</span>
+              <div class="flex items-center text-cyan-300">
+                <svg class="w-4 h-4 mr-2 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                </svg>
+                <span class="font-bold tracking-wider">查看目标-{{ program.goalId }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <indicator-card
+              :title="'此项目关联OKR数'"
+              :subtitle="''"
+              :value="program.okrList.length"
+              :target-value="program.okrList.length"
+            />
+            <indicator-card
+              :title="'此项目花费时间'"
+              :subtitle="'小时'"
+              :value="program.okrList.length"
+              :target-value="program.okrList.length"
+            />
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <line-chart />
+            <scatter-chart/>
           </div>
 
-        </div>
 
+        </div>
         <!-- 右侧时间轴/元数据 -->
         <div class="lg:col-span-1">
           <!-- 用户ID展示 -->
@@ -72,7 +109,7 @@
             <span class="text-xs text-slate-200 uppercase">项目发起人</span>
             <span
               class="cursor-pointer font-mono text-sm text-slate-300 border-b border-dotted border-slate-600 hover:text-cyan-400 transition-colors">
-               USER-{{ goal.userId }}
+               USER-{{ program.userId }}
              </span>
           </div>
           <div class="bg-slate-900 border border-slate-800 p-6 relative">
@@ -97,18 +134,18 @@
                   <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
                 </span>
                 <p class="text-xs text-slate-500 uppercase">项目开始时间</p>
-                <p class="text-sm text-cyan-100 font-medium">{{ formatDate(goal.estimateStartTime) }}</p>
+                <p class="text-sm text-cyan-100 font-medium">{{ formatDate(program.estimateStartTime) }}</p>
               </li>
 
               <!-- 项目时间线 -->
-              <li class="cursor-pointer relative pl-8" v-for="(item,index) in goal.okrList" :key="item.id">
+              <li class="cursor-pointer relative pl-8" v-for="(item,index) in program.okrList" :key="item.id">
                 <span class="absolute -left-1 top-1.5 flex h-3 w-3">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"
-                        v-if="index === goal.okrList.length - 1"></span>
+                        v-if="index === program.okrList.length - 1"></span>
                   <span class="relative inline-flex rounded-full h-3 w-3 border border-slate-500 bg-slate-900"></span>
                 </span>
                 <p class="text-xs text-slate-500 uppercase">{{ item.krName }}</p>
-                <p class="text-sm text-cyan-100 font-medium">{{ formatDate(item.createTime) }}</p>
+                <p class="text-sm text-cyan-100 font-medium">{{ formatDate(item.createTimeStr) }}</p>
               </li>
 
             </ul>
@@ -133,7 +170,15 @@ import useProgramStore from '@/stores/program/program.js'
 import { ElNotification } from 'element-plus'
 import UserModal from '@/views/user/component/UserModal.vue'
 import useUserStore from '@/stores/user.js'
-import useGoalStore from '@/stores/goal/goal.js'
+import router from '@/router/index.js'
+import IndicatorCard from '@/components/IndicatorCard.vue'
+import LineChart from '@/components/chart/LineChart.vue'
+import BarChart from '@/components/chart/BarChart.vue'
+import ConsoleChart from '@/components/chart/ConsoleChart.vue'
+import PieChart from '@/components/chart/PieChart.vue'
+import WordCloudChart from '@/components/chart/WordCloudChart.vue'
+import HeatMap from '@/components/chart/HeatMap.vue'
+import ScatterChart from '@/components/chart/ScatterChart.vue'
 
 const props = defineProps({
   id: {
@@ -143,7 +188,7 @@ const props = defineProps({
 })
 
 // 模拟从数据库获取的数据
-const goal = ref()
+const program = ref()
 
 // 状态文本映射
 const getStatusText = (status) => {
@@ -161,17 +206,27 @@ const getStatusText = (status) => {
   }
 }
 
+const getStatusLabel = (status) => {
+  const map = {
+    1: { text: '进行中', color: 'border-yellow-500/30 text-yellow-400 bg-yellow-950/30' },
+    0: { text: '待开始', color: 'border-cyan-500/30 text-cyan-400 bg-cyan-950/30' },
+    2: { text: '已完成', color: 'border-emerald-500/30 text-emerald-400 bg-emerald-950/30' },
+    3: { text: '已放弃', color: 'border-red-500/30 text-red-400 bg-red-950/30' }
+  }
+  return map[status] || { text: status || '未知', color: 'border-slate-500/30 text-slate-400' }
+}
+
 // 日期格式化
 const formatDate = (dateStr) => {
   if (!dateStr) return 'N/A'
   return new Date(dateStr).toLocaleDateString('en-CA') // YYYY-MM-DD
 }
 
-const goalStore = useGoalStore()
-const fetchGoalDetail = async () => {
-  const res = await goalStore.getGoalDetail(props.id)
+const programStore = useProgramStore()
+const fetchProgramDetail = async () => {
+  const res = await programStore.getProgramDetail(props.id)
   if (res.data.code === 200) {
-    goal.value = res.data.data
+    program.value = res.data.data
   } else {
     ElNotification.error({
       goalName: '详情获取失败',
@@ -182,7 +237,7 @@ const fetchGoalDetail = async () => {
 
 // 初始化加载数据
 onBeforeMount(async () => {
-  await fetchGoalDetail()
+  await fetchProgramDetail()
 
 })
 
@@ -196,7 +251,15 @@ const formatDateTime = (dateStr) => {
 const userStore = useUserStore()
 const isUserModalOpen = ref(false)
 const userInfo = userStore.userInfo
-console.log(userInfo)
+
+// 跳转目标详情页
+const goToGoalDetail = async (goalId) => {
+  router.push({
+    name: 'GoalDetail', params: {
+      id: goalId
+    }
+  })
+}
 </script>
 
 <style scoped>

@@ -52,6 +52,20 @@
 
       </header>
       <swiper-component class="mb-5" v-if="swiperImagesList.length > 0" :images="swiperImagesList" />
+      <!-- 分页组件 -->
+      <div>
+        <el-pagination
+          class="mt-8 flex justify-center" v-if="goalList.length > 0"
+          v-model:current-page="queryParams.page"
+          v-model:page-size="queryParams.pageSize"
+          :page-sizes="[5, 10, 15, 20]"
+          :background="true"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="fetchGoalData"
+          @current-change="fetchGoalData"
+        />
+      </div>
       <!-- 任务列表网格 -->
       <!--待开始-->
       <section
@@ -446,15 +460,20 @@ const goalList = ref([]) // 任务列表数据
 const yearRange = ref([String(new Date().getFullYear()), String(new Date().getFullYear())])
 const queryParams = ref({
   startYear: yearRange[0],
-  endYear: yearRange[1]
+  endYear: yearRange[1],
+  page:1,
+  pageSize:10
 })
 const goalStore = useGoalStore()
 const fetchGoalData = async () => {
   const res = await goalStore.getGoalList(queryParams.value)
   if (res.data.code === 200) {
     goalList.value = res.data.data.goalList
+    total.value = res.data.data.total
   }
 }
+const total = ref(0)
+
 // 监听数据
 watch(yearRange, async (newVal, old) => {
   queryParams.value.startYear = yearRange.value[0].getFullYear().toString()

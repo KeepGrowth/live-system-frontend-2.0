@@ -6,7 +6,7 @@
          style="background-image: linear-gradient(0deg, transparent 24%, #22d3ee 25%, #22d3ee 26%, transparent 27%, transparent), linear-gradient(90deg, transparent 24%, #e879f9 25%, #e879f9 26%, transparent 27%, transparent); background-size: 50px 50px;"></div>
     <div class="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-slate-950/80 to-slate-950"></div>
 
-    <div class="relative z-10 container mx-auto p-4 md:p-8">
+    <div class="relative z-10 w-full space-y-6 px-4 md:px-8">
       <!-- 头部区域 -->
       <header class="mb-10 border-b-2 border-cyan-500 pb-6 flex flex-col lg:flex-row justify-between items-end gap-6">
 
@@ -76,6 +76,20 @@
 
       </header>
       <swiper-component class="mb-5" v-if="tasks.length > 0" />
+      <!-- 分页组件 -->
+      <div class="w-full lg:w-auto">
+        <el-pagination
+          class="mt-8 flex justify-center" v-if="tasks.length > 0"
+          v-model:current-page="queryParams.page"
+          v-model:page-size="queryParams.pageSize"
+          :page-sizes="[5, 10, 15, 20]"
+          :background="true"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="fetchTodoData"
+          @current-change="fetchTodoData"
+        />
+      </div>
       <!-- 任务列表网格 -->
       <!--待办-->
       <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10" v-if="todoTasks.length>0">
@@ -464,9 +478,12 @@ const chooseDateRangeType = async (dateType) => {
   }
 }
 // 获取数据/监听数据
+const total = ref(0)
 const queryParams = ref({
   startDate: '',
-  endDate: ''
+  endDate: '',
+  page:1,
+  pageSize:10
 })
 watch(queryParams, async (newVal, oldValue) => {
   await fetchTodoData()
@@ -479,6 +496,7 @@ const fetchTodoData = async () => {
   const res = await todoStore.getTodoList(queryParams.value)
   if (res.data.code === 200) {
     tasks.value = res.data.data.todoList
+    total.value = res.data.data.total
   }
 }
 
