@@ -11,8 +11,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
-import * as echarts from 'echarts';
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import * as echarts from 'echarts'
 
 // --- 赛博朋克动态配色盘 ---
 // 这是一组高对比度的霓虹色，模拟全息投影效果
@@ -23,17 +23,16 @@ const CYBERPUNK_COLORS = [
   '#bd00ff', // 紫外光 (深色背景下的亮色)
   '#00ff88', // 荧光绿 (科技感)
   '#ff5500'  // 熔岩橙 (警告色)
-];
+]
 
-const chartRef = ref(null);
-let chartInstance = null;
+const chartRef = ref(null)
+let chartInstance = null
 
 const props = defineProps({
   title: {
     type: String,
     default: 'Cyberpunk Data'
   },
-  // 接受外部数据，格式: [{ name: 'Category A', value: 40 }]
   data: {
     type: Array,
     default: () => [
@@ -42,7 +41,7 @@ const props = defineProps({
       { name: 'AI Core', value: 33.3 }
     ]
   }
-});
+})
 
 // --- ECharts 配置项 ---
 const getOption = () => {
@@ -119,35 +118,35 @@ const getOption = () => {
         data: props.data
       }
     ]
-  };
-};
+  }
+}
 
 // --- 生命周期 ---
 const initChart = () => {
   if (chartRef.value) {
-    chartInstance = echarts.init(chartRef.value);
-    chartInstance.setOption(getOption());
+    chartInstance = echarts.init(chartRef.value)
+    chartInstance.setOption(getOption())
   }
-};
+}
 
 const handleResize = () => {
-  chartInstance?.resize();
-};
+  chartInstance?.resize()
+}
 
 onMounted(() => {
-  initChart();
-  window.addEventListener('resize', handleResize);
-});
+  initChart()
+  window.addEventListener('resize', handleResize)
+})
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-  chartInstance?.dispose();
-});
+  window.removeEventListener('resize', handleResize)
+  chartInstance?.dispose()
+})
 
 // 监听数据变化
 watch(() => props.data, () => {
-  chartInstance?.setOption(getOption());
-}, { deep: true });
+  chartInstance?.setOption(getOption())
+}, { deep: true })
 
 </script>
 
@@ -188,8 +187,31 @@ watch(() => props.data, () => {
   transform: scale(1.2);
 }
 
-.top-left { top: 0; left: 0; border-right: none; border-bottom: none; }
-.top-right { top: 0; right: 0; border-left: none; border-bottom: none; }
-.bottom-left { bottom: 0; left: 0; border-right: none; border-top: none; }
-.bottom-right { bottom: 0; right: 0; border-left: none; border-top: none; }
+.top-left {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+}
+
+.top-right {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+}
+
+.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+}
+
+.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+}
 </style>

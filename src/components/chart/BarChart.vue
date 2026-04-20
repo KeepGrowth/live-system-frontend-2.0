@@ -1,343 +1,252 @@
 <template>
   <div class="cyber-chart-container">
-    <!-- 装饰性边角，增强赛博朋克感 -->
-    <div class="corner top-left"></div>
-    <div class="corner top-right"></div>
-    <div class="corner bottom-left"></div>
-    <div class="corner bottom-right"></div>
-
     <div ref="chartRef" class="chart-instance"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
-import * as echarts from 'echarts';
-
-// --- 赛博朋克配色常量 ---
-const THEME = {
-  primary: '#00f3ff',   // 霓虹青 (主色)
-  secondary: '#ff0055', // 荧光粉 (次色)
-  accent: '#fcee0a',    // 赛博黄 (点缀色)
-  text: '#a0a0a0',      // 次要文字/网格线
-  white: '#ffffff'
-};
-
-const chartRef = ref(null);
-let chartInstance = null;
+import { ref, onMounted, onUnmounted, watch, shallowRef } from 'vue'
+import * as echarts from 'echarts'
 
 // --- Props 定义 ---
 const props = defineProps({
   title: {
     type: String,
-    default: 'Cyberpunk Bar Chart'
+    default: '赛博数据监控中心'
   },
-  // 假设传入的数据格式为 [{ name: '类别1', value1: 100, value2: 80 }, ...]
-  data: {
-    type: Array,
-    default: () => []
+  chartData: {
+    type: Object,
+    default: () => ({
+      categories: [],
+      series: []
+    })
   }
-});
+})
 
-// --- 模拟数据生成 (如果未传入 props.data) ---
+// --- Refs ---
+const chartRef = ref(null)
+let myChart = shallowRef(null)
+
+// --- 赛博朋克配色方案 ---
+const CYBER_COLORS = [
+  '#00f3ff',
+  '#ff00ff', // 霓虹洋红
+  '#fcee0a', // 霓虹黄
+  '#7000ff', // 霓虹紫
+  '#ff2a2a'  // 霓虹红
+]
+
+// --- 模拟数据生成器 (如果 props 没传数据时使用) ---
 const generateMockData = () => {
-  const categories = ['Neon City', 'Data Core', 'AI Hub', 'Net Runner', 'Cyber Deck', 'Hacker', 'Matrix', 'Server'];
-  return categories.map(cat => ({
-    name: cat,
-    value1: Math.round(Math.random() * 100),
-    value2: Math.round(Math.random() * 100)
-  }));
-};
+  const categories = ['2077-01', '2077-02', '2077-03', '2077-04', '2077-05', '2077-06']
+  const series = []
+  return { categories, series }
+}
 
-// 使用传入的数据或模拟数据
-const chartData = props.data.length > 0 ? props.data : generateMockData();
+// --- 初始化 ECharts ---
+const initChart = () => {
+  if (!chartRef.value) return
 
-// --- ECharts 配置项构建 ---
-const getOption = () => {
-  // 提取类目和数值
-  const categories = chartData.map(item => item.name);
-  const seriesData1 = chartData.map(item => item.value1);
-  const seriesData2 = chartData.map(item => item.value2);
+  // 1. 实例化
+  myChart.value = echarts.init(chartRef.value)
 
-  return {
-    backgroundColor: 'transparent', // 由 CSS 容器控制背景
+  // 2. 获取数据
+  const data = props.chartData.categories.length ? props.chartData : generateMockData()
+  // const data = props.chartData
 
+  // 3. 配置项
+  const option = {
+    backgroundColor: 'transparent', // 深黑背景
     title: {
       text: props.title,
       left: 'center',
       textStyle: {
-        color: THEME.primary,
-        fontFamily: '"Orbitron", "Courier New", monospace',
-        fontSize: 20,
-        fontWeight: 'bold',
-        textShadow: `0 0 5px ${THEME.primary}, 0 0 10px ${THEME.primary}`
-      },
-      subtextStyle: {
-        color: THEME.text
+        color: '#00f3ff',
+        fontFamily: 'Orbitron, sans-serif', // 科技感字体
+        fontSize: 24,
+        textShadowColor: '#00f3ff',
+        textShadowBlur: 10
       }
     },
-
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(11, 12, 21, 0.9)',
-      borderColor: THEME.primary,
-      textStyle: {
-        color: THEME.white,
-        fontFamily: 'monospace'
-      },
-      axisPointer: {
-        type: 'shadow',
-        shadowStyle: {
-          color: 'rgba(0, 243, 255, 0.2)'
-        }
+      axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(11, 12, 16, 0.9)',
+      borderColor: '#00f3ff',
+      textStyle: { color: '#fff' }
+    },
+    legend: {
+      top: '10%',
+      textStyle: { color: '#fff' },
+      itemStyle: {
+        borderWidth: 0,
+        shadowColor: '#00f3ff',
+        shadowBlur: 5
       }
     },
-
-    legend: {
-      data: ['System A', 'System B'],
-      top: 40,
-      left: 'center',
-      textStyle: {
-        color: THEME.text,
-        fontFamily: 'monospace'
-      },
-      itemGap: 20
-    },
-
     grid: {
-      left: '10%',
-      right: '10%',
-      bottom: '15%',
-      top: '25%',
-      containLabel: true
+      left: '3%',
+      right: '4%',
+      bottom: '10%',
+      top: '15%',
+      containLabel: true,
+      borderColor: '#1f2229',
+      show: true
     },
-
-    // X轴 (数值轴)
+    toolbox: {
+      feature: {
+        saveAsImage: { title: '保存图像', iconStyle: { borderColor: '#00f3ff' } },
+        restore: { title: '重置', iconStyle: { borderColor: '#ff00ff' } },
+        dataView: { title: '数据视图', readOnly: false, iconStyle: { borderColor: '#fcee0a' } },
+        magicType: { type: ['bar'], iconStyle: { borderColor: '#7000ff' } }
+      },
+      right: 20,
+      top: 20
+    },
     xAxis: {
+      type: 'category',
+      data: data.categories,
+      axisLine: { lineStyle: { color: '#00f3ff', width: 1 } },
+      axisTick: { alignWithLabel: true, lineStyle: { color: '#00f3ff' } },
+      axisLabel: { color: '#fff', fontSize: 12 }
+    },
+    yAxis: {
       type: 'value',
-      position: 'top',
       splitLine: {
-        show: true,
         lineStyle: {
-          color: THEME.text,
-          opacity: 0.2,
+          color: '#1f2229',
           type: 'dashed'
         }
       },
-      axisLine: {
-        show: false
-      },
-      axisTick: {
-        show: false
-      },
-      axisLabel: {
-        color: THEME.text,
-        fontFamily: 'monospace'
-      }
+      axisLabel: { color: '#fff' },
+      axisLine: { show: false }
     },
-
-    // Y轴 (类目轴)
-    yAxis: {
-      type: 'category',
-      data: categories,
-      axisLine: {
-        show: false
-      },
-      axisTick: {
-        show: false
-      },
-      axisLabel: {
-        color: THEME.text,
-        fontFamily: '"Orbitron", sans-serif',
-        fontSize: 12
-      },
-      splitLine: {
-        show: false
-      }
-    },
-
-    // 数据区域缩放 (侧边滑动条，适用于条目多时)
     dataZoom: [
       {
-        type: 'inside',
-        orient: 'vertical',
-        start: 0,
-        end: 100
+        type: 'slider',       // 滑动条类型
+        show: true,           // 显示
+        xAxisIndex: [0],      // 控制 x 轴
+        start: 0,             // 默认起始位置 0%
+        end: 50,              // 默认结束位置 50% (数据多时可设为 20 或 30)
+        height: 20,           // 滚动条高度
+        bottom: 20,           // 距离底部的距离
+        left: '5%',           // 宽度留白
+        width: '90%',
+        backgroundColor: 'rgba(31, 34, 41, 0.5)', // 背景色：与 grid 边框色呼应
+        dataBackground: {     // 数据背景样式
+          lineStyle: { color: '#00f3ff', width: 1 }, // 线条颜色
+          areaStyle: { color: 'rgba(0, 243, 255, 0.3)' } // 填充颜色
+        },
+        selectedDataBackground: { // 选中部分的数据背景
+          lineStyle: { color: '#00f3ff' },
+          areaStyle: { color: 'rgba(0, 243, 255, 0.6)' }
+        },
+        handleStyle: {        // 拖拽手柄样式
+          color: '#00f3ff',
+          shadowBlur: 10,
+          shadowColor: '#00f3ff'
+        },
+        textStyle: { color: 'transparent' } // 隐藏默认的数字文本，保持简洁
       },
       {
-        type: 'slider',
-        orient: 'vertical',
-        yAxisIndex: 0,
-        left: 10,
+        type: 'inside',       // 内置型缩放（支持鼠标滚轮滚动缩放）
+        xAxisIndex: [0],
         start: 0,
-        end: 100,
-        backgroundColor: '#1a1c29',
-        fillerColor: `linear-gradient(left, ${THEME.primary}33, ${THEME.secondary}33)`,
-        borderColor: THEME.grid,
-        handleStyle: {
-          color: THEME.dark,
-          borderColor: THEME.accent
-        },
-        textStyle: {
-          color: THEME.text
-        }
+        end: 50
       }
     ],
-
-    series: [
-      {
-        name: 'System A',
-        type: 'bar',
-        stack: 'total', // 堆叠条形图，如果不需要堆叠请删除此行
-        barWidth: '60%',
-        data: seriesData1,
-        itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-            { offset: 0, color: 'rgba(0, 243, 255, 0.2)' },
-            { offset: 1, color: THEME.primary }
-          ]),
-          borderColor: THEME.primary,
-          borderWidth: 1,
-          borderType: 'dashed'
-        },
-        emphasis: {
-          itemStyle: {
-            color: THEME.primary,
-            shadowBlur: 10,
-            shadowColor: THEME.primary
-          }
-        },
-        // 在柱子末端显示数值
-        label: {
-          show: true,
-          position: 'right',
-          color: THEME.accent,
-          fontFamily: 'Orbitron',
-          fontWeight: 'bold',
-          textShadow: `0 0 5px ${THEME.accent}`
-        }
+    series: data.series.map(item => ({
+      ...item,
+      barWidth: '3%',
+      itemStyle: {
+        ...item.itemStyle,
+        borderRadius: [4, 4, 0, 0], // 柱状图圆角
+        shadowColor: item.itemStyle.color,
+        shadowBlur: 15 // 发光效果
       },
-      {
-        name: 'System B',
-        type: 'bar',
-        stack: 'total', // 堆叠条形图，如果不需要堆叠请删除此行
-        barWidth: '60%',
-        data: seriesData2,
+      emphasis: {
         itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-            { offset: 0, color: 'rgba(255, 0, 85, 0.2)' },
-            { offset: 1, color: THEME.secondary }
-          ]),
-          borderColor: THEME.secondary,
-          borderWidth: 1,
-          borderType: 'dashed'
-        },
-        emphasis: {
-          itemStyle: {
-            color: THEME.secondary,
-            shadowBlur: 10,
-            shadowColor: THEME.secondary
-          }
-        },
-        label: {
-          show: true,
-          position: 'right',
-          color: THEME.accent,
-          fontFamily: 'Orbitron',
-          fontWeight: 'bold'
+          shadowBlur: 25,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(255, 255, 255, 0.5)'
         }
       }
-    ]
-  };
-};
-
-// --- 生命周期与初始化 ---
-const initChart = () => {
-  if (chartRef.value) {
-    chartInstance = echarts.init(chartRef.value);
-    chartInstance.setOption(getOption());
+    }))
   }
-};
 
-const handleResize = () => {
-  chartInstance?.resize();
-};
+  // 4. 设置配置
+  myChart.value.setOption(option)
+}
 
+// --- 监听 Props 变化 ---
+watch(() => props.chartData, () => {
+  console.log(props.chartData)
+  if (myChart.value) {
+    initChart()
+  }
+}, { deep: true })
+
+watch(() => props.title, () => {
+  if (myChart.value) {
+    myChart.value.setOption({ title: { text: props.title } })
+  }
+})
+
+// --- 生命周期与事件 ---
 onMounted(() => {
-  initChart();
-  window.addEventListener('resize', handleResize);
-});
+  initChart()
+  window.addEventListener('resize', handleResize)
+})
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-  chartInstance?.dispose();
-});
+  window.removeEventListener('resize', handleResize)
+  if (myChart.value) {
+    myChart.value.dispose()
+    myChart.value = null
+  }
+})
 
-// 监听数据变化重新渲染
-watch(() => [props.title, props.data], () => {
-  chartInstance?.setOption(getOption());
-}, { deep: true });
-
+const handleResize = () => {
+  myChart.value && myChart.value.resize()
+}
 </script>
 
 <style scoped>
-/* 引入科技感字体 */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-
 .cyber-chart-container {
-  position: relative;
   width: 100%;
-  height: 500px; /* 默认高度 */
-  border: 1px solid rgba(0, 243, 255, 0.3);
-  box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
-  border-radius: 8px;
+  height: 100%;
+  min-height: 500px;
+  border: 1px solid #1f2229;
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+  position: relative;
   overflow: hidden;
-  backdrop-filter: blur(5px);
+}
+
+/* 装饰性边角 - 赛博朋克风格 */
+.cyber-chart-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-top: 3px solid #00f3ff;
+  border-left: 3px solid #00f3ff;
+}
+
+.cyber-chart-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  border-bottom: 3px solid #ff00ff;
+  border-right: 3px solid #ff00ff;
 }
 
 .chart-instance {
   width: 100%;
   height: 100%;
-}
-
-/* 赛博朋克风格装饰边角 */
-.corner {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  transition: all 0.3s ease;
-  z-index: 10;
-}
-
-.top-left {
-  top: 0;
-  left: 0;
-  border-top: 2px solid var(--cyber-primary, #00f3ff);
-  border-left: 2px solid var(--cyber-primary, #00f3ff);
-}
-.top-right {
-  top: 0;
-  right: 0;
-  border-top: 2px solid var(--cyber-primary, #00f3ff);
-  border-right: 2px solid var(--cyber-primary, #00f3ff);
-}
-.bottom-left {
-  bottom: 0;
-  left: 0;
-  border-bottom: 2px solid var(--cyber-primary, #00f3ff);
-  border-left: 2px solid var(--cyber-primary, #00f3ff);
-}
-.bottom-right {
-  bottom: 0;
-  right: 0;
-  border-bottom: 2px solid var(--cyber-primary, #00f3ff);
-  border-right: 2px solid var(--cyber-primary, #00f3ff);
-}
-
-/* 悬停时的高亮效果 */
-.cyber-chart-container:hover {
-  box-shadow: 0 0 25px rgba(0, 243, 255, 0.3),
-  0 0 50px rgba(255, 0, 85, 0.1);
-  border-color: #00f3ff;
 }
 </style>
