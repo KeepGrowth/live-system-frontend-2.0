@@ -37,7 +37,7 @@
                        class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">
             OKR
           </router-link>
-          <router-link to="/okr"
+          <router-link to="/review"
                        class="hover:text-fuchsia-400 hover:drop-shadow-[0_0_8px_rgba(192,38,211,0.8)] transition-all">复盘
           </router-link>
         </div>
@@ -108,7 +108,6 @@
             :is-positive="item.isPositive"
           />
         </div>
-
       </div>
     </section>
 

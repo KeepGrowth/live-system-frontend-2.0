@@ -57,6 +57,12 @@ const router = createRouter({
       name: 'OkrPage',
       component: () => import('@/views/okr/OkrPage.vue')
     },
+    // 复盘作战室
+    {
+      path: '/review',
+      name: 'ReviewPage',
+      component: () => import('@/views/review/ReviewPage.vue')
+    },
     {
       path: '/home',
       name: 'home',

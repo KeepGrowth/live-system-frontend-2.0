@@ -1,246 +1,195 @@
 <template>
   <div class="cyber-pie-container">
-    <!-- 装饰性边角，增强赛博朋克UI感 -->
+    <!-- 装饰性边角 -->
     <div class="corner top-left"></div>
+    <div class="corner top-right"></div>
+    <div class="corner bottom-left"></div>
     <div class="corner bottom-right"></div>
 
-    <div ref="chartRef" class="chart-body"></div>
+    <div ref="chartRef" class="chart-instance"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, shallowRef } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import * as echarts from 'echarts';
 
-// ---  Props 定义 ---
+// --- 赛博朋克动态配色盘 ---
+// 这是一组高对比度的霓虹色，模拟全息投影效果
+const CYBERPUNK_COLORS = [
+  '#ff0055', // 荧光粉红 (主色)
+  '#00f3ff', // 霓虹青蓝 (副色)
+  '#fcee0a', // 电光黄 (高亮)
+  '#bd00ff', // 紫外光 (深色背景下的亮色)
+  '#00ff88', // 荧光绿 (科技感)
+  '#ff5500'  // 熔岩橙 (警告色)
+];
+
+const chartRef = ref(null);
+let chartInstance = null;
+
 const props = defineProps({
+  title: {
+    type: String,
+    default: 'Cyberpunk Data'
+  },
+  // 接受外部数据，格式: [{ name: 'Category A', value: 40 }]
   data: {
     type: Array,
     default: () => [
-      { value: 1048, name: '网络流量' },
-      { value: 735, name: '核心算力' },
-      { value: 580, name: '内存占用' },
-      { value: 484, name: '加密进程' },
-      { value: 300, name: '防火墙' }
+      { name: 'Neon City', value: 33.3 },
+      { name: 'Data Stream', value: 33.3 },
+      { name: 'AI Core', value: 33.3 }
     ]
-  },
-  title: {
-    type: String,
-    default: '饼图组件'
   }
 });
 
-// ---  Refs ---
-const chartRef = ref(null);
-const chartInstance = shallowRef(null);
-
-// ---  赛博朋克配色与配置 ---
-const cyberColors = [
-  '#00f3ff', // 霓虹青
-  '#ff00ff', // 霓虹紫红
-  '#bc13fe', // 亮紫
-  '#00ff9d', // 荧光绿
-  '#ffe600'  // 警示黄
-];
-
-const initChart = () => {
-  if (!chartRef.value) return;
-
-  chartInstance.value = echarts.init(chartRef.value);
-
-  const option = {
-
-    // 标题配置
+// --- ECharts 配置项 ---
+const getOption = () => {
+  return {
+    backgroundColor: 'transparent',
     title: {
       text: props.title,
       left: 'center',
-      top: '20px',
       textStyle: {
-        color: '#00f3ff',
-        fontFamily: '"Courier New", Courier, monospace', // 科技感字体
-        fontSize: 18,
-        fontWeight: 'bold',
-        textShadowColor: '#00f3ff',
-        textShadowBlur: 10
+        color: '#00f3ff', // 霓虹青蓝标题
+        fontFamily: '"Orbitron", monospace',
+        fontSize: 20,
+        textShadow: '0 0 10px #00f3ff' // 发光效果
       }
     },
-    // 提示框
     tooltip: {
       trigger: 'item',
-      backgroundColor: 'rgba(10, 10, 15, 0.8)', // 半透明深色背景
-      borderColor: '#00f3ff',
+      backgroundColor: 'rgba(17, 19, 31, 0.9)',
+      borderColor: '#ff0055',
       textStyle: {
-        color: '#fff',
+        color: '#ffffff',
         fontFamily: 'monospace'
       },
-      formatter: '{b}: <span style="color:#00f3ff">{c}</span> ({d}%)'
+      formatter: '{a} <br/>{b}: {c} ({d}%)' // 显示百分比
     },
-    // 图例配置
     legend: {
       orient: 'vertical',
-      right: '10%',
+      left: 'left',
       top: 'middle',
       textStyle: {
-        color: '#ccc',
+        color: '#a0a0a0',
         fontFamily: 'monospace'
       },
-      itemWidth: 15,
-      itemHeight: 8,
-      itemStyle: {
-        borderWidth: 0
-      }
+      // 图例项的图形样式
+      itemGap: 20,
+      itemWidth: 12,
+      itemHeight: 12
     },
-    // 饼图系列配置
+    // 核心：定义多变的赛博朋克颜色
+    color: CYBERPUNK_COLORS,
     series: [
       {
-        name: '访问来源',
+        name: 'Cyber Data',
         type: 'pie',
-        radius: ['40%', '70%'], // 环形图
-        center: ['45%', '55%'],
-        avoidLabelOverlap: false,
+        radius: ['40%', '60%'], // 空心圆环
+        center: ['60%', '55%'], // 偏移中心以留出图例空间
+        // 强烈的阴影和描边效果
         itemStyle: {
-          borderRadius: 10, // 圆角
-          borderColor: '#1a1a2e', // 边框颜色（深色背景融合）
+          borderColor: '#000',
           borderWidth: 2,
-          shadowBlur: 10,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
+          // 鼠标悬停时的高亮效果
+          emphasis: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 243, 255, 0.5)'
+          }
         },
         label: {
           show: true,
-          position: 'outside',
-          formatter: '{b}\n{d}%',
-          color: '#fff',
-          fontFamily: 'monospace',
-          fontSize: 12,
-          textBorderWidth: 0
-        },
-        labelLine: {
-          show: true,
-          length: 15,
-          length2: 10,
-          smooth: true,
+          // 标签文字使用科技字体
+          fontFamily: '"Orbitron", monospace',
+          color: '#ffffff',
+          // 标签线的样式
           lineStyle: {
-            color: '#00f3ff', // 引导线颜色
-            width: 1
+            color: 'auto'
           }
         },
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 20,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(255, 255, 255, 0.5)' // 悬停时的发光效果
-          },
-          scale: true, // 悬停放大
-          scaleSize: 10
+        // 引导线配置
+        labelLine: {
+          length: 15, // 第一段长度
+          length2: 10, // 第二段长度
+          smooth: true // 平滑曲线
         },
-        data: props.data.map((item, index) => ({
-          ...item,
-          itemStyle: {
-            color: cyberColors[index % cyberColors.length],
-            // 给每个扇区添加特定的阴影颜色，模拟霓虹光
-            shadowBlur: 15,
-            shadowColor: cyberColors[index % cyberColors.length]
-          }
-        }))
+        data: props.data
       }
     ]
   };
-
-  chartInstance.value.setOption(option);
 };
 
-// ---  生命周期与监听 ---
+// --- 生命周期 ---
+const initChart = () => {
+  if (chartRef.value) {
+    chartInstance = echarts.init(chartRef.value);
+    chartInstance.setOption(getOption());
+  }
+};
+
+const handleResize = () => {
+  chartInstance?.resize();
+};
+
 onMounted(() => {
   initChart();
   window.addEventListener('resize', handleResize);
 });
 
 onUnmounted(() => {
-  if (chartInstance.value) {
-    chartInstance.value.dispose();
-  }
   window.removeEventListener('resize', handleResize);
+  chartInstance?.dispose();
 });
 
+// 监听数据变化
 watch(() => props.data, () => {
-  if (chartInstance.value) {
-    chartInstance.value.setOption({ series: [{ data: props.data.map((item, index) => ({
-          ...item,
-          itemStyle: {
-            color: cyberColors[index % cyberColors.length],
-            shadowBlur: 15,
-            shadowColor: cyberColors[index % cyberColors.length]
-          }
-        })) }] });
-  }
+  chartInstance?.setOption(getOption());
 }, { deep: true });
 
-const handleResize = () => {
-  chartInstance.value?.resize();
-};
 </script>
 
 <style scoped>
+/* 引入 Orbitron 字体 */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
 .cyber-pie-container {
   position: relative;
   width: 100%;
-  height: 100%;
-  min-height: 400px;
-  background-color: transparent; /* 透明背景 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 500px; /* 默认高度 */
+  /* 深色背景配合霓虹色 */
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+  backdrop-filter: blur(4px);
 }
 
-.chart-body {
+.chart-instance {
   width: 100%;
   height: 100%;
 }
 
-/* --- 赛博朋克装饰边角 (CSS绘制) --- */
+/* 装饰边角样式 */
 .corner {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #00f3ff;
-  box-shadow: 0 0 10px #00f3ff;
-  z-index: 10;
+  width: 12px;
+  height: 12px;
+  border: 2px solid;
+  border-image: linear-gradient(45deg, #ff0055, #00f3ff) 1;
   transition: all 0.3s ease;
+  z-index: 10;
 }
 
-.top-left {
-  top: 0;
-  left: 0;
-  border-right: none;
-  border-bottom: none;
+.corner:hover {
+  border-color: #fcee0a;
+  transform: scale(1.2);
 }
 
-.bottom-right {
-  bottom: 0;
-  right: 0;
-  border-left: none;
-  border-top: none;
-}
-
-/* 简单的扫描线动画背景（可选） */
-.cyber-pie-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0) 50%,
-    rgba(0, 0, 0, 0.1) 50%,
-    rgba(0, 0, 0, 0.1)
-  );
-  background-size: 100% 4px;
-  pointer-events: none;
-  z-index: 5;
-  opacity: 0.3;
-}
+.top-left { top: 0; left: 0; border-right: none; border-bottom: none; }
+.top-right { top: 0; right: 0; border-left: none; border-bottom: none; }
+.bottom-left { bottom: 0; left: 0; border-right: none; border-top: none; }
+.bottom-right { bottom: 0; right: 0; border-left: none; border-top: none; }
 </style>

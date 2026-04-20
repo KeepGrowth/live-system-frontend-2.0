@@ -1,169 +1,156 @@
 <template>
   <div class="cyber-gauge-container">
-    <div ref="chartRef" class="chart-instance"></div>
+    <!-- 装饰性边角 -->
+    <div class="corner top-left"></div>
+    <div class="corner top-right"></div>
+    <div class="corner bottom-left"></div>
+    <div class="corner bottom-right"></div>
+
+    <div ref="gaugeRef" class="gauge-instance"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, shallowRef } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import * as echarts from 'echarts';
 
-// --- Props 定义 ---
+// --- 赛博朋克配色常量 ---
+const CYBER = {
+  primary: '#00f3ff',   // 霓虹青
+  secondary: '#ff0055', // 荧光粉
+  warning: '#fcee0a',   // 赛博黄
+  text: '#a0a0a0',      // 次要文字
+  grid: 'rgba(0, 243, 255, 0.1)', // 网格/分割线
+  white: '#ffffff'
+};
+
+const gaugeRef = ref(null);
+let chartInstance = null;
+
+// 接收外部传入的标题和数值
 const props = defineProps({
-  value: {
-    type: Number,
-    default: 64, // 默认数值
-  },
-  max: {
-    type: Number,
-    default: 100,
-  },
   title: {
     type: String,
-    default: '仪表盘组件',
+    default: 'System Load'
   },
-  colorPrimary: {
-    type: String,
-    default: '#00f3ff', // 赛博朋克青色
-  },
-  colorSecondary: {
-    type: String,
-    default: '#ff0055', // 赛博朋克洋红色
-  },
-  bgColor: {
-    type: String,
-    default: 'transparent', // 极深色背景
+  value: {
+    type: Number,
+    default: 75
   }
 });
 
-const chartRef = ref(null);
-let chartInstance = shallowRef(null);
-
-// --- ECharts 配置生成函数 ---
+// --- ECharts 配置项 ---
 const getOption = () => {
-  const { value, max, title, colorPrimary, colorSecondary, bgColor } = props;
-
-  // 计算百分比用于进度条颜色
-  const percent = Math.min(Math.max(value / max, 0), 1);
+  // 动态计算指针颜色
+  let pointerColor = CYBER.primary;
+  if (props.value > 80) pointerColor = CYBER.warning;
+  else if (props.value > 60) pointerColor = CYBER.secondary;
 
   return {
-    backgroundColor: bgColor,
+    backgroundColor: 'transparent',
+
     title: {
-      text: title,
+      text: props.title,
       left: 'center',
-      top: '85%',
+      top: '10%',
       textStyle: {
-        color: colorPrimary,
-        fontFamily: 'Orbitron, "Courier New", monospace', // 科技感字体
+        color: CYBER.primary,
+        fontFamily: '"Orbitron", monospace',
         fontSize: 16,
-        fontWeight: 'bold',
-        textShadowColor: colorPrimary,
-        textShadowBlur: 10
+        fontWeight: 'normal',
+        textShadow: `0 0 5px ${CYBER.primary}`
       }
     },
+
+    tooltip: {
+      show: true,
+      formatter: `{a} <br/>{b} : {c}%`,
+      backgroundColor: 'rgba(11, 12, 21, 0.9)',
+      borderColor: CYBER.primary,
+      textStyle: { color: CYBER.white }
+    },
+
     series: [
       {
+        name: 'Gauge',
         type: 'gauge',
-        startAngle: 200, // 起始角度，营造底部开口效果
-        endAngle: -20,
-        min: 0,
-        max: max,
+        // 仪表盘中心位置和大小
+        center: ['50%', '65%'],
         radius: '90%',
-        center: ['50%', '55%'],
+        startAngle: 200,
+        endAngle: -20,
 
-        // 进度条样式
-        progress: {
+        // 仪表盘轴线
+        axisLine: {
           show: true,
-          roundCap: true,
-          width: 18,
-          itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-              { offset: 0, color: colorPrimary },
-              { offset: 1, color: colorSecondary }
-            ]),
-            shadowColor: colorPrimary,
-            shadowBlur: 15, // 霓虹发光效果
-            shadowOffsetX: 0,
-            shadowOffsetY: 0
+          lineStyle: {
+            width: 15,
+            color: [
+              [0.6, CYBER.primary],
+              [0.8, CYBER.secondary],
+              [1, CYBER.warning]
+            ],
+            shadowColor: 'rgba(0, 0, 0, 0.8)',
+            shadowBlur: 10
           }
         },
 
-        // 指针样式
-        pointer: {
-          show: false // 隐藏指针，现代仪表盘风格
-        },
-
-        // 刻度线
+        // 刻度样式
         axisTick: {
           show: true,
-          splitNumber: 10,
-          length: 12,
-          lineStyle: {
-            color: colorPrimary,
-            width: 2,
-            shadowColor: colorPrimary,
-            shadowBlur: 5
-          }
+          splitNumber: 2,
+          length: -10, // 向内
+          lineStyle: { color: CYBER.grid, width: 1 }
         },
 
-        // 分割线
+        // 分隔线
         splitLine: {
-          show: true,
-          length: 20,
+          length: -20,
           lineStyle: {
-            color: colorPrimary,
-            width: 3,
-            shadowColor: colorPrimary,
-            shadowBlur: 10
+            color: CYBER.primary,
+            width: 3
           }
         },
 
         // 刻度标签
         axisLabel: {
-          show: true,
-          distance: 25,
-          color: '#fff',
-          fontSize: 12,
+          color: CYBER.text,
+          fontSize: 10,
           fontFamily: 'monospace',
-          formatter: (val) => {
-            // 简单的数字格式化
-            return Math.round(val);
+          distance: 15,
+          formatter: function (value) {
+            // 只显示 0, 50, 100
+            return value % 50 === 0 ? value : '';
           }
         },
 
-        // 数据标签（中间的数字）
+        // 指针
+        pointer: {
+          show: true,
+          length: '85%',
+          width: 6,
+          offsetCenter: [0, '-5%'],
+          itemStyle: {
+            color: pointerColor
+          }
+        },
+
+        // 仪表盘详情（中间数值）
         detail: {
           valueAnimation: true,
-          offsetCenter: [0, '0%'],
-          fontSize: 40,
-          fontWeight: 'bold',
-          fontFamily: 'Orbitron, monospace',
-          color: '#fff',
-          formatter: (val) => {
-            return '{value|' + Math.round(val) + '}{unit|%}';
-          },
-          rich: {
-            value: {
-              color: '#fff',
-              textShadowColor: colorSecondary,
-              textShadowBlur: 15,
-              textShadowOffsetX: 0,
-              textShadowOffsetY: 0,
-              fontSize: 50
-            },
-            unit: {
-              color: colorPrimary,
-              fontSize: 20,
-              textShadowColor: colorPrimary,
-              textShadowBlur: 5,
-              padding: [0, 0, 0, 5]
-            }
-          }
+          fontSize: 24,
+          fontFamily: '"Orbitron", monospace',
+          fontWeight: 'bolder',
+          color: pointerColor,
+          offsetCenter: [0, '30%'],
+          textShadow: `0 0 10px ${pointerColor}`,
+          formatter: '{value}%'
         },
 
+        // 仪表盘数据
         data: [
           {
-            value: value
+            value: props.value,
           }
         ]
       }
@@ -171,54 +158,76 @@ const getOption = () => {
   };
 };
 
-// --- 初始化与更新逻辑 ---
+// --- 生命周期与初始化 ---
 const initChart = () => {
-  if (chartRef.value) {
-    chartInstance.value = echarts.init(chartRef.value);
-    chartInstance.value.setOption(getOption());
+  if (gaugeRef.value) {
+    chartInstance = echarts.init(gaugeRef.value);
+    chartInstance.setOption(getOption());
   }
 };
 
-const resizeChart = () => {
-  chartInstance.value?.resize();
+const handleResize = () => {
+  chartInstance?.resize();
 };
-
-// 监听 Props 变化
-watch(() => props.value, () => {
-  chartInstance.value?.setOption(getOption());
-});
-
-watch(() => [props.colorPrimary, props.colorSecondary], () => {
-  chartInstance.value?.setOption(getOption());
-}, { deep: true });
 
 onMounted(() => {
   initChart();
-  window.addEventListener('resize', resizeChart);
+  window.addEventListener('resize', handleResize);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('resize', resizeChart);
-  chartInstance.value?.dispose();
+  window.removeEventListener('resize', handleResize);
+  chartInstance?.dispose();
+});
+
+// 监听数值变化
+watch(() => props.value, () => {
+  chartInstance?.setOption(getOption());
 });
 </script>
 
 <style scoped>
+/* 引入 Orbitron 字体 */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
 .cyber-gauge-container {
-  width: 100%;
-  height: 300px; /* 默认高度 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
   position: relative;
-  /* 添加一个微妙的边框效果 */
-  border: 1px solid rgba(0, 243, 255, 0.1);
-  box-shadow: inset 0 0 20px rgba(0, 243, 255, 0.05);
+  width: 100%;
+  height: 500px; /* 默认高度 */
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  box-shadow:
+    0 0 15px rgba(0, 243, 255, 0.1),
+    inset 0 0 10px rgba(0, 243, 255, 0.05);
   border-radius: 8px;
+  overflow: hidden;
+  backdrop-filter: blur(4px);
 }
 
-.chart-instance {
+.gauge-instance {
   width: 100%;
   height: 100%;
+}
+
+/* 赛博朋克装饰边角 */
+.corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #00f3ff;
+  z-index: 10;
+}
+
+.top-left { top: 0; left: 0; border-right: none; border-bottom: none; }
+.top-right { top: 0; right: 0; border-left: none; border-bottom: none; }
+.bottom-left { bottom: 0; left: 0; border-right: none; border-top: none; }
+.bottom-right { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+/* 悬停动效 */
+.cyber-gauge-container:hover {
+  box-shadow:
+    0 0 25px rgba(0, 243, 255, 0.3),
+    0 0 5px rgba(255, 0, 85, 0.2);
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
 }
 </style>

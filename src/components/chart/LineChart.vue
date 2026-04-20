@@ -29,7 +29,6 @@ let chartInstance = null;
 const props = defineProps({
   title:{
     type:String,
-
   }
 })
 
@@ -56,7 +55,7 @@ const getOption = () => {
 
     // 标题配置
     title: {
-      text: '曲线图组件',
+      text: props.title,
       left: 'center',
       textStyle: {
         color: THEME.primary,
