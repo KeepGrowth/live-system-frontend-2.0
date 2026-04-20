@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeTab from '@/components/HomeTab.vue'
 import ProgramPage from '@/views/program/ProgramPage.vue'
 import useUserStore from '@/stores/user.js'
-import Index from '@/views/Index.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,7 +10,7 @@ const router = createRouter({
       // 数据首页
       path: '/index',
       name: 'index',
-      component: () => import('@/views/index.vue')
+      component: () => import('@/views/Index.vue')
     },
     // 登录页面
     {
