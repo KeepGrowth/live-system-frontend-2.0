@@ -32,4 +32,40 @@ function hexToRgba(hex, opacity) {
   return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + opacity + ')';
 }
 
-export default { cleanObject, settings,hexToRgba }
+
+/**
+ * 递归提取 focusTime 并累加
+ * @param {Object|Array} data - 需要遍历的数据对象或数组
+ * @returns {Number} - 累加的总时间
+ */
+function sumFocusTime(data) {
+  let total = 0;
+
+  // 如果传入的是数组，遍历数组每一项
+  if (Array.isArray(data)) {
+    data.forEach(item => {
+      total += sumFocusTime(item);
+    });
+  }
+  // 如果传入的是对象
+  else if (typeof data === 'object' && data !== null) {
+    // 1. 优先检查当前对象是否有 focusTime 属性
+    if ('focusTime' in data) {
+      // 确保是数字类型再累加，防止数据异常
+      const time = Number(data.focusTime) || 0;
+      total += time;
+    }
+
+    // 2. 继续遍历对象的其他属性（深入下一层）
+    for (let key in data) {
+      if (data.hasOwnProperty(key)) {
+        total += sumFocusTime(data[key]);
+      }
+    }
+  }
+
+  return total;
+}
+
+
+export default { cleanObject, settings,sumFocusTime }

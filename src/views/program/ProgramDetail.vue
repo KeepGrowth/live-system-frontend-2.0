@@ -80,23 +80,32 @@
               </div>
             </div>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <indicator-card
-              :title="'此项目关联OKR数'"
-              :subtitle="''"
-              :value="program.okrList.length"
-              :target-value="program.okrList.length"
+              :title="'项目进度'"
+              :subtitle="'已完成OKR/OKR总数'"
+              :value="program.okrList.filter(item=>item.status===1).length / program.okrList.length * 100"
+              :target-value="100"
+              :unit="'%'"
             />
             <indicator-card
-              :title="'此项目花费时间'"
-              :subtitle="'小时'"
+              :title="'关联OKR数'"
+              :subtitle="''"
               :value="program.okrList.length"
-              :target-value="program.okrList.length"
+            />
+            <indicator-card
+              :title="'累计花费时间'"
+              :subtitle="'小时'"
+              :value="1"
             />
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <line-chart />
-            <scatter-chart/>
+            <line-chart
+            :title="'项目进度曲线'"
+            />
+            <bar-chart
+              :title="'OKR专注时间分布'"
+            />
           </div>
 
 
@@ -139,13 +148,32 @@
 
               <!-- 项目时间线 -->
               <li class="cursor-pointer relative pl-8" v-for="(item,index) in program.okrList" :key="item.id">
-                <span class="absolute -left-1 top-1.5 flex h-3 w-3">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"
-                        v-if="index === program.okrList.length - 1"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 border border-slate-500 bg-slate-900"></span>
-                </span>
-                <p class="text-xs text-slate-500 uppercase">{{ item.krName }}</p>
-                <p class="text-sm text-cyan-100 font-medium">{{ formatDate(item.createTimeStr) }}</p>
+                <div class="cursor-pointer group" @click="openOkrModal(item)">
+                  <!-- 原有的脉冲点 -->
+                  <span class="absolute -left-1 top-1.5 flex h-3 w-3">
+    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"
+          v-if="index === program.okrList.length - 1"></span>
+    <span class="relative inline-flex rounded-full h-3 w-3 border border-slate-500 bg-slate-900"></span>
+  </span>
+
+                  <div class="flex flex-col gap-1">
+                    <p class="text-xs text-slate-500 uppercase tracking-wider">{{ item.krName }}</p>
+
+                    <!-- 底部信息行：时间 + 赛博朋克标签 -->
+                    <div class="flex items-center gap-3">
+                      <p class="text-sm text-cyan-100 font-medium font-mono">{{ formatDate(item.createTimeStr) }}</p>
+
+                      <!-- 赛博朋克状态标签 -->
+                      <span
+                        class="relative inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black bg-cyan-400"
+                        style="clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);">
+        <!-- 装饰性的小方块 -->
+        <span class="absolute top-0 left-0 w-1 h-full bg-black/20"></span>
+        进行中
+      </span>
+                    </div>
+                  </div>
+                </div>
               </li>
 
             </ul>
@@ -159,12 +187,19 @@
 
 
   </div>
-  <!--    用户模态框-->
+  <!--用户模态框-->
   <user-modal v-model="isUserModalOpen" :user="userInfo" @close="isUserModalOpen=false" />
+  <!--OKR模态框-->
+  <okr-modal
+    v-model="isOkrModalOpen"
+    :data="okrData"
+    @view-detail="onViewOkrDetail"
+  />
+
 </template>
 
 <script setup>
-import { onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import SwiperComponent from '@/components/SwiperComponent.vue'
 import useProgramStore from '@/stores/program/program.js'
 import { ElNotification } from 'element-plus'
@@ -179,6 +214,7 @@ import PieChart from '@/components/chart/PieChart.vue'
 import WordCloudChart from '@/components/chart/WordCloudChart.vue'
 import HeatMap from '@/components/chart/HeatMap.vue'
 import ScatterChart from '@/components/chart/ScatterChart.vue'
+import OkrModal from '@/views/okr/component/OkrModal.vue'
 
 const props = defineProps({
   id: {
@@ -241,12 +277,6 @@ onBeforeMount(async () => {
 
 })
 
-// 时间格式化
-const formatDateTime = (dateStr) => {
-  if (!dateStr) return 'N/A'
-  return new Date(dateStr).toLocaleString('en-GB', { hour12: false })
-}
-
 // 用户模态框交互
 const userStore = useUserStore()
 const isUserModalOpen = ref(false)
@@ -259,6 +289,17 @@ const goToGoalDetail = async (goalId) => {
       id: goalId
     }
   })
+}
+
+// OKR模态框交互
+const isOkrModalOpen = ref(false)
+const okrData = ref()
+const openOkrModal = (okrItem) => {
+  okrData.value = okrItem
+  isOkrModalOpen.value = true
+}
+const onViewOkrDetail = async (okrId) => {
+  router.push({ name: 'OkrDetail', params: { id: okrId } })
 }
 </script>
 

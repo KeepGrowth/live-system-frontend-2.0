@@ -92,7 +92,7 @@ const props = defineProps({
   },
   value: {
     type: Number,
-    default: 156
+    default: 0
   },
   targetValue: {
     type: Number,
@@ -111,11 +111,11 @@ const props = defineProps({
   }
 })
 
-const displayValue = ref(0)
+const displayValue = ref()
 const progress = ref(0)
 
 // 计算进度百分比 (假设最大值为 targetValue * 1.2)
-const maxVal = props.targetValue * 1.2
+const maxVal = props.targetValue
 const progressPercent = Math.min((props.value / maxVal) * 100, 100)
 
 // 数字滚动动画
