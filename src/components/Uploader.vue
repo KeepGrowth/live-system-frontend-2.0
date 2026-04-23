@@ -40,9 +40,10 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
 const handlePreview: UploadProps['onPreview'] = (file) => {
   console.log(file)
 }
-
+// 上传成功的图像列表
+const imageList = ref([{}])
 // 🔥 核心修改：自定义上传方法
-const customUpload = (options: UploadRequestOptions) => {
+const customUpload = async (options: UploadRequestOptions) => {
   const params = utils.cleanObject(props.idParams)
   // 1. 构建 FormData 对象
   const formData = new FormData()
@@ -69,7 +70,7 @@ const customUpload = (options: UploadRequestOptions) => {
 
   // 2. 使用你的 axios 实例(api) 发送请求
   // 这里会自动携带你在 api 拦截器里配置的 Token
-  return api
+  return await api
     .post('/upload/image', formData, {
       // ⚠️ 关键配置：
       headers: {
@@ -86,7 +87,8 @@ const customUpload = (options: UploadRequestOptions) => {
     .then((res) => {
       // 3. 上传成功后的回调
       // ElementUI 需要知道后端返回的数据结构，通常 res.data 是你的后端返回值
-      options.onSuccess(res.data)
+      options.onSuccess(res.data.data)
+      imageList.value.push(res.data.data)
     })
     .catch((err) => {
       // 4. 上传失败回调
@@ -96,12 +98,12 @@ const customUpload = (options: UploadRequestOptions) => {
 
 // 监听文件列表的变化
 const emit = defineEmits<{
-  fileListChange: [{}]
+  listChange: [{}]
 }>()
 watch(
-  fileList,
+  imageList,
   (newVal) => {
-    emit('fileListChange', newVal)
+    emit('listChange', newVal)
   },
   {
     deep: true,

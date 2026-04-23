@@ -51,6 +51,16 @@
               v-model="formData.score"
             />
           </div>
+          <!--focusTime-->
+          <div class="group">
+            <label class="block mb-2 text-xs font-mono uppercase text-fuchsia-400 tracking-wider">
+              本次专注时间
+            </label>
+            <el-input
+              placeholder="请输入本次专注时间（分钟）"
+              v-model.number="formData.focusTime"
+            />
+          </div>
 
           <!-- Emotion -->
           <div class="group">
@@ -103,10 +113,20 @@
             </div>
 
           </div>
-          <div class="w-full">
+          <div class="col-span-2" v-if="formData?.imageList?.length>0">
+            <swiper-component
+              :images="formData?.imageList"
+            />
+          </div>
+
+          <div class="w-full col-span-2">
             <label class="text-[10px] uppercase text-slate-500 font-mono w-full">附件上传</label>
             <uploader
-              :id-params="{todoId:formData.todoId}"
+              :id-params="{
+              todoLogId:formData.id,
+              todoId:formData.todoId
+            }"
+              @list-change='handleImageListChange'
             />
           </div>
         </div>
@@ -136,6 +156,7 @@
 import { ref, watch, onMounted } from 'vue'
 import Uploader from '@/components/Uploader.vue'
 import useUserStore from '@/stores/user.js'
+import SwiperComponent from '@/components/SwiperComponent.vue'
 
 // 定义 Props
 const props = defineProps({
@@ -153,6 +174,8 @@ const formData = ref({
   todoId: null,
   goalId: null,
   programId: null,
+  focusTime: null,
+  imageList: [],
   okrId: null,
   title: '',
   score: 0,
@@ -172,7 +195,7 @@ watch(() => props.initialData, (newVal) => {
     isEdit.value = false
     // 重置表单（除了默认值）
     formData.value = {
-      id: null,
+      id: newVal.id,
       userId: userStore.userInfo.id, // 假设默认用户
       todoId: newVal.todoId,
       goalId: null,
@@ -184,13 +207,17 @@ watch(() => props.initialData, (newVal) => {
       emotion: 'calm'
     }
   }
-}, { immediate: true })
+}, { immediate: true, deep: true })
 
 // 关闭模态框
 const closeModal = () => {
   emit('update:modelValue', false)
 }
-
+// 图片上传列表变化
+const handleImageListChange = (newList) => {
+  console.log(newList)
+  formData.value.imageList = newList
+}
 // 提交表单
 const handleSubmit = () => {
   // 这里可以添加表单验证逻辑

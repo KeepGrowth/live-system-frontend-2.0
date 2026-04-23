@@ -10,9 +10,9 @@
       <header
         class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-cyan-500/50 pb-4 mb-8">
         <div>
-          <h1 class="text-cyan-500 text-sm tracking-[0.2em] uppercase mb-1">{{ program?.programName || '无项目名称'
-            }}</h1>
-          <h1 class="text-3xl md:text-4xl font-bold text-white uppercase glitch-text" :data-text="program.programName">
+          <h1 class="text-cyan-500 text-sm tracking-[0.2em] uppercase mb-1">
+            {{ program?.programName || '无项目名称' }}</h1>
+          <h1 class="text-3xl md:text-4xl font-bold text-white uppercase glitch-text" :data-text="program?.programName">
             {{ program?.programName || '无项目名称' }} 项目档案
           </h1>
         </div>
@@ -23,17 +23,17 @@
             <div
               class="absolute inset-0 w-0 bg-cyan-500 transition-all duration-[250ms] ease-out group-hover:w-full opacity-20"></div>
             <span
-              :class="getStatusLabel(program.programStatus).color"
+              :class="getStatusLabel(program?.programStatus).color"
               class="relative z-10"
-            >{{ getStatusText(program.programStatus) }}</span>
+            >{{ getStatusText(program?.programStatus) }}</span>
           </div>
-          <span class="text-slate-500 text-xs font-mono">项目ID: {{ program.id }}</span>
+          <span class="text-slate-500 text-xs font-mono">项目ID: {{ program?.id }}</span>
         </div>
       </header>
       <!-- 附件区域 -->
-      <div v-if="program.imageUrls.length>0">
+      <div v-if="program?.imageUrls.length>0">
         <swiper-component
-          :images="program.imageUrls"
+          :images="program?.imageUrls"
         />
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -48,7 +48,7 @@
               项目概述
             </h3>
             <p class="text-slate-500 leading-relaxed text-justify border-l-2 border-slate-800 pl-4">
-              {{ program.programDesc || '暂无相关项目概述' }}
+              {{ program?.programDesc || '暂无相关项目概述' }}
             </p>
           </section>
           <!-- 关键指标网格 -->
@@ -58,7 +58,7 @@
               <div class="flex justify-between items-end mb-2">
                 <span class="text-slate-500 text-xs uppercase">项目满意度</span>
                 <span
-                  class="text-2xl font-bold text-fuchsia-400">{{ program.satisfactionScore > 5 ? 5 : program.satisfactionScore
+                  class="text-2xl font-bold text-fuchsia-400">{{ program?.satisfactionScore > 5 ? 5 : program?.satisfactionScore
                   }}<span
                     class="text-sm text-slate-600">/5分</span></span>
               </div>
@@ -84,28 +84,12 @@
             <indicator-card
               :title="'项目进度'"
               :subtitle="'已完成OKR/OKR总数'"
-              :value="program.okrList.filter(item=>item.status===1).length / program.okrList.length * 100"
+              :value="completionRate"
               :target-value="100"
               :unit="'%'"
             />
-            <indicator-card
-              :title="'关联OKR数'"
-              :subtitle="''"
-              :value="program.okrList.length"
-            />
-            <indicator-card
-              :title="'累计花费时间'"
-              :subtitle="'小时'"
-              :value="1"
-            />
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <line-chart
-            :title="'项目进度曲线'"
-            />
-            <bar-chart
-              :title="'OKR专注时间分布'"
-            />
           </div>
 
 
@@ -199,7 +183,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import SwiperComponent from '@/components/SwiperComponent.vue'
 import useProgramStore from '@/stores/program/program.js'
 import { ElNotification } from 'element-plus'
@@ -209,11 +193,6 @@ import router from '@/router/index.js'
 import IndicatorCard from '@/components/IndicatorCard.vue'
 import LineChart from '@/components/chart/LineChart.vue'
 import BarChart from '@/components/chart/BarChart.vue'
-import ConsoleChart from '@/components/chart/ConsoleChart.vue'
-import PieChart from '@/components/chart/PieChart.vue'
-import WordCloudChart from '@/components/chart/WordCloudChart.vue'
-import HeatMap from '@/components/chart/HeatMap.vue'
-import ScatterChart from '@/components/chart/ScatterChart.vue'
 import OkrModal from '@/views/okr/component/OkrModal.vue'
 
 const props = defineProps({
@@ -258,29 +237,38 @@ const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString('en-CA') // YYYY-MM-DD
 }
 
+// 2. 修复 Bug 2: 移除不存在的 getRate，直接计算进度
+// 计算已完成的 OKR 比例
+const completionRate = computed(() => {
+  if (!program.value?.okrList?.length) return 0
+  const completed = program.value.okrList.filter(item => item.status === 1).length
+  return (completed / program.value.okrList.length) * 100
+})
+
 const programStore = useProgramStore()
 const fetchProgramDetail = async () => {
   const res = await programStore.getProgramDetail(props.id)
   if (res.data.code === 200) {
     program.value = res.data.data
+    // 确保后端返回的数据包含 okrList，若没有则初始化为空数组
+    if (!Array.isArray(program.value.okrList)) {
+      program.value.okrList = []
+    }
   } else {
-    ElNotification.error({
-      goalName: '详情获取失败',
-      message: res.data.msg
-    })
+    ElNotification.error({ title: '详情获取失败', message: res.data.msg })
   }
 }
 
-// 初始化加载数据
-onBeforeMount(async () => {
-  await fetchProgramDetail()
+watch(() => props.id, async (newId) => {
+  if (newId) {
+    await fetchProgramDetail()
+  }
+}, { immediate: true })
 
-})
-
-// 用户模态框交互
+// 3. 修复 Bug 3: 使用计算属性包装 userInfo，防止未定义
 const userStore = useUserStore()
 const isUserModalOpen = ref(false)
-const userInfo = userStore.userInfo
+const userInfo = computed(() => userStore.userInfo || {}) // 提供默认空对象
 
 // 跳转目标详情页
 const goToGoalDetail = async (goalId) => {

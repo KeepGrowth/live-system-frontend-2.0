@@ -54,7 +54,7 @@
       <swiper-component class="mb-5" v-if="swiperImagesList.length > 0" :images="swiperImagesList" />
       <div>
         <el-pagination
-          class="mt-8 flex justify-center" v-if="programList.length > 0"
+          class="mt-8 flex justify-center" v-if="programList?.length > 0"
           v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
           :page-sizes="[5, 10, 15, 20]"
@@ -69,7 +69,7 @@
       <!--待开始-->
       <section
         class="container mx-auto px-6 -mt-10 relative z-30 mt-10"
-        v-if="runningPrograms && runningPrograms.length > 0"
+        v-if="todoPrograms && todoPrograms.length > 0"
       >
         <!-- 标题区域 -->
         <div class="flex items-end gap-4 mb-12 border-b border-slate-800 pb-4">
@@ -217,6 +217,7 @@
               <div class="space-y-1">
                 <label class="text-[10px] text-slate-500 uppercase">绑定目标</label>
                 <el-cascader
+                  filterable
                   v-model="programForm.goalId"
                   :options="goalOptions"
                   :show-all-levels="false"
@@ -265,13 +266,12 @@ import { ref, reactive, onMounted, watch, computed } from 'vue'
 import useUserStore from '@/stores/user.js'
 import TodoCard from '@/views/todo/component/TodoCard.vue'
 import SwiperComponent from '@/components/SwiperComponent.vue'
-import useGoalStore from '@/stores/goal/goal.js'
+import useProgramStore from '@/stores/program/program.js'
 import { dayjs, ElMessageBox, ElNotification } from 'element-plus'
 import isoWeek from 'dayjs/plugin/isoWeek'
-import GoalCard from '@/views/goal/component/GoalCard.vue'
 import useOkrStore from '@/stores/okr/okr.js'
-import useProgramStore from '@/stores/program/program.js'
 import ProgramCard from '@/views/program/component/ProgramCard.vue'
+import useGoalStore from '@/stores/goal/goal.js'
 
 dayjs.extend(isoWeek)
 const userStore = useUserStore()
@@ -283,20 +283,16 @@ const currentUser = userStore.userInfo.username
 const isModalOpen = ref(false)
 const editMode = ref(false)
 
-// 表单数据模型
-const defaultForm = {
-
-}
 
 const programForm = ref({
-  id: null,
+  id: null
 })
 
 // 打开模态框
-const openModal = (goal = null) => {
-  if (goal) {
+const openModal = (program = null) => {
+  if (program) {
     editMode.value = true
-    programForm.value = goal
+    programForm.value = program
   } else {
     editMode.value = false
     programForm.value = {
@@ -308,7 +304,6 @@ const openModal = (goal = null) => {
 }
 
 // (新增/修改)项目
-const programStore = useProgramStore()
 const saveProgram = async () => {
   if (editMode.value) {
     // 更新
@@ -413,21 +408,21 @@ const inactiveClass = 'text-cyan-400 border border-cyan-500/30 bg-cyan-950/30 ho
 
 // 计算属性
 const todoPrograms = computed(() => {
-  return programList.value.filter(item => item.programStatus === 0)
+  return programList?.value.filter(item => item.programStatus === 0) || []
 })
 
 const runningPrograms = computed(() => {
-  return programList.value.filter(item => item.programStatus === 1)
+  return programList?.value.filter(item => item.programStatus === 1) || []
 })
 const finishedPrograms = computed(() => {
-  return programList.value.filter(item => item.programStatus === 2)
+  return programList?.value.filter(item => item.programStatus === 2) || []
 })
 const giveUpPrograms = computed(() => {
-  return programList.value.filter(item => item.programStatus === 3)
+  return programList?.value.filter(item => item.programStatus === 3) || []
 })
 // 滑动轮播图计算属性
 const swiperImagesList = computed(() => {
-  return finishedPrograms.value
+  return finishedPrograms?.value
     .map(item => item.imageUrls ? item.imageUrls : [])
     .flat()
 })
@@ -442,7 +437,7 @@ const queryParams = ref({
   endYear: yearRange[1]
 })
 const total = ref(0)
-const goalStore = useGoalStore()
+const programStore = useProgramStore()
 const fetchProgramData = async () => {
   const res = await programStore.getProgramList(queryParams.value)
   if (res.data.code === 200) {
@@ -461,6 +456,7 @@ watch(yearRange, async (newVal, old) => {
 
 // 级联选项
 let goalOptions = ref([])
+const goalStore = useGoalStore()
 const fetchGoalOptions = async () => {
   const res = await goalStore.getOptions()
   if (res.data.code === 200) {

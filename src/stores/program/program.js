@@ -25,11 +25,7 @@ const useProgramStore = defineStore('program', () => {
 
     // 获取项目详情
     const getProgramDetail = async (programId) => {
-      const res = await api.get('/program/detail', {
-        params: {
-          programId
-        }
-      })
+      const res = await api.get(`/program/detail/${programId}`)
       return res
     }
 
@@ -77,7 +73,6 @@ const useProgramStore = defineStore('program', () => {
 
 
     return {
-      programOptions,
       getProgramList,
       delProgram,
       updateProgram,

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import api from '@/utils/request.js'
 import { ElLoading, ElMessage, ElNotification } from 'element-plus'
 import formatTime from '@/utils/date.js'
-import  commonUtils  from'@/utils/common.js'
+import commonUtils from '@/utils/common.js'
 import { ref } from 'vue'
 
 
@@ -61,10 +61,16 @@ const useGoalStore = defineStore('goal', () => {
 
     // 获取级联选项
     const getOptions = async () => {
-      const res = await api.get('/okr/multi-options')
+      const res = await api.get('/goal/multi-options')
       return res
     }
 
+    // 请求详情
+    const getGoalDetail = async (goalId) => {
+      const res = await api.get(`/goal/detail/${goalId}`)
+      return res
+
+    }
 
     return {
       goalOptions,
@@ -72,7 +78,8 @@ const useGoalStore = defineStore('goal', () => {
       delGoal,
       updateGoal,
       addGoal,
-      getOptions
+      getOptions,
+      getGoalDetail
     }
 
   },

@@ -224,7 +224,6 @@
               <div class="space-y-1">
                 <label class="text-[10px] text-slate-500 uppercase" disabled>专注时间（分钟）</label>
                 <el-input disabled v-model.number="form.focusTime" type="number"
-
                           placeholder="分钟">
                 </el-input>
               </div>
