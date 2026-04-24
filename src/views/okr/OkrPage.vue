@@ -23,21 +23,40 @@
         </div>
 
         <!-- 中间：筛选组件 (新增) -->
+        <!--        <div-->
+        <!--          class="w-auto flex flex-col sm:flex-row gap-3 items-center bg-slate-900/50 p-3 rounded-lg border border-cyan-900/50 backdrop-blur-sm">-->
+        <!--          选择时间范围-->
+        <!--          &lt;!&ndash; 日期范围输入 &ndash;&gt;-->
+        <!--          <el-date-picker-->
+        <!--            prefix-icon="none"-->
+        <!--            v-model="yearRange"-->
+        <!--            type="yearrange"-->
+        <!--            unlink-panels-->
+        <!--            start-placeholder="开始"-->
+        <!--            end-placeholder="结束"-->
+        <!--            :shortcuts="shortcuts"-->
+        <!--          />-->
+        <!--        </div>-->
         <div
-          class="w-full lg:w-auto flex flex-col sm:flex-row gap-3 items-center bg-slate-900/50 p-3 rounded-lg border border-cyan-900/50 backdrop-blur-sm">
-          选择时间范围
-          <!-- 分割线 (仅桌面端显示) -->
-          <div class="hidden sm:block w-px h-6 bg-cyan-800"></div>
-          <!-- 日期范围输入 -->
-          <el-date-picker
-            prefix-icon="none"
-            v-model="yearRange"
-            type="yearrange"
-            unlink-panels
-            start-placeholder="开始"
-            end-placeholder="结束"
-            :shortcuts="shortcuts"
+          class="w-auto flex flex-col sm:flex-row gap-3 items-center bg-slate-900/50 p-3 rounded-lg border border-cyan-900/50 backdrop-blur-sm">
+          选择项目
+          <!--项目选择-->
+          <el-cascader
+            filterable
+            clearable
+            v-model="queryParams.programId"
+            :options="programOptions"
+            :show-all-levels="false"
+            :props="{ emitPath: false }"
           />
+        </div>
+        <div
+          class="w-auto flex flex-col sm:flex-row gap-3 items-center bg-slate-900/50 p-3 rounded-lg border border-cyan-900/50 backdrop-blur-sm">
+          选择OKR
+          <!--OKR选择-->
+          <el-select
+            style="width: 200px"
+          ></el-select>
         </div>
 
         <!-- 右侧：新建按钮 -->
@@ -218,6 +237,7 @@ import useOkrStore from '@/stores/okr/okr.js'
 import useProgramStore from '@/stores/program/program.js'
 import ProgramCard from '@/views/program/component/ProgramCard.vue'
 import OkrCard from '@/views/okr/component/OkrCard.vue'
+import { Select } from '@element-plus/icons-vue'
 
 dayjs.extend(isoWeek)
 const userStore = useUserStore()
@@ -229,8 +249,6 @@ const currentUser = userStore.userInfo.username
 const isModalOpen = ref(false)
 const editMode = ref(false)
 
-// 表单数据模型
-const defaultForm = {}
 
 const okrForm = ref({
   id: null
@@ -243,10 +261,10 @@ const openModal = (okr = null) => {
     okrForm.value = okr
   } else {
     editMode.value = false
-    okrForm.value = {
-      startYear: new Date()
+    if (queryParams.value.programId) {
+      okrForm.value.programId = queryParams.value.programId
     }
-    okrForm.userId = currentUser // 确保User ID正确
+    okrForm.value.status = 0
   }
   isModalOpen.value = true
 }
@@ -311,47 +329,6 @@ const deleteProgram = async (id) => {
 
 }
 
-// 辅助函数：状态样式
-const getStatusColor = (status) => {
-  switch (status) {
-    case 0:
-      return 'border-l-4 border-l-gray-400' // 待开始
-    case 1:
-      return 'border-l-4 border-l-yellow-400' // 完成
-    case 2:
-      return 'border-l-4 border-l-emerald-500 opacity-75' // 放弃
-    default:
-      return 'border-l-4 border-l-cyan-500' // 待办
-  }
-}
-
-const getStatusLabel = (status) => {
-  switch (status) {
-    case 0:
-      return { text: '待完成', color: 'border-gray-500/50 text-yellow-500 bg-gray-500/10' }
-    case 1:
-      return { text: '进行中', color: 'border-yellow-500/50 text-yellow-500 bg-yellow-500/10' }
-    case 2:
-      return { text: '已完成', color: 'border-emerald-500/50 text-emerald-500 bg-emerald-500/10' }
-    case 3:
-      return { text: '已放弃', color: 'border-red-500/50 text-red-500 bg-red-500/10' }
-    default:
-      return { text: '待开始', color: 'border-cyan-500/50 text-cyan-500 bg-cyan-500/10' }
-  }
-}
-
-// 条件筛选的选择方法
-// 定义当前选中的类型，默认可以是 'today'
-const activeType = ref('today')
-
-// 定义基础样式（所有按钮共有的样式）
-const baseClass = 'cursor-pointer px-3 py-1.5 text-xs font-bold rounded transition-all duration-300'
-
-// 定义高亮样式（选中时的样式）
-const activeClass = 'text-cyan-900 bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.5)] hover:scale-105'
-
-// 定义默认样式（未选中时的样式）
-const inactiveClass = 'text-cyan-400 border border-cyan-500/30 bg-cyan-950/30 hover:bg-cyan-500/20 hover:border-cyan-400'
 
 // 计算属性
 const todoOkrs = computed(() => {
@@ -374,10 +351,10 @@ const swiperImagesList = computed(() => {
 // 获取数据/监听数据
 const okrList = ref([]) // 任务列表数据
 // 默认今年的数据
-const yearRange = ref([String(new Date().getFullYear()), String(new Date().getFullYear())])
 const queryParams = ref({
-  startYear: yearRange[0],
-  endYear: yearRange[1]
+  page: 1,
+  pageSize: 10,
+  programId: null
 })
 const total = ref(0)
 const okrStore = useOkrStore()
@@ -389,13 +366,9 @@ const fetchOkrData = async () => {
   }
 }
 // 监听数据
-watch(yearRange, async (newVal, old) => {
-  queryParams.value.startYear = yearRange.value[0].getFullYear().toString()
-  queryParams.value.endYear = yearRange.value[1].getFullYear().toString()
-  console.log(queryParams.value)
-
+watch(queryParams, async (newVal, old) => {
   await fetchOkrData()
-}, { deep: true })
+}, { deep: true, immediate: true })
 
 // 级联选项
 let programOptions = ref([])
