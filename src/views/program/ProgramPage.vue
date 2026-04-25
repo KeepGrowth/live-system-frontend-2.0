@@ -31,14 +31,28 @@
           <!-- 日期范围输入 -->
           <el-date-picker
             prefix-icon="none"
-            v-model="yearRange"
-            type="yearrange"
+            v-model="queryParams.startYear"
+            type="year"
             unlink-panels
-            start-placeholder="开始"
-            end-placeholder="结束"
-            :shortcuts="shortcuts"
           />
+          <span>至</span>
+          <el-date-picker
+            prefix-icon="none"
+            v-model="queryParams.endYear"
+            type="year"
+            unlink-panels
+          />
+          <el-cascader
+            clearable
+            filterable
+            placeholder="按照目标分组"
+            :options="goalOptions"
+            v-model="queryParams.goalId"
+            :props="{ emitPath: false }"
+          >
+          </el-cascader>
         </div>
+
 
         <!-- 右侧：新建按钮 -->
         <div class="w-full lg:w-auto flex justify-end">
@@ -218,6 +232,7 @@
                 <label class="text-[10px] text-slate-500 uppercase">绑定目标</label>
                 <el-cascader
                   filterable
+                  clearable
                   v-model="programForm.goalId"
                   :options="goalOptions"
                   :show-all-levels="false"
@@ -431,10 +446,11 @@ const swiperImagesList = computed(() => {
 // 获取数据/监听数据
 const programList = ref([]) // 任务列表数据
 // 默认今年的数据
-const yearRange = ref([String(new Date().getFullYear()), String(new Date().getFullYear())])
+const dateStr = dayjs().format('YYYY');
 const queryParams = ref({
-  startYear: yearRange[0],
-  endYear: yearRange[1]
+  startYear: dateStr,
+  endYear: dateStr,
+  goalId: null
 })
 const total = ref(0)
 const programStore = useProgramStore()
@@ -446,13 +462,9 @@ const fetchProgramData = async () => {
   }
 }
 // 监听数据
-watch(yearRange, async (newVal, old) => {
-  queryParams.value.startYear = yearRange.value[0].getFullYear().toString()
-  queryParams.value.endYear = yearRange.value[1].getFullYear().toString()
-  console.log(queryParams.value)
-
+watch(queryParams, async (newVal, old) => {
   await fetchProgramData()
-}, { deep: true })
+}, { deep: true,immediate:true })
 
 // 级联选项
 let goalOptions = ref([])

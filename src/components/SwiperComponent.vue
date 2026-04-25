@@ -70,26 +70,8 @@ const isPaused = ref(false)
 const props = defineProps({
   images: {
     type: Array,
-    default: () => [
-      {
-        id:1,
-        imageUrl:'https://placehold.co/1920x600/1e1b4b/06b6d4?text=BeYourself'
-      }
-    ]
+    default: () => []
   },
-  backupImages: {
-    type: Array,
-    default: () => [
-      {
-        id:1,
-        imageUrl:'https://placehold.co/1920x600/1e1b4b/06b6d4?text=BeYourself'
-      }
-    ]
-  },
-  type: {
-    type: String,
-    default: () => 'program'
-  }
 })
 
 // 动画滚动效果计算
@@ -140,7 +122,7 @@ const goToDetail = async (imageItem) => {
 /* 使用 CSS 变量接收 JS 计算的值，实现动态无缝滚动 */
 @keyframes scroll {
   0% {
-    transform: translateX(0);
+    transform: translateX(100%);
   }
   100% {
     transform: translateX(var(--scroll-distance, -1000px));

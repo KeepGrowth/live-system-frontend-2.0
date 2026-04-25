@@ -52,15 +52,21 @@
 
           <!-- 日期范围输入 -->
           <div class="flex items-center gap-2">
-            <input
+            <el-date-picker
               v-model="queryParams.startDate"
+              value-format="YYYY-MM-DD"
               type="date"
-              class="bg-black/40 border border-cyan-800 text-cyan-300 text-xs rounded px-2 py-1.5 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_8px_rgba(34,211,238,0.4)] font-mono">
-            <span class="text-cyan-600">至</span>
-            <input
+              class="bg-black/40 border border-cyan-800 text-cyan-300 text-xs rounded px-2 py-1.5 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_8px_rgba(34,211,238,0.4)] font-mono"
+            />
+          </div>
+          <span>至</span>
+          <div class="flex items-center gap-2">
+            <el-date-picker
               v-model="queryParams.endDate"
+              value-format="YYYY-MM-DD"
               type="date"
-              class="bg-black/40 border border-cyan-800 text-cyan-300 text-xs rounded px-2 py-1.5 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_8px_rgba(34,211,238,0.4)] font-mono">
+              class="bg-black/40 border border-cyan-800 text-cyan-300 text-xs rounded px-2 py-1.5 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_8px_rgba(34,211,238,0.4)] font-mono"
+            />
           </div>
         </div>
 
@@ -70,12 +76,31 @@
                   class="cursor-pointer group relative px-6 py-3 bg-cyan-950/30 border border-cyan-500 text-cyan-400 font-bold uppercase tracking-widest hover:bg-cyan-500 hover:text-black transition-all duration-300 clip-path-slant w-full sm:w-auto">
             <span
               class="cursor-pointer absolute w-0 h-0 top-0 left-0 bg-cyan-400 group-hover:w-full group-hover:h-full transition-all duration-300 -z-10"></span>
-            + 新建任务
+            + 新建Todo
           </button>
         </div>
 
       </header>
-      <swiper-component class="mb-5" v-if="tasks.length > 0" />
+      <swiper-component class="mb-5" v-model:images="todoImageList" v-if="tasks.length > 0" />
+
+      <div class="grid grid-cols-3 gap-4">
+        <indicator-card
+          :title="'累计专注时长'"
+          subtitle="根据你选择的周期计算"
+          unit="h"
+          :value="focusTimeTotal"
+        />
+        <indicator-card
+          title="完成率"
+          unit="%"
+          :value="finishRate"
+        />
+        <indicator-card
+          title="推进OKR数"
+          unit="个"
+          :value="pushedOkr"
+        />
+      </div>
       <!-- 分页组件 -->
       <div class="w-full lg:w-auto">
         <el-pagination
@@ -235,6 +260,8 @@
               <div class="space-y-1">
                 <label class="text-[10px] uppercase">关联OKR（可选）</label>
                 <el-cascader
+                  filterable
+                  clearable
                   v-model="form.okrId"
                   :options="okrOptions"
                   :show-all-levels="false"
@@ -280,6 +307,9 @@ import isoWeek from 'dayjs/plugin/isoWeek'
 import useOkrStore from '@/stores/okr/okr.js'
 import TodoLogModal from '@/views/todo_log/component/TodoLogModal.vue'
 import useTodoLogStore from '@/stores/todo/todoLog.js'
+import IndicatorCard from '@/components/IndicatorCard.vue'
+
+
 
 dayjs.extend(isoWeek)
 const userStore = useUserStore()
@@ -291,23 +321,6 @@ const currentUser = userStore.userInfo.username
 const isModalOpen = ref(false)
 const editMode = ref(false)
 
-// 表单数据模型
-const defaultForm = {
-  id: null,
-  userId: null,
-  title: '',
-  todoGoal: '',
-  finishDesc: '',
-  quitDesc: '',
-  importance: null,
-  status: 0,
-  focusTime: 0,
-  deadline: '',
-  emotion: '',
-  goalId: null,
-  programId: null,
-  okrId: null
-}
 
 const form = ref({
   id: null,
@@ -334,6 +347,11 @@ const openModal = (task = null) => {
   } else {
     editMode.value = false
     form.value = {}
+    if (queryParams.value.endDate) {
+      form.value.deadline = queryParams.value.endDate
+    }
+    form.value.importance = 1
+    form.value.status = 0
     form.userId = currentUser // 确保User ID正确
   }
   isModalOpen.value = true
@@ -398,32 +416,6 @@ const deleteTask = async (id) => {
 
 }
 
-// 辅助函数：状态样式
-const getStatusColor = (status) => {
-  switch (status) {
-    case 1:
-      return 'border-l-4 border-l-yellow-400' // 进行中
-    case 2:
-      return 'border-l-4 border-l-emerald-500 opacity-75' // 完成
-    case 3:
-      return 'border-l-4 border-l-red-500 opacity-50 grayscale' // 放弃
-    default:
-      return 'border-l-4 border-l-cyan-500' // 待办
-  }
-}
-
-const getStatusLabel = (status) => {
-  switch (status) {
-    case 1:
-      return { text: '进行中', color: 'border-yellow-500/50 text-yellow-500 bg-yellow-500/10' }
-    case 2:
-      return { text: '已完成', color: 'border-emerald-500/50 text-emerald-500 bg-emerald-500/10' }
-    case 3:
-      return { text: '已放弃', color: 'border-red-500/50 text-red-500 bg-red-500/10' }
-    default:
-      return { text: '待开始', color: 'border-cyan-500/50 text-cyan-500 bg-cyan-500/10' }
-  }
-}
 
 // 条件筛选的选择方法
 // 定义当前选中的类型，默认可以是 'today'
@@ -458,6 +450,29 @@ const giveUpTasks = computed(() => {
   return tasks.value.filter(item => item.status === 3)
 })
 
+// 取todo图片数组
+const todoImageList = computed(() => {
+  return tasks.value
+    .flatMap(todo => {
+      // 检查 imageList 是否存在且不为空
+      const images = todo.imageList || []
+      return images
+        .filter(img => img.imageUrl) // 确保有 URL
+        .map(img => ({
+          // 1. 携带图片 URL
+          url: img.imageUrl,
+          // 2. 携带你需要的 ID 信息
+          todoId: todo.id,
+          okrId: todo.okrId,
+          programId: todo.programId,
+          goalId: todo.goalId,
+          // 3. (可选) 携带图片在服务器上的原始 ID
+          imageId: img.id
+        }))
+    })
+    .filter(item => item.url) // 过滤掉无效项
+})
+
 // 筛选条件
 const chooseDateRangeType = async (dateType) => {
   activeType.value = dateType
@@ -477,16 +492,15 @@ const chooseDateRangeType = async (dateType) => {
   }
 }
 // 获取数据/监听数据
+const dateStr = dayjs().format('YYYY-MM-DD')
 const total = ref(0)
 const queryParams = ref({
-  startDate: '',
-  endDate: '',
-  page:1,
-  pageSize:10
+  startDate: dateStr,
+  endDate: dateStr,
+  page: 1,
+  pageSize: 10
 })
-watch(queryParams, async (newVal, oldValue) => {
-  await fetchTodoData()
-}, { deep: true })
+
 const tasks = ref([]) // 任务列表数据
 
 
@@ -523,19 +537,70 @@ const openLogModal = async (todoId) => {
   currentTodoId.value = todoId
   isLogModalOpen.value = true
 }
+
+// 计算属性
+//累计专注时间
+const focusTimeTotal = computed(() => {
+  const totalFocusTime = tasks?.value.reduce((accumulator, currentTask) => {
+    return accumulator + currentTask.focusTime
+  }, 0)
+  return (totalFocusTime / 60).toFixed(2)
+})
+
+// 完成率
+const finishRate = computed(() => {
+  const totalLength = tasks?.value.length
+  const statusOneCount = tasks?.value.filter(task => task.status === 2).length
+  const ratio = totalLength === 0 ? 0 : statusOneCount / totalLength
+  return (ratio * 100).toFixed(2)
+})
+
+// 推进OKR数
+const pushedOkr = computed(() => {
+  const uniqueOkrIds = [...new Set(tasks?.value.map(item => item.okrId))]
+  return uniqueOkrIds.length
+})
+
+// 核心情绪
+const keyEmotion = computed(() => {
+  // 1. 安全地获取嵌套数组
+  // 如果 tasks 是 ref，直接写 tasks.todoLogList 即可，不需要 .value
+  const logList = tasks.value?.todoLogList || []
+
+  // 2. 统计情绪频次
+  const emotionCounts = logList.reduce((counts, item) => {
+    // 确保 item.emotion 存在，防止 undefined 报错
+    if (item.emotion) {
+      counts[item.emotion] = (counts[item.emotion] || 0) + 1
+    }
+    return counts
+  }, {})
+
+  // 3. 找出出现次数最多的情绪
+  const emotions = Object.keys(emotionCounts)
+
+  // 防御性编程：如果数组为空，返回 null 或默认值
+  if (emotions.length === 0) return null
+
+  const mostFrequentEmotion = emotions.reduce((a, b) =>
+    emotionCounts[a] > emotionCounts[b] ? a : b
+  )
+
+  return mostFrequentEmotion
+})
 // 提交日志
 const handleLogSubmit = async (todoLogForm) => {
   const res = await todoLogStore.addTodoLog(todoLogForm)
-  if (res.data.code===200){
+  if (res.data.code === 200) {
     ElNotification.success({
-      title:'成功',
-      message:res.data.msg
+      title: '成功',
+      message: res.data.msg
     })
     await fetchTodoData()
-  }else{
+  } else {
     ElNotification.error({
-      title:'失败',
-      message:res.data.msg
+      title: '失败',
+      message: res.data.msg
     })
   }
   isLogModalOpen.value = false
@@ -546,8 +611,13 @@ onMounted(async () => {
   await fetchOkrOptions()
 })
 
+watch(queryParams, async (newVal, oldValue) => {
+  await fetchTodoData()
+}, { deep: true, immediate: true })
+
 
 </script>
+
 
 <style scoped>
 /* 赛博朋克斜切角按钮 */

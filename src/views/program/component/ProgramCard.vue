@@ -50,13 +50,12 @@
           <span class="text-cyan-400">{{ task.estimateFinishTime || '等待完成' }}</span>
         </div>
         <div class="flex flex-col">
-          <span class="text-slate-600 text-[10px] uppercase">满意度</span>
+          <span class="text-slate-600 text-[10px] uppercase">累计花费时间(小时)</span>
           <div class="flex justify-start gap-1 mt-1">
-            <div v-for="i in 4" :key="i" class="w-1.5 h-3"
-                 :class="i <= task.satisfactionScore ? 'bg-red-400 shadow-[0_0_5px_#facc15]' : 'bg-slate-800'"></div>
+            <span class="text-emerald-400">{{ (task.focusTime/60).toFixed(2) || '等待开始' }}</span>
           </div>
         </div>
-        <div class="flex flex-col text-right">
+        <div class="cursor-pointer flex flex-col text-right">
           <span class="text-slate-600 text-[10px] uppercase">关联OKR数</span>
           <span class="text-emerald-400">{{ task.okrList?.length || 0 }}</span>
         </div>

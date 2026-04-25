@@ -187,6 +187,7 @@
                 <label class="text-[10px] text-slate-500 uppercase">绑定项目</label>
                 <el-cascader
                   filterable
+                  clearable
                   v-model="okrForm.programId"
                   :options="programOptions"
                   :show-all-levels="false"
