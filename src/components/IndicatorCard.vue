@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 
 const props = defineProps({
   title: {
@@ -114,12 +114,11 @@ const props = defineProps({
 const displayValue = ref()
 const progress = ref(0)
 
-// 计算进度百分比 (假设最大值为 targetValue * 1.2)
-const maxVal = props.targetValue
-const progressPercent = Math.min((props.value / maxVal) * 100, 100)
 
-// 数字滚动动画
-onMounted(() => {
+const iniData = ()=>{
+  // 计算进度百分比
+  const maxVal = props.targetValue
+  const progressPercent = Math.min((props.value / maxVal) * 100, 100)
   const duration = 1500 // 动画时长 ms
   const startTimestamp = performance.now()
 
@@ -143,6 +142,15 @@ onMounted(() => {
   }
 
   requestAnimationFrame(step)
+}
+// 数字滚动动画
+onMounted(() => {
+  iniData()
+})
+
+// 监听数据变化
+watch(props,()=>{
+  iniData()
 })
 </script>
 

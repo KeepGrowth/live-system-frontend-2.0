@@ -88,7 +88,7 @@
           :title="'累计专注时长'"
           subtitle="根据你选择的周期计算"
           unit="h"
-          :value="focusTimeTotal"
+          v-model:value="focusTimeTotal"
         />
         <indicator-card
           title="完成率"

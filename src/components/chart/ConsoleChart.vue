@@ -150,7 +150,7 @@ const getOption = () => {
         // 仪表盘数据
         data: [
           {
-            value: props.value,
+            value: (props.value)?.toFixed(2),
           }
         ]
       }

@@ -84,7 +84,7 @@ const getOption = () => {
     color: CYBERPUNK_COLORS,
     series: [
       {
-        name: 'Cyber Data',
+        name: props.title,
         type: 'pie',
         radius: ['40%', '60%'], // 空心圆环
         center: ['60%', '55%'], // 偏移中心以留出图例空间

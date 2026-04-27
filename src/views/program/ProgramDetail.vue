@@ -192,7 +192,7 @@ import useUserStore from '@/stores/user.js'
 import router from '@/router/index.js'
 import IndicatorCard from '@/components/IndicatorCard.vue'
 import LineChart from '@/components/chart/LineChart.vue'
-import BarChart from '@/components/chart/BarChart.vue'
+import BarChart from '@/components/chart/StackBarChart.vue'
 import OkrModal from '@/views/okr/component/OkrModal.vue'
 
 const props = defineProps({

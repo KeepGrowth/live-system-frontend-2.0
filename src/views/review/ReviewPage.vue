@@ -71,10 +71,28 @@
           </h2>
           <span class="font-mono text-xs text-slate-300 mb-1">:: 年度目标复盘</span>
         </div>
-
+        <!--指标卡区域-->
+        <div class="grid grid-cols-3 lg:grid-cols-12 gap-6 mb-6">
+          <div class="lg:col-span-4 h-full">
+            <indicator-card
+              title="累计目标"
+            />
+          </div>
+          <div class="lg:col-span-4 h-full">
+            <indicator-card
+              title="花费时长"
+              unit="小时"
+            />
+          </div>
+          <div class="lg:col-span-4 h-full">
+            <indicator-card
+              title="累计项目"
+              unit="项"
+            />
+          </div>
+        </div>
         <!-- 图表区域 - 第一行：使用 12 列栅格系统统一规划 -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-
           <!-- 左侧大图 (Console Chart) - 占 2 列 -->
           <div class="lg:col-span-2 h-full">
             <!-- 添加 h-full 和 min-h 确保高度拉伸 -->
@@ -118,8 +136,8 @@
           <div class="lg:col-span-8 h-full">
             <div class="h-full min-h-[300px]">
               <bar-chart
-                :title="'目标专注时间分布'"
-                :chart-data="goalReviewData.consumeTimeDistribution"
+                title="目标专注时间分布（小时）"
+                v-model:chart-data="goalReviewData.consumeTimeDistribution"
               />
             </div>
           </div>
@@ -152,6 +170,7 @@ import BarChart from '@/components/chart/BarChart.vue'
 import IndicatorCard from '@/components/IndicatorCard.vue'
 import WordCloudChart from '@/components/chart/WordCloudChart.vue'
 import useReviewStore from '@/stores/review.js'
+import StackBarChart from '@/components/chart/StackBarChart.vue'
 
 dayjs.extend(isoWeek)
 const userStore = useUserStore()
@@ -163,13 +182,10 @@ const goalReviewData = ref({
   // 目标进度
   goalCompletion: null,
   // 目标专注时间分布
-  consumeTimeDistribution: {
-    categories: [],
-    series: []
-  },
+  consumeTimeDistribution: [],
   // 饼图数据
-  goalCatePie:[],
-  goalCompletionList:[]
+  goalCatePie: [],
+  goalCompletionList: []
 })
 const goalReviewList = ref([])
 const queryParams = ref({})
@@ -178,18 +194,17 @@ const fetchGoalReview = async () => {
   const res = await reviewStore.getGoalReview(queryParams.value)
   if (res.data.code === 200) {
     // 条形图数据
-    goalReviewData.value.consumeTimeDistribution.categories = res.data.data.consumeTimeDistribution.categories
-    goalReviewData.value.consumeTimeDistribution.series = res.data.data.consumeTimeDistribution.series
+    goalReviewData.value.consumeTimeDistribution = res.data.data.consumeTimeDistribution
     // 进度数据
     goalReviewData.value.goalCompletion = res.data.data.goalCompletion
 
     // 饼图数据
     goalReviewData.value.goalCatePie = res.data.data.goalCateList
     goalReviewData.value.goalCompletionList = res.data.data.goalCompletionList
-  }else{
+  } else {
     ElNotification.error({
-      title:'失败',
-      message:res.data.msg
+      title: '失败',
+      message: res.data.msg
     })
   }
 }
