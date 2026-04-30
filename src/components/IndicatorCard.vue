@@ -107,7 +107,7 @@ const props = defineProps({
     default: 12.5
   },
   isPositive: {
-    type: Boolean,
+    type: Boolean
   }
 })
 
@@ -115,7 +115,7 @@ const displayValue = ref()
 const progress = ref(0)
 
 
-const iniData = ()=>{
+const iniData = () => {
   // 计算进度百分比
   const maxVal = props.targetValue
   const progressPercent = Math.min((props.value / maxVal) * 100, 100)
@@ -149,9 +149,9 @@ onMounted(() => {
 })
 
 // 监听数据变化
-watch(props,()=>{
+watch(props, () => {
   iniData()
-})
+}, { immediate: true, deep: true })
 </script>
 
 <style scoped>
