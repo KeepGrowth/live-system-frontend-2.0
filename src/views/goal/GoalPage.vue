@@ -58,7 +58,7 @@
           class="mt-8 flex justify-center" v-if="goalList.length > 0"
           v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
-          :page-sizes="[5, 10, 15, 20]"
+          :page-sizes="[20,30,40,50,60]"
           :background="true"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -461,8 +461,8 @@ const yearRange = ref([String(new Date().getFullYear()), String(new Date().getFu
 const queryParams = ref({
   startYear: yearRange[0],
   endYear: yearRange[1],
-  page:1,
-  pageSize:10
+  page: 1,
+  pageSize: 20
 })
 const goalStore = useGoalStore()
 const fetchGoalData = async () => {

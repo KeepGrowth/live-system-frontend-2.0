@@ -168,6 +168,7 @@
                     class="ml-2"
                     v-else
                     type="warning"
+                    v-prevent-re-click="30000"
                   >点击重新发送
                   </el-button>
 
@@ -195,9 +196,9 @@
                 </div>
               </div>
 
-              <button type="button"
-                      @click="register"
-                      class="cursor-pointer mt-6 w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/30 transform transition hover:-translate-y-0.5 active:scale-95">
+              <button
+                @click="register"
+                class="cursor-pointer mt-6 w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/30 transform transition hover:-translate-y-0.5 active:scale-95">
                 立即注册
               </button>
             </div>

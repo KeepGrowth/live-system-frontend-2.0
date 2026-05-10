@@ -71,7 +71,7 @@
           class="mt-8 flex justify-center" v-if="programList?.length > 0"
           v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
-          :page-sizes="[5, 10, 15, 20]"
+          :page-sizes="[30,40,50,60]"
           :background="true"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -446,11 +446,13 @@ const swiperImagesList = computed(() => {
 // 获取数据/监听数据
 const programList = ref([]) // 任务列表数据
 // 默认今年的数据
-const dateStr = dayjs().format('YYYY');
+const dateStr = dayjs().format('YYYY')
 const queryParams = ref({
   startYear: dateStr,
   endYear: dateStr,
-  goalId: null
+  goalId: null,
+  page: 1,
+  pageSize: 30
 })
 const total = ref(0)
 const programStore = useProgramStore()
@@ -464,7 +466,7 @@ const fetchProgramData = async () => {
 // 监听数据
 watch(queryParams, async (newVal, old) => {
   await fetchProgramData()
-}, { deep: true,immediate:true })
+}, { deep: true, immediate: true })
 
 // 级联选项
 let goalOptions = ref([])

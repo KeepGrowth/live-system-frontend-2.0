@@ -94,7 +94,7 @@
             </label>
             <textarea
               v-model="formData.logDesc"
-              rows="4"
+              rows="8"
               class="w-full bg-slate-950/50 border border-slate-700 px-3 py-2 text-slate-300 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_10px_rgba(34,211,238,0.4)] transition-all duration-300 font-mono resize-none"
               placeholder="记录这段经历的的经历与反思..."
             ></textarea>
@@ -134,14 +134,12 @@
         <!-- 操作按钮 -->
         <div class="flex justify-end pt-4 border-t border-cyan-900/50">
           <button
-            type="button"
             @click="closeModal"
             class="cursor-pointer px-6 py-2 mr-4 text-sm font-mono text-slate-400 hover:text-white uppercase tracking-widest transition-colors"
           >
             取消
           </button>
           <button
-            type="submit"
             class="cursor-pointer relative px-8 py-2 font-bold text-black bg-cyan-400 uppercase tracking-widest hover:bg-fuchsia-500 hover:text-white transition-all duration-300 transform skew-x-[-10deg] hover:skew-x-0 shadow-[4px_4px_0px_rgba(217,70,239,0.8)] hover:shadow-[4px_4px_0px_rgba(255,255,255,0.8)]"
           >
             <span class="block transform skew-x-[10deg] hover:skew-x-0">确认提交</span>

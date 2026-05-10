@@ -68,6 +68,23 @@
               class="bg-black/40 border border-cyan-800 text-cyan-300 text-xs rounded px-2 py-1.5 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_8px_rgba(34,211,238,0.4)] font-mono"
             />
           </div>
+          <!-- 分割线 (仅桌面端显示) -->
+          <div class="hidden sm:block w-px h-6 bg-cyan-800"></div>
+          <!--状态选择框-->
+          <div class="flex items-center gap-2">
+            <el-select
+              placeholder="状态"
+              style="width: 100px"
+              v-model="queryParams.status"
+              clearable
+            >
+              <el-option :value="0" label="待完成"></el-option>
+              <el-option :value="1" label="进行中"></el-option>
+              <el-option :value="2" label="已完成"></el-option>
+              <el-option :value="3" label="已放弃"></el-option>
+            </el-select>
+          </div>
+
         </div>
 
         <!-- 右侧：新建按钮 -->
@@ -107,7 +124,7 @@
           class="mt-8 flex justify-center" v-if="tasks.length > 0"
           v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
-          :page-sizes="[5, 10, 15, 20]"
+          :page-sizes="[10,20,30,40]"
           :background="true"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -310,7 +327,6 @@ import useTodoLogStore from '@/stores/todo/todoLog.js'
 import IndicatorCard from '@/components/IndicatorCard.vue'
 
 
-
 dayjs.extend(isoWeek)
 const userStore = useUserStore()
 // 模拟当前用户名称
@@ -495,10 +511,11 @@ const chooseDateRangeType = async (dateType) => {
 const dateStr = dayjs().format('YYYY-MM-DD')
 const total = ref(0)
 const queryParams = ref({
+  status:0,
   startDate: dateStr,
   endDate: dateStr,
   page: 1,
-  pageSize: 10
+  pageSize: 20
 })
 
 const tasks = ref([]) // 任务列表数据

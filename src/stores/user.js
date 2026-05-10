@@ -23,7 +23,7 @@ const useUserStore = defineStore('user', () => {
   // 用户注册方法
   const register = async (registerForm) => {
     const res = await api.post('/user/register', registerForm)
-    if (res.data.code === 200){
+    if (res.data.code === 200) {
       token.value = res.data.data.token
     }
     return res
@@ -47,6 +47,14 @@ const useUserStore = defineStore('user', () => {
     return res
   }
 
+  // 清楚登录状态
+  const logout = async () => {
+    // 1. 清空响应式变量的值
+    token.value = ''
+    userInfo.value = {}
+    localStorage.removeItem('user')
+  }
+
 
   // 暴露给外部
   return {
@@ -56,7 +64,8 @@ const useUserStore = defineStore('user', () => {
     register,
     updateUser,
     deleteUser,
-    sendCode
+    sendCode,
+    logout
   }
 
 }, {

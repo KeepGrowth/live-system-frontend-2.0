@@ -20,6 +20,7 @@ const useProgramStore = defineStore('program', () => {
         loading.close()
         return res
       }
+      loading.close()
 
     }
 
