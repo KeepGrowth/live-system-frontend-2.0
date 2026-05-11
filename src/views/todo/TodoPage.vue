@@ -98,7 +98,7 @@
         </div>
 
       </header>
-      <swiper-component class="mb-5" v-model:images="todoImageList" v-if="tasks.length > 0" />
+      <swiper-component class="mb-5" v-model:images="todoImageList" />
 
       <div class="grid grid-cols-3 gap-4">
         <indicator-card
@@ -233,7 +233,7 @@
 
             <!-- 第二行：目标与描述 -->
             <div class="space-y-1">
-              <label class="text-xs text-cyan-500 uppercase font-bold">核心目标 (Goal)</label>
+              <label class="text-xs text-cyan-500 uppercase font-bold">核心目标</label>
               <textarea v-model="form.todoGoal" rows="12"
                         class="w-full bg-slate-900 border border-slate-700 text-slate-200 p-2 focus:outline-none focus:border-cyan-500 transition-all resize-none"
                         placeholder="详细描述任务目标..."></textarea>
@@ -270,6 +270,18 @@
                 </el-input>
               </div>
 
+            </div>
+            <div class="space-y-1" v-if="form.status===3">
+              <label class="text-xs text-cyan-500 uppercase font-bold">放弃描述</label>
+              <textarea v-model="form.quitDesc" rows="5"
+                        class="w-full bg-slate-900 border border-slate-700 text-slate-200 p-2 focus:outline-none focus:border-cyan-500 transition-all resize-none"
+                        placeholder="放弃是一件需要勇气的事情，而你做到一点，你只需要在此处记录原因方便追踪即可，不必活在过去。"></textarea>
+            </div>
+            <div class="space-y-1" v-if="form.status===2">
+              <label class="text-xs text-cyan-500 uppercase font-bold">完成总结</label>
+              <textarea v-model="form.finishDesc" rows="5"
+                        class="w-full bg-slate-900 border border-slate-700 text-slate-200 p-2 focus:outline-none focus:border-cyan-500 transition-all resize-none"
+                        placeholder="恭喜你完成此待办，距离你的目标又推进了一步！说说你的感受和值得记录的事情吧~"></textarea>
             </div>
 
             <!-- 隐藏字段模拟 -->
@@ -476,17 +488,15 @@ const todoImageList = computed(() => {
         .filter(img => img.imageUrl) // 确保有 URL
         .map(img => ({
           // 1. 携带图片 URL
-          url: img.imageUrl,
+          imageUrl: img.imageUrl,
           // 2. 携带你需要的 ID 信息
           todoId: todo.id,
           okrId: todo.okrId,
           programId: todo.programId,
-          goalId: todo.goalId,
-          // 3. (可选) 携带图片在服务器上的原始 ID
-          imageId: img.id
+          goalId: todo.goalId
         }))
     })
-    .filter(item => item.url) // 过滤掉无效项
+  // .filter(item => item.imageUrl) // 过滤掉无效项
 })
 
 // 筛选条件
@@ -511,7 +521,7 @@ const chooseDateRangeType = async (dateType) => {
 const dateStr = dayjs().format('YYYY-MM-DD')
 const total = ref(0)
 const queryParams = ref({
-  status:0,
+  status: 0,
   startDate: dateStr,
   endDate: dateStr,
   page: 1,
@@ -578,33 +588,6 @@ const pushedOkr = computed(() => {
   return uniqueOkrIds.length
 })
 
-// 核心情绪
-const keyEmotion = computed(() => {
-  // 1. 安全地获取嵌套数组
-  // 如果 tasks 是 ref，直接写 tasks.todoLogList 即可，不需要 .value
-  const logList = tasks.value?.todoLogList || []
-
-  // 2. 统计情绪频次
-  const emotionCounts = logList.reduce((counts, item) => {
-    // 确保 item.emotion 存在，防止 undefined 报错
-    if (item.emotion) {
-      counts[item.emotion] = (counts[item.emotion] || 0) + 1
-    }
-    return counts
-  }, {})
-
-  // 3. 找出出现次数最多的情绪
-  const emotions = Object.keys(emotionCounts)
-
-  // 防御性编程：如果数组为空，返回 null 或默认值
-  if (emotions.length === 0) return null
-
-  const mostFrequentEmotion = emotions.reduce((a, b) =>
-    emotionCounts[a] > emotionCounts[b] ? a : b
-  )
-
-  return mostFrequentEmotion
-})
 // 提交日志
 const handleLogSubmit = async (todoLogForm) => {
   const res = await todoLogStore.addTodoLog(todoLogForm)

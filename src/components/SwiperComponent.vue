@@ -106,7 +106,7 @@ const trackStyle = computed(() => {
 const goToDetail = async (imageItem) => {
   // 根据类型不同跳转到不同详情页
   if (props.type === 'program') {
-    router.push({
+    await router.push({
       name: 'ProgramDetail',
       params: { id: imageItem.programId }
     })

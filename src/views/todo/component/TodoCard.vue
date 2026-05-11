@@ -34,9 +34,9 @@
 
       <!-- 目标简述 -->
       <p
-        class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors"
+        class="text-sm text-slate-300 mb-4 whitespace-pre-line h-auto border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors"
       >
-        {{ task.todoGoal || '无详细描述' }}
+        {{ task.todoGoal || '未描述此待办要达成的目标' }}
       </p>
 
       <!-- 数据网格 -->
@@ -65,7 +65,7 @@
       <!-- 操作栏 -->
       <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-2">
         <div class="text-[10px] text-slate-600">
-          情绪: <span class="text-slate-400">{{ task.emotion || '--' }}</span>
+          关联OKR: <span class="text-slate-400">{{ task?.okrId || '无' }}</span>
         </div>
         <div class="flex gap-2">
           <button

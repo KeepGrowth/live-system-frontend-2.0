@@ -38,6 +38,19 @@
             end-placeholder="结束"
             :shortcuts="shortcuts"
           />
+          <div class="flex items-center gap-2">
+            <el-select
+              placeholder="状态"
+              style="width: 100px"
+              v-model="queryParams.goalStatus"
+              clearable
+            >
+              <el-option :value="0" label="待完成"></el-option>
+              <el-option :value="1" label="进行中"></el-option>
+              <el-option :value="2" label="已完成"></el-option>
+              <el-option :value="3" label="已放弃"></el-option>
+            </el-select>
+          </div>
         </div>
 
         <!-- 右侧：新建按钮 -->
@@ -51,7 +64,7 @@
         </div>
 
       </header>
-      <swiper-component class="mb-5" v-if="swiperImagesList.length > 0" :images="swiperImagesList" />
+<!--      <swiper-component class="mb-5" v-if="swiperImagesList.length > 0" :images="swiperImagesList" />-->
       <!-- 分页组件 -->
       <div>
         <el-pagination
@@ -70,7 +83,7 @@
       <!--待开始-->
       <section
         class="container mx-auto px-6 -mt-10 relative z-30 mt-10"
-        v-if="runningGoals && runningGoals.length > 0"
+        v-if="todoGoals.length>0"
       >
         <!-- 标题区域 -->
         <div class="flex items-end gap-4 mb-12 border-b border-slate-800 pb-4">
@@ -93,7 +106,7 @@
       <!--进行中-->
       <section
         class="container mx-auto px-6 -mt-10 relative z-30 mt-10"
-        v-if="runningGoals && runningGoals.length > 0"
+        v-if="runningGoals.length>0"
       >
         <!-- 标题区域 -->
         <div class="flex items-end gap-4 mb-12 border-b border-slate-800 pb-4">
@@ -284,18 +297,6 @@ const currentUser = userStore.userInfo.username
 const isModalOpen = ref(false)
 const editMode = ref(false)
 
-// 表单数据模型
-const defaultForm = {
-  id: null,
-  userId: null,
-  goalName: '',
-  description: '',
-  goalCategoryId: null,
-  goalStatus: null,
-  satisfactionScore: null,
-  startDate: '',
-  finishDate: ''
-}
 
 const goalForm = ref({
   id: null,
@@ -366,10 +367,10 @@ const saveGoal = async () => {
   isModalOpen.value = false
 }
 
-// 删除任务
+// 删除
 const deleteGoal = async (id) => {
   try {
-    await ElMessageBox.confirm('确定删除此任务吗？', '提示', {
+    await ElMessageBox.confirm('确定删除此目标吗？', '提示', {
       type: 'warning'
     })
     const res = await goalStore.delGoal(id)
@@ -387,101 +388,69 @@ const deleteGoal = async (id) => {
 
 }
 
-// 辅助函数：状态样式
-const getStatusColor = (status) => {
-  switch (status) {
-    case 0:
-      return 'border-l-4 border-l-gray-400' // 待开始
-    case 1:
-      return 'border-l-4 border-l-yellow-400' // 进行中
-    case 2:
-      return 'border-l-4 border-l-emerald-500 opacity-75' // 完成
-    case 3:
-      return 'border-l-4 border-l-red-500 opacity-50 grayscale' // 放弃
-    default:
-      return 'border-l-4 border-l-cyan-500' // 待办
-  }
-}
-
-const getStatusLabel = (status) => {
-  switch (status) {
-    case 0:
-      return { text: '待完成', color: 'border-gray-500/50 text-yellow-500 bg-gray-500/10' }
-    case 1:
-      return { text: '进行中', color: 'border-yellow-500/50 text-yellow-500 bg-yellow-500/10' }
-    case 2:
-      return { text: '已完成', color: 'border-emerald-500/50 text-emerald-500 bg-emerald-500/10' }
-    case 3:
-      return { text: '已放弃', color: 'border-red-500/50 text-red-500 bg-red-500/10' }
-    default:
-      return { text: '待开始', color: 'border-cyan-500/50 text-cyan-500 bg-cyan-500/10' }
-  }
-}
-
-// 条件筛选的选择方法
-// 定义当前选中的类型，默认可以是 'today'
-const activeType = ref('today')
-
-// 定义基础样式（所有按钮共有的样式）
-const baseClass = 'cursor-pointer px-3 py-1.5 text-xs font-bold rounded transition-all duration-300'
-
-// 定义高亮样式（选中时的样式）
-const activeClass = 'text-cyan-900 bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.5)] hover:scale-105'
-
-// 定义默认样式（未选中时的样式）
-const inactiveClass = 'text-cyan-400 border border-cyan-500/30 bg-cyan-950/30 hover:bg-cyan-500/20 hover:border-cyan-400'
-
 // 计算属性
 const todoGoals = computed(() => {
-  return goalList.value.filter(item => item.goalStatus === 0)
+  return goalList?.value.filter(item => item.goalStatus === 0)
 })
 
 const runningGoals = computed(() => {
-  return goalList.value.filter(item => item.goalStatus === 1)
+  return goalList?.value.filter(item => item.goalStatus === 1)
 })
 const finishedGoals = computed(() => {
-  return goalList.value.filter(item => item.goalStatus === 2)
+  return goalList?.value.filter(item => item.goalStatus === 2)
 })
 const giveUpGoals = computed(() => {
-  return goalList.value.filter(item => item.goalStatus === 3)
+  return goalList?.value.filter(item => item.goalStatus === 3)
 })
 // 滑动轮播图计算属性
-const swiperImagesList = computed(() => {
-  return finishedGoals.value
-    .map(item => item.imageUrls ? item.imageUrls : [])
-    .flat()
-    .filter(url => url.trim() !== '')
-})
+// const swiperImagesList = computed(() => {
+//   return finishedGoals.value
+//     .map(item => item.imageUrls ? item.imageUrls : [])
+//     .flat()
+//     .filter(url => url.trim() !== '')
+// })
 
 
 // 获取数据/监听数据
-const goalList = ref([]) // 任务列表数据
+const goalList = ref() // 任务列表数据
 // 默认今年的数据
 const yearRange = ref([String(new Date().getFullYear()), String(new Date().getFullYear())])
 const queryParams = ref({
   startYear: yearRange[0],
   endYear: yearRange[1],
   page: 1,
-  pageSize: 20
+  pageSize: 20,
+  goalStatus:2
 })
 const goalStore = useGoalStore()
 const fetchGoalData = async () => {
   const res = await goalStore.getGoalList(queryParams.value)
   if (res.data.code === 200) {
+    console.log(goalList.value)
     goalList.value = res.data.data.goalList
     total.value = res.data.data.total
+  }else{
+    ElNotification.error({
+      title:'获取数据失败'
+    })
   }
 }
 const total = ref(0)
 
 // 监听数据
-watch(yearRange, async (newVal, old) => {
-  queryParams.value.startYear = yearRange.value[0].getFullYear().toString()
-  queryParams.value.endYear = yearRange.value[1].getFullYear().toString()
-  console.log(queryParams.value)
-
-  await fetchGoalData()
+// 修复后的 watch
+watch(yearRange, async (newVal) => {
+  // ✅ 直接赋值字符串，或者根据后端接口要求格式化
+  if (newVal && newVal.length === 2) {
+    queryParams.value.startYear = newVal[0].getFullYear().toString(); // 假设后端接受 '2025' 这种格式
+    queryParams.value.endYear = newVal[1].getFullYear().toString();
+  }
 }, { deep: true })
+
+// queryParams 的 watch 保持不变，它负责真正发起请求
+watch(queryParams, async (newVal, old) => {
+  await fetchGoalData()
+}, { deep: true, immediate: true })
 onMounted(async () => {
   await fetchGoalData()
 })

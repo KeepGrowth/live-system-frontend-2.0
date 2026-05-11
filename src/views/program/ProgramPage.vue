@@ -33,6 +33,7 @@
             prefix-icon="none"
             v-model="queryParams.startYear"
             type="year"
+            value-format="YYYY"
             unlink-panels
           />
           <span>至</span>
@@ -40,6 +41,7 @@
             prefix-icon="none"
             v-model="queryParams.endYear"
             type="year"
+            value-format="YYYY"
             unlink-panels
           />
           <el-cascader
@@ -51,6 +53,19 @@
             :props="{ emitPath: false }"
           >
           </el-cascader>
+          <div class="flex items-center gap-2">
+            <el-select
+              placeholder="状态"
+              style="width: 100px"
+              v-model="queryParams.programStatus"
+              clearable
+            >
+              <el-option :value="0" label="待完成"></el-option>
+              <el-option :value="1" label="进行中"></el-option>
+              <el-option :value="2" label="已完成"></el-option>
+              <el-option :value="3" label="已放弃"></el-option>
+            </el-select>
+          </div>
         </div>
 
 
@@ -311,7 +326,8 @@ const openModal = (program = null) => {
   } else {
     editMode.value = false
     programForm.value = {
-      startYear: new Date()
+      startYear: new Date(),
+      programStatus: 0
     }
     programForm.userId = currentUser // 确保User ID正确
   }
@@ -452,14 +468,15 @@ const queryParams = ref({
   endYear: dateStr,
   goalId: null,
   page: 1,
-  pageSize: 30
+  pageSize: 30,
+  programStatus: 2
 })
 const total = ref(0)
 const programStore = useProgramStore()
 const fetchProgramData = async () => {
   const res = await programStore.getProgramList(queryParams.value)
   if (res.data.code === 200) {
-    programList.value = res.data.data.programList
+    programList.value = res.data.data?.programList || []
     total.value = res.data.data.total
   }
 }
