@@ -113,11 +113,6 @@
             </div>
 
           </div>
-          <div class="col-span-2" v-if="formData?.imageList?.length>0">
-            <swiper-component
-              :images="formData?.imageList"
-            />
-          </div>
 
           <div class="w-full col-span-2">
             <label class="text-[10px] uppercase text-slate-500 font-mono w-full">附件上传</label>

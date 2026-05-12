@@ -11,14 +11,10 @@ const useTodoStore = defineStore('Todo', () => {
   // 请求
   const getTodoList = async (queryParams) => {
     const cleanParams = utils.cleanObject(queryParams)
-    const loading = ElLoading.service({ fullscreen: true })
     const res = await api.get('/todo/list', {
       params: cleanParams
     })
-    if (res.data.code === 200) {
-      loading.close()
-      return res
-    }
+    return res
 
   }
 
@@ -26,37 +22,22 @@ const useTodoStore = defineStore('Todo', () => {
   const addTodo = async (todoForm) => {
     const cleanParams = utils.cleanObject(todoForm)
     const res = await api.post('/todo/add', cleanParams)
-    if (res.data.code === 200) {
-      ElNotification.success({
-        message: res.data.message
-      })
-      return res
-    }
+    return res
   }
 
   // 更新单子
   const updateTodo = async (todoForm) => {
-    const loading = ElLoading.service({ fullscreen: true })
     const cleanParams = utils.cleanObject(todoForm)
     const res = await api.put('/todo/update', cleanParams)
-    if (res.data.code === 200) {
-      ElNotification({
-        goalName: '成功',
-        message: res.data.message,
-        type: 'success'
-      })
-      return res
-    }
-    loading.close()
+    return res
   }
 
   // 删除单子
   const delTodo = async (todoId) => {
-    const loading = ElLoading.service({ fullscreen: true })
+
 
     const res = await api.delete(`/todo/${Number(todoId)}`)
 
-    loading.close()
     return res
   }
 

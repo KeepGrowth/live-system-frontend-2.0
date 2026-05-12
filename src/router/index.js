@@ -62,19 +62,12 @@ const router = createRouter({
       name: 'ReviewPage',
       component: () => import('@/views/review/ReviewPage.vue')
     },
+    // 财务作战室
     {
-      path: '/home',
-      name: 'home',
-      component: HomeTab,
-      children: [
-        // 项目信息管理路由
-        // {
-        //   path: 'info',
-        //   name: 'ProgramPage',
-        //   component: ProgramPage
-        // }
-      ]
-    }
+      path: '/finance',
+      name: 'FinancePage',
+      component: () => import('@/views/finance/FinancePage.vue')
+    },
 
   ]
 })
