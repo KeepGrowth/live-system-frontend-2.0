@@ -81,7 +81,7 @@
       <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10">
         <!-- 右侧：新建按钮 -->
         <div class="w-full lg:w-auto flex justify-end">
-          <button @click="openModal()"
+          <button @click="openIncomeModal({})"
                   class="cursor-pointer group relative px-6 py-3 bg-cyan-950/30 border border-cyan-500 text-cyan-400 font-bold uppercase tracking-widest hover:bg-cyan-500 hover:text-black transition-all duration-300 clip-path-slant w-full sm:w-auto">
             <span
               class="cursor-pointer absolute w-0 h-0 top-0 left-0 bg-cyan-400 group-hover:w-full group-hover:h-full transition-all duration-300 -z-10"></span>
@@ -121,7 +121,9 @@
             :second-cate-name="item.secondCateName"
             :first-cate-name="item.firstCateName"
             :note="item.note"
-            :user_id="item.userId" />
+            :user_id="item.userId"
+            @open-edit-modal="openIncomeModal"
+          />
           </span>
         </div>
         <!-- 分页组件 -->
@@ -141,12 +143,18 @@
         </div>
       </section>
     </div>
-
+    <!--收入模态框-->
+    <income-modal
+      v-model="incomeModalOpen"
+      :edit-data="currentEditItem"
+      :first-cate-list="firstCateOptions"
+      @submit="handleSave"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, computed } from 'vue'
+import { ref, reactive, onMounted, watch, computed, onUnmounted } from 'vue'
 import useUserStore from '@/stores/user.js'
 
 import useIncomeStore from '@/stores/finance/income.js'
@@ -154,6 +162,7 @@ import { dayjs, ElMessageBox, ElNotification } from 'element-plus'
 import isoWeek from 'dayjs/plugin/isoWeek'
 import IndicatorCard from '@/components/IndicatorCard.vue'
 import IncomeCard from '@/views/finance/component/IncomeCard.vue'
+import IncomeModal from '@/views/finance/component/IncomeModal.vue'
 
 
 dayjs.extend(isoWeek)
@@ -163,43 +172,27 @@ const currentUser = userStore.userInfo.username
 
 
 // 模态框状态
-const isModalOpen = ref(false)
+const incomeModalOpen = ref(false)
 const editMode = ref(false)
 
 
-const form = ref({
-  id: null,
-  userId: null,
-  title: '',
-  todoGoal: '',
-  finishDesc: '',
-  quitDesc: '',
-  importance: null,
-  status: 0,
-  focusTime: 0,
-  deadline: '',
-  emotion: '',
-  goalId: null,
-  programId: null,
-  okrId: null
-})
+const form = ref({})
 
 // 打开模态框
-const openModal = (task = null) => {
-  if (task) {
+const currentEditItem = ref()
+const openIncomeModal = (income = null) => {
+  if (income) {
     editMode.value = true
-    form.value = task
+    currentEditItem.value = income
   } else {
     editMode.value = false
     form.value = {}
     if (queryParams.value.endDate) {
-      form.value.deadline = queryParams.value.endDate
+      form.value.income_date = queryParams.value.endDate
     }
-    form.value.importance = 1
-    form.value.status = 0
     form.userId = currentUser // 确保User ID正确
   }
-  isModalOpen.value = true
+  incomeModalOpen.value = true
 }
 
 // 保存收入
@@ -213,7 +206,7 @@ const saveTask = async () => {
         message: res.data.msg
       })
       await fetchIncomeData()
-      isModalOpen.value = false
+      incomeModalOpen.value = false
     } else {
       ElNotification.error({
         title: '更新todo失败',
@@ -228,7 +221,7 @@ const saveTask = async () => {
         title: '成功',
         message: res.data.msg
       })
-      isModalOpen.value = false
+      incomeModalOpen.value = false
       await fetchIncomeData()
     } else {
       ElNotification.error({
@@ -237,7 +230,7 @@ const saveTask = async () => {
       })
     }
   }
-  isModalOpen.value = false
+  incomeModalOpen.value = false
 }
 
 // 删除收入
@@ -279,42 +272,6 @@ const getButtonClass = (type) => {
   const isActive = activeType.value === type
   return `${baseClass} ${isActive ? activeClass : inactiveClass}`
 }
-
-// 计算属性
-const todoTasks = computed(() => {
-  return incomes.value.filter(item => item.status === 0)
-})
-
-const runingTasks = computed(() => {
-  return incomes.value.filter(item => item.status === 1)
-})
-const finishedTasks = computed(() => {
-  return incomes.value.filter(item => item.status === 2)
-})
-const giveUpTasks = computed(() => {
-  return incomes.value.filter(item => item.status === 3)
-})
-
-// 取todo图片数组
-const todoImageList = computed(() => {
-  return incomes.value
-    .flatMap(todo => {
-      // 检查 imageList 是否存在且不为空
-      const images = todo.imageList || []
-      return images
-        .filter(img => img.imageUrl) // 确保有 URL
-        .map(img => ({
-          // 1. 携带图片 URL
-          imageUrl: img.imageUrl,
-          // 2. 携带你需要的 ID 信息
-          todoId: todo.id,
-          okrId: todo.okrId,
-          programId: todo.programId,
-          goalId: todo.goalId
-        }))
-    })
-  // .filter(item => item.imageUrl) // 过滤掉无效项
-})
 
 // 筛选条件
 const chooseDateRangeType = async (dateType) => {
@@ -372,7 +329,10 @@ const incomeLength = computed(() => {
   return uniqueOkrIds.length
 })
 
+const firstCateOptions = ref([])
+
 onMounted(async () => {
+  firstCateOptions.value = await incomeStore.getFirstCateList()
   await fetchIncomeData()
 })
 

@@ -1,0 +1,242 @@
+<template>
+  <!-- 遮罩层 -->
+  <transition firstCateName="fade">
+    <div
+      v-if="modelValue"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      @click.self="close"
+    >
+      <!-- 模态框主体 -->
+      <div
+        class="relative w-full max-w-lg overflow-hidden rounded-sm border border-cyan-500/30 bg-slate-900 shadow-[0_0_50px_-12px_rgba(6,182,212,0.5)]"
+      >
+        <!-- 顶部装饰条 -->
+        <div class="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-cyan-500"></div>
+
+        <!-- 头部 -->
+        <div class="flex items-center justify-between border-b border-cyan-500/20 bg-slate-900/50 px-6 py-4">
+          <h3 class="text-xl font-bold uppercase tracking-widest text-cyan-400 font-mono">
+            <span class="text-fuchsia-500 mr-2">/</span>
+            {{ isEdit ? '编辑收入' : '新增收入' }}
+          </h3>
+          <button @click="close" class="text-slate-400 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+              <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- 内容区域 -->
+        <form @submit.prevent="handleSubmit" class="p-6 space-y-5">
+          <!-- 金额输入 -->
+          <div class="group">
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">金额 (Amount)</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500/70 font-mono">$</span>
+              <input
+                v-model="formData.amount"
+                type="number"
+                step="0.01"
+                required
+                class="w-full rounded-none border border-cyan-500/30 bg-slate-950/50 py-2 pl-8 pr-4 text-white placeholder-slate-600 outline-none transition-all focus:border-fuchsia-500 focus:shadow-[0_0_15px_rgba(217,70,239,0.3)] font-mono"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <!-- 日期与分类 -->
+          <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <!-- 日期 -->
+            <div class="group">
+              <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">日期 (Date)</label>
+              <input
+                v-model="formData.incomeDate"
+                type="date"
+                required
+                class="w-full rounded-none border border-cyan-500/30 bg-slate-950/50 py-2 px-4 text-white outline-none transition-all focus:border-fuchsia-500 focus:shadow-[0_0_15px_rgba(217,70,239,0.3)]"
+              />
+            </div>
+
+            <!-- 一级分类 -->
+            <div class="group">
+              <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">一级分类</label>
+              <el-select
+                filterable
+                clearable
+                v-model="formData.firstCateId"
+                placeholder="选择一级分类"
+              >
+                <el-option v-for="cat in firstCates" :key="cat.id" :value="cat.id"
+                           :label="cat.firstCateName"></el-option>
+              </el-select>
+            </div>
+          </div>
+
+          <!-- 二级分类 -->
+          <div class="group" v-show="formData.firstCateId">
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">二级分类</label>
+            <el-select
+              v-model="formData.secondCateId"
+              placeholder="选择二级分类"
+            >
+              <el-option
+                v-for="cat in secondCates"
+                :key="cat.id"
+                :value="cat.id"
+                :label="cat.secondCateName"></el-option>
+            </el-select>
+          </div>
+
+          <!-- 备注 -->
+          <div class="group">
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">备注 (Note)</label>
+            <textarea
+              v-model="formData.note"
+              rows="3"
+              class="w-full rounded-none border border-cyan-500/30 bg-slate-950/50 py-2 px-4 text-white placeholder-slate-600 outline-none transition-all focus:border-fuchsia-500 focus:shadow-[0_0_15px_rgba(217,70,239,0.3)] resize-none"
+              placeholder="输入交易详情..."
+            ></textarea>
+          </div>
+
+          <!-- 底部按钮 -->
+          <div class="mt-8 flex justify-end space-x-4 pt-4">
+            <button
+              type="button"
+              @click="close"
+              class="cursor-pointer group relative overflow-hidden rounded-none border border-slate-600 px-6 py-2 text-sm font-bold uppercase tracking-wider text-slate-400 transition-all hover:border-white hover:text-white"
+            >
+              <span class="relative z-10">取消</span>
+            </button>
+
+            <button
+              type="submit"
+              class="cursor-pointer group relative overflow-hidden rounded-none bg-cyan-600 px-8 py-2 text-sm font-bold uppercase tracking-wider text-black transition-all hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.6)]"
+            >
+              <!-- 装饰斜线 -->
+              <div
+                class="absolute inset-0 w-full h-full bg-white/20 skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-out"></div>
+              <span class="relative z-10">{{ isEdit ? '更新' : '确认录入' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </transition>
+</template>
+
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue'
+import useIncomeStore from '@/stores/finance/income.js'
+
+// Props 定义
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false
+  },
+  // 编辑时传入的数据对象，如果是新增则为 null
+  editData: {
+    type: Object,
+    default: null
+  },
+  firstCateList: {
+    type: Array,
+    default: () => []
+  }
+})
+const incomeStore = useIncomeStore()
+
+// Emits 定义
+const emit = defineEmits(['update:modelValue', 'submit'])
+
+// 模拟分类数据
+const firstCates = ref([])
+const secondCates = ref([])
+// 表单数据
+const formData = ref({
+  id: null,
+  userId: 1, // 假设从 Auth 获取
+  firstCateId: null,
+  secondCateId: null,
+  amount: '',
+  incomeDate: '',
+  note: ''
+})
+
+// 判断是否为编辑模式
+const isEdit = computed(() => !!props.editData)
+// 监听 editData 变化，填充表单
+watch(
+  () => props.editData,
+  (newVal) => {
+    if (newVal) {
+      formData.value = { ...newVal }
+      // 格式化日期为 YYYY-MM-DD (适配 input type="date")
+      if (newVal.incomeDate) {
+        formData.value.incomeDate = new Date(newVal.incomeDate).toISOString().split('T')[0]
+      }
+    } else {
+      // 重置表单
+      formData.value = {
+        id: null,
+        userId: 1,
+        firstCateId: firstCates.value[0]?.id || null,
+        secondCateId: null,
+        amount: '',
+        incomeDate: new Date().toISOString().split('T')[0], // 默认今天
+        note: ''
+      }
+      firstCates.value = incomeStore.firstCateOptions
+    }
+  },
+  { immediate: true, deep: true }
+)
+watch(
+  () => props.firstCateList,
+  async (newVal) => {
+    firstCates.value = newVal
+  },
+  { immediate: true, deep: true }
+)
+watch(
+  () => formData.value.firstCateId,
+  async (newVal) => {
+    secondCates.value = await incomeStore.getSecondCateListByFirst(newVal)
+  },
+  { deep: true }
+)
+
+// 关闭模态框
+const close = () => {
+  emit('update:modelValue', false)
+}
+
+// 提交表单
+const handleSubmit = () => {
+  // 这里可以做最后的数据清洗
+  const payload = { ...formData.value }
+  emit('submit', payload)
+  close()
+}
+</script>
+
+<style scoped>
+/* 自定义过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 去除 number 输入框的默认箭头 (可选) */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+</style>

@@ -61,6 +61,7 @@
       <!-- 模拟操作按钮 -->
       <div class="flex gap-2">
         <button
+          @click="openEditModal"
           class="cursor-pointer rounded border border-cyan-500/30 bg-cyan-950/20 px-3 py-1 text-xs font-mono text-cyan-300 transition-colors hover:bg-cyan-500 hover:text-slate-900">
           编辑
         </button>
@@ -104,6 +105,12 @@ const formattedAmount = computed(() => {
 const formattedDate = computed(() => {
   return props.income_date
 })
+
+const emit = defineEmits(['openEditModal'])
+// 打开模态框
+const openEditModal = () => {
+  emit('openEditModal', props)
+}
 </script>
 
 <style scoped>

@@ -8,6 +8,9 @@ import utils from '@/utils/common.js'
 
 const useIncomeStore = defineStore('Income', () => {
 
+  const firstCateOptions = ref([])
+  const secondCateOptions = ref([])
+
   // 请求
   const getIncomeList = async (queryParams) => {
     const cleanParams = utils.cleanObject(queryParams)
@@ -25,7 +28,7 @@ const useIncomeStore = defineStore('Income', () => {
     return res
   }
 
-  // 更新单子
+  // 更新
   const updateIncome = async (incomeForm) => {
 
     const cleanParams = utils.cleanObject(incomeForm)
@@ -33,22 +36,36 @@ const useIncomeStore = defineStore('Income', () => {
     return res
   }
 
-  // 删除单子
+  // 删除
   const delIncome = async (incomeId) => {
-
-
     const res = await api.delete(`/income/${Number(incomeId)}`)
 
     return res
   }
 
+  // 收入一级分类选项
+  const getFirstCateList = async () => {
+    const res = await api.get('/income/first_cate/list')
+    firstCateOptions.value = res.data.data.incomeFirstCateList
+    return firstCateOptions.value
+  }
+
+  // 根据一级分类请求二级分类选项
+  const getSecondCateListByFirst = async (firstCateId) => {
+    const res = await api.get(`/income/second_cate/list/${firstCateId}`)
+    secondCateOptions.value = res.data.data.incomeSecondCateList
+    return secondCateOptions.value
+  }
 
   return {
-
     getIncomeList,
     addIncome,
     updateIncome,
-    delIncome
+    delIncome,
+    getFirstCateList,
+    firstCateOptions,
+    getSecondCateListByFirst,
+    secondCateOptions
   }
 
 })
