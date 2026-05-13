@@ -116,14 +116,19 @@
           <span v-for="item in incomes">
           <income-card
             :id="item.id"
-            :income_date="item.incomeDate"
+            :incomeDate="item.incomeDate"
             :amount="item.amount"
             :second-cate-name="item.secondCateName"
             :first-cate-name="item.firstCateName"
             :note="item.note"
             :user_id="item.userId"
+            :first-cate-id="item.firstCateId"
+            :second-cate-id="item.secondCateId"
+
             @open-edit-modal="openIncomeModal"
-          />
+            @del-income="delIncome"
+            :user-id="userStore.userInfo.userId" />
+
           </span>
         </div>
         <!-- 分页组件 -->
@@ -146,9 +151,9 @@
     <!--收入模态框-->
     <income-modal
       v-model="incomeModalOpen"
-      :edit-data="currentEditItem"
+      :income-data="incomeForm"
       :first-cate-list="firstCateOptions"
-      @submit="handleSave"
+      @submit="submitIncome"
     />
   </div>
 </template>
@@ -176,21 +181,20 @@ const incomeModalOpen = ref(false)
 const editMode = ref(false)
 
 
-const form = ref({})
+const incomeForm = ref({})
 
 // 打开模态框
-const currentEditItem = ref()
 const openIncomeModal = (income = null) => {
   if (income) {
     editMode.value = true
-    currentEditItem.value = income
+    incomeForm.value = income
   } else {
     editMode.value = false
-    form.value = {}
+    incomeForm.value = {}
     if (queryParams.value.endDate) {
-      form.value.income_date = queryParams.value.endDate
+      incomeForm.value.incomeDate = queryParams.value.endDate
     }
-    form.userId = currentUser // 确保User ID正确
+    incomeForm.userId = currentUser // 确保User ID正确
   }
   incomeModalOpen.value = true
 }
@@ -199,7 +203,7 @@ const openIncomeModal = (income = null) => {
 const saveTask = async () => {
   if (editMode.value) {
     // 模拟更新
-    const res = await incomeStore.updateIncome(form.value)
+    const res = await incomeStore.updateIncome(incomeForm.value)
     if (res.data.code === 200) {
       ElNotification.success({
         title: '成功',
@@ -215,7 +219,7 @@ const saveTask = async () => {
     }
   } else {
     // 模拟新增
-    const res = await incomeStore.addIncome(form.value)
+    const res = await incomeStore.addIncome(incomeForm.value)
     if (res.data.code === 200) {
       ElNotification.success({
         title: '成功',
@@ -339,6 +343,40 @@ onMounted(async () => {
 watch(queryParams, async (newVal, oldValue) => {
   await fetchIncomeData()
 }, { deep: true, immediate: true })
+
+// 提交收入表单
+const submitIncome = async (incomeForm) => {
+  if (incomeForm.id) {
+    // 更新
+    const res = await incomeStore.updateIncome(incomeForm)
+    if (res.data.code === 200) {
+      ElNotification.success({
+        title: '成功',
+        message: res.data.msg
+      })
+    } else {
+      ElNotification.error({
+        title: '错误',
+        message: res.data.msg
+      })
+    }
+  } else {
+    // 新增
+    const res = await incomeStore.addIncome(incomeForm)
+    if (res.data.code === 200) {
+      ElNotification.success({
+        title: '成功',
+        message: res.data.msg
+      })
+    } else {
+      ElNotification.error({
+        title: '错误',
+        message: res.data.msg
+      })
+    }
+  }
+  await fetchIncomeData()
+}
 
 
 </script>

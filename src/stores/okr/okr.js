@@ -7,9 +7,9 @@ import utils from '@/utils/common.js'
 
 
 const useOkrStore = defineStore('okr', () => {
-    const okrOptions = ref([])
+    const okrOptions = ref()
 
-    // 请求单子列表
+    // 请求列表
     const getOkrList = async (queryParams) => {
       const cleanParams = utils.cleanObject(queryParams)
       const res = await api.get('/okr/list', {
@@ -27,7 +27,7 @@ const useOkrStore = defineStore('okr', () => {
       return res
 
     }
-    // 更新单子
+    // 更新
     const updateOkr = async (okrForm) => {
       const loading = ElLoading.service({ fullscreen: true })
       try {
@@ -50,7 +50,7 @@ const useOkrStore = defineStore('okr', () => {
       }
     }
 
-    // 删除单子
+    // 删除
     const delOkr = async (okrId) => {
       const loading = ElLoading.service({ fullscreen: true })
       try {
@@ -79,6 +79,7 @@ const useOkrStore = defineStore('okr', () => {
     // 获取级联选项
     const getOptions = async () => {
       const res = await api.get('/okr/multi-options')
+      okrOptions.value = res.data.data.okrOptions
       return res
     }
 

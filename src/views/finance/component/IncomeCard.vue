@@ -58,12 +58,18 @@
         <span class="text-fuchsia-500/70">#备注:</span> {{ note || '没有相关备注' }}
       </div>
 
+
       <!-- 模拟操作按钮 -->
       <div class="flex gap-2">
         <button
           @click="openEditModal"
           class="cursor-pointer rounded border border-cyan-500/30 bg-cyan-950/20 px-3 py-1 text-xs font-mono text-cyan-300 transition-colors hover:bg-cyan-500 hover:text-slate-900">
           编辑
+        </button>
+        <button
+          @click="delIncome(id)"
+          class="cursor-pointer rounded border border-red-500/30 bg-red-950/20 px-3 py-1 text-xs font-mono text-red-300 transition-colors hover:bg-red-500 hover:text-slate-900">
+          删除
         </button>
       </div>
     </div>
@@ -80,14 +86,15 @@ import { computed } from 'vue'
 // 定义 Props，对应图片中的字段
 const props = defineProps({
   id: { type: [Number, String], required: true },
-  user_id: { type: [Number, String], required: true },
-  first_cate_id: { type: [Number, String], required: false },
-  second_cate_id: { type: [Number, String], default: null },
+  userId: { type: [Number, String], required: true },
+  firstCateId: { type: [Number, String], required: false },
+  secondCateId: { type: [Number, String], default: null },
+  okrId: { type: [Number, String], default: null },
   amount: { type: [Number, String], required: true },
-  income_date: { type: String, required: true }, // 格式 YYYY-MM-DD
+  incomeDate: { type: String, required: true }, // 格式 YYYY-MM-DD
   note: { type: String, default: '' },
-  create_time: { type: String, default: '' },
-  update_time: { type: String, default: '' },
+  createTimeStr: { type: String, default: '' },
+  updateTimeStr: { type: String, default: '' },
 
   // 额外的显示名称 Props (实际开发中可能通过字典映射)
   firstCateName: { type: String, default: 'General' },
@@ -103,13 +110,17 @@ const formattedAmount = computed(() => {
 
 // 格式化日期：简单的 YYYY-MM-DD 展示，实际可使用 dayjs/date-fns
 const formattedDate = computed(() => {
-  return props.income_date
+  return props.incomeDate
 })
 
-const emit = defineEmits(['openEditModal'])
+const emit = defineEmits(['openEditModal', 'delIncome'])
 // 打开模态框
 const openEditModal = () => {
   emit('openEditModal', props)
+}
+// 删除收入记录
+const delIncome = async (incomeId) => {
+  emit('delIncome', incomeId)
 }
 </script>
 

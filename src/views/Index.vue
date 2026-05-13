@@ -363,6 +363,7 @@ import ProgramPage from '@/views/program/ProgramPage.vue'
 import useDashboardStore from '@/stores/dashboard.js'
 import { ArrowDown, Setting, SwitchButton, User } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import useOkrStore from '@/stores/okr/okr.js'
 // 状态管理
 const programStore = useProgramStore()
 const goalStore = useGoalStore()
@@ -455,8 +456,15 @@ const handleCommand = async (command) => {
   }
 }
 
+// okr级联选项方法
+const okrStore = useOkrStore()
+const getOkrOptions = async ()=>{
+  await okrStore.getOptions()
+}
+
 onMounted(async () => {
   await fetchData()
+  await getOkrOptions()
 })
 </script>
 

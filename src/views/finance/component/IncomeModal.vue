@@ -31,7 +31,7 @@
         <form @submit.prevent="handleSubmit" class="p-6 space-y-5">
           <!-- 金额输入 -->
           <div class="group">
-            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">金额 (Amount)</label>
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">收入金额￥</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500/70 font-mono">$</span>
               <input
@@ -49,12 +49,11 @@
           <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <!-- 日期 -->
             <div class="group">
-              <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">日期 (Date)</label>
-              <input
+              <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">收入日期</label>
+              <el-date-picker
                 v-model="formData.incomeDate"
+                value-format="YYYY-MM-DD"
                 type="date"
-                required
-                class="w-full rounded-none border border-cyan-500/30 bg-slate-950/50 py-2 px-4 text-white outline-none transition-all focus:border-fuchsia-500 focus:shadow-[0_0_15px_rgba(217,70,239,0.3)]"
               />
             </div>
 
@@ -87,10 +86,24 @@
                 :label="cat.secondCateName"></el-option>
             </el-select>
           </div>
+          <!--关联OKR（可选）-->
+          <div class="group">
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">关联OKR</label>
+            <el-cascader
+              clearable
+              filterable
+              placeholder="关联OKR费用"
+              :options="okrOptions"
+              v-model="formData.okrId"
+              :props="{ emitPath: false }"
+            >
+            </el-cascader>
+          </div>
+
 
           <!-- 备注 -->
           <div class="group">
-            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">备注 (Note)</label>
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">备注</label>
             <textarea
               v-model="formData.note"
               rows="3"
@@ -98,6 +111,15 @@
               placeholder="输入交易详情..."
             ></textarea>
           </div>
+          <!--对应图片-->
+          <!--          <div class="group">-->
+          <!--            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">图片附件</label>-->
+          <!--            <uploader-->
+          <!--              :id-params="{-->
+          <!--              expense_id:formData.id,-->
+          <!--            }"-->
+          <!--            />-->
+          <!--          </div>-->
 
           <!-- 底部按钮 -->
           <div class="mt-8 flex justify-end space-x-4 pt-4">
@@ -126,8 +148,15 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import useIncomeStore from '@/stores/finance/income.js'
+import Uploader from '@/components/Uploader.vue'
+import { dayjs } from 'element-plus'
+import useOkrStore from '@/stores/okr/okr.js'
+import addWeb from '@icon-park/vue-next/lib/icons/AddWeb.js'
+
+
+
 
 // Props 定义
 const props = defineProps({
@@ -136,7 +165,7 @@ const props = defineProps({
     default: false
   },
   // 编辑时传入的数据对象，如果是新增则为 null
-  editData: {
+  incomeData: {
     type: Object,
     default: null
   },
@@ -148,7 +177,6 @@ const props = defineProps({
 const incomeStore = useIncomeStore()
 
 // Emits 定义
-const emit = defineEmits(['update:modelValue', 'submit'])
 
 // 模拟分类数据
 const firstCates = ref([])
@@ -156,7 +184,7 @@ const secondCates = ref([])
 // 表单数据
 const formData = ref({
   id: null,
-  userId: 1, // 假设从 Auth 获取
+  userId: null,
   firstCateId: null,
   secondCateId: null,
   amount: '',
@@ -165,17 +193,16 @@ const formData = ref({
 })
 
 // 判断是否为编辑模式
-const isEdit = computed(() => !!props.editData)
-// 监听 editData 变化，填充表单
+const isEdit = computed(() => {
+  return !!props.incomeData.id
+})
+// 监听 incomeData 变化，填充表单
 watch(
-  () => props.editData,
+  () => props.incomeData,
   (newVal) => {
     if (newVal) {
       formData.value = { ...newVal }
-      // 格式化日期为 YYYY-MM-DD (适配 input type="date")
-      if (newVal.incomeDate) {
-        formData.value.incomeDate = new Date(newVal.incomeDate).toISOString().split('T')[0]
-      }
+      console.log(formData.value)
     } else {
       // 重置表单
       formData.value = {
@@ -184,9 +211,10 @@ watch(
         firstCateId: firstCates.value[0]?.id || null,
         secondCateId: null,
         amount: '',
-        incomeDate: new Date().toISOString().split('T')[0], // 默认今天
+        incomeDate: '',
         note: ''
       }
+      formData.value.incomeDate = dayjs().format('YYYY-MM-DD')
       firstCates.value = incomeStore.firstCateOptions
     }
   },
@@ -202,11 +230,14 @@ watch(
 watch(
   () => formData.value.firstCateId,
   async (newVal) => {
-    secondCates.value = await incomeStore.getSecondCateListByFirst(newVal)
+    if (newVal) {
+      secondCates.value = await incomeStore.getSecondCateListByFirst(newVal)
+
+    }
   },
   { deep: true }
 )
-
+const emit = defineEmits(['submit', 'update:modelValue'])
 // 关闭模态框
 const close = () => {
   emit('update:modelValue', false)
@@ -219,6 +250,13 @@ const handleSubmit = () => {
   emit('submit', payload)
   close()
 }
+
+const okrStore = useOkrStore()
+const okrOptions = ref()
+onMounted(async ()=>{
+  const res = await okrStore.getOptions()
+  okrOptions.value = res.data.data
+})
 </script>
 
 <style scoped>
