@@ -17,7 +17,7 @@
         <div class="flex items-center justify-between border-b border-cyan-500/20 bg-slate-900/50 px-6 py-4">
           <h3 class="text-xl font-bold uppercase tracking-widest text-cyan-400 font-mono">
             <span class="text-fuchsia-500 mr-2">/</span>
-            {{ isEdit ? '编辑收入' : '新增收入' }}
+            {{ isEdit ? '编辑' : '新增' }}
           </h3>
           <button @click="close" class="text-slate-400 hover:text-white transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
@@ -31,7 +31,7 @@
         <form @submit.prevent="handleSubmit" class="p-6 space-y-5">
           <!-- 金额输入 -->
           <div class="group">
-            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">收入金额￥</label>
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">金额￥</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500/70 font-mono">$</span>
               <input
@@ -49,7 +49,7 @@
           <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <!-- 日期 -->
             <div class="group">
-              <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">收入日期</label>
+              <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">日期</label>
               <el-date-picker
                 v-model="formData.incomeDate"
                 value-format="YYYY-MM-DD"
@@ -90,6 +90,7 @@
           <div class="group">
             <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">关联OKR</label>
             <el-cascader
+              style="width: 100%"
               clearable
               filterable
               placeholder="关联OKR费用"
@@ -112,14 +113,13 @@
             ></textarea>
           </div>
           <!--对应图片-->
-          <!--          <div class="group">-->
-          <!--            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">图片附件</label>-->
-          <!--            <uploader-->
-          <!--              :id-params="{-->
-          <!--              expense_id:formData.id,-->
-          <!--            }"-->
-          <!--            />-->
-          <!--          </div>-->
+          <div class="group">
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-fuchsia-400">图片附件</label>
+            <uploader
+
+              @list-change='handleImageListChange'
+            />
+          </div>
 
           <!-- 底部按钮 -->
           <div class="mt-8 flex justify-end space-x-4 pt-4">
@@ -154,8 +154,7 @@ import Uploader from '@/components/Uploader.vue'
 import { dayjs } from 'element-plus'
 import useOkrStore from '@/stores/okr/okr.js'
 import addWeb from '@icon-park/vue-next/lib/icons/AddWeb.js'
-
-
+import useExpenseStore from '@/stores/finance/expense.js'
 
 
 // Props 定义
@@ -165,18 +164,21 @@ const props = defineProps({
     default: false
   },
   // 编辑时传入的数据对象，如果是新增则为 null
-  incomeData: {
+  financeData: {
     type: Object,
     default: null
   },
   firstCateList: {
     type: Array,
     default: () => []
+  },
+  financeType: {
+    type: String,
+    default: 'income'
   }
 })
 const incomeStore = useIncomeStore()
-
-// Emits 定义
+const expenseStore = useExpenseStore()
 
 // 模拟分类数据
 const firstCates = ref([])
@@ -185,6 +187,7 @@ const secondCates = ref([])
 const formData = ref({
   id: null,
   userId: null,
+  okrId: null,
   firstCateId: null,
   secondCateId: null,
   amount: '',
@@ -194,15 +197,14 @@ const formData = ref({
 
 // 判断是否为编辑模式
 const isEdit = computed(() => {
-  return !!props.incomeData.id
+  return !!props.financeData.id
 })
-// 监听 incomeData 变化，填充表单
+// 监听 financeData 变化，填充表单
 watch(
-  () => props.incomeData,
+  () => props.financeData,
   (newVal) => {
     if (newVal) {
       formData.value = { ...newVal }
-      console.log(formData.value)
     } else {
       // 重置表单
       formData.value = {
@@ -231,8 +233,12 @@ watch(
   () => formData.value.firstCateId,
   async (newVal) => {
     if (newVal) {
-      secondCates.value = await incomeStore.getSecondCateListByFirst(newVal)
-
+      console.log(props.financeType)
+      if (props.financeType === 'expense') {
+        secondCates.value = await expenseStore.getSecondCateListByFirst(newVal)
+      } else {
+        secondCates.value = await incomeStore.getSecondCateListByFirst(newVal)
+      }
     }
   },
   { deep: true }
@@ -253,10 +259,16 @@ const handleSubmit = () => {
 
 const okrStore = useOkrStore()
 const okrOptions = ref()
-onMounted(async ()=>{
+onMounted(async () => {
   const res = await okrStore.getOptions()
   okrOptions.value = res.data.data
 })
+
+
+// 图片列表变化触发事件
+const handleImageListChange = async (newVal) => {
+  formData.value.imageList = newVal
+}
 </script>
 
 <style scoped>

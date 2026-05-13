@@ -44,7 +44,7 @@
 
       <!-- 右侧：金额 (视觉重心) -->
       <div class="flex flex-col items-start justify-center md:items-end md:border-l md:border-slate-700/50 md:pl-4">
-        <span class="mb-1 text-[10px] uppercase text-slate-500">收入金额</span>
+        <span class="mb-1 text-[10px] uppercase text-slate-500">金额</span>
         <div
           class="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-fuchsia-300 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
           {{ formattedAmount }}￥
@@ -57,6 +57,9 @@
       <div class="max-w-[70%] overflow-hidden text-ellipsis whitespace-nowrap text-xs text-slate-400 italic">
         <span class="text-fuchsia-500/70">#备注:</span> {{ note || '没有相关备注' }}
       </div>
+      <div class="max-w-[70%] overflow-hidden text-ellipsis whitespace-nowrap text-xs text-slate-400 italic">
+        <span class="text-fuchsia-500/70">关联OKR:</span> {{ okrId || '无' }}
+      </div>
 
 
       <!-- 模拟操作按钮 -->
@@ -67,7 +70,7 @@
           编辑
         </button>
         <button
-          @click="delIncome(id)"
+          @click="delRecord(id)"
           class="cursor-pointer rounded border border-red-500/30 bg-red-950/20 px-3 py-1 text-xs font-mono text-red-300 transition-colors hover:bg-red-500 hover:text-slate-900">
           删除
         </button>
@@ -98,7 +101,9 @@ const props = defineProps({
 
   // 额外的显示名称 Props (实际开发中可能通过字典映射)
   firstCateName: { type: String, default: 'General' },
-  secondCateName: { type: String, default: '' }
+  secondCateName: { type: String, default: '' },
+  financeType: { type: String, default: 'income' }
+
 })
 
 // 格式化金额：保留两位小数，添加千分位
@@ -113,14 +118,14 @@ const formattedDate = computed(() => {
   return props.incomeDate
 })
 
-const emit = defineEmits(['openEditModal', 'delIncome'])
+const emit = defineEmits(['openEditModal', 'delRecord'])
 // 打开模态框
 const openEditModal = () => {
   emit('openEditModal', props)
 }
-// 删除收入记录
-const delIncome = async (incomeId) => {
-  emit('delIncome', incomeId)
+// 删除记录
+const delRecord = async (recordId) => {
+  emit('delRecord', recordId)
 }
 </script>
 

@@ -44,7 +44,7 @@ const handlePreview: UploadProps['onPreview'] = (file) => {
 const imageList = ref([{}])
 // 🔥 核心修改：自定义上传方法
 const customUpload = async (options: UploadRequestOptions) => {
-  const params = utils.cleanObject(props.idParams)
+  const params = props.idParams || {}
   // 1. 构建 FormData 对象
   const formData = new FormData()
   // 后端要求的字段名通常是 'file'，具体看你后端定义
@@ -65,6 +65,12 @@ const customUpload = async (options: UploadRequestOptions) => {
   }
   if (params.okrId) {
     formData.append('okrId', params.okrId)
+  }
+  if (params.expenseId) {
+    formData.append('expenseId', params.expenseId)
+  }
+  if (params.incomeId) {
+    formData.append('incomeId', params.incomeId)
   }
 
 

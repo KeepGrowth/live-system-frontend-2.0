@@ -112,9 +112,9 @@
             :value="incomeLength"
           />
         </div>
-        <div class="mt-4 grid grid-cols-2 gap-4">
+        <div class="mt-4 grid grid-cols-4 gap-4">
           <span v-for="item in incomes">
-          <income-card
+          <finance-card
             :id="item.id"
             :incomeDate="item.incomeDate"
             :amount="item.amount"
@@ -124,9 +124,10 @@
             :user_id="item.userId"
             :first-cate-id="item.firstCateId"
             :second-cate-id="item.secondCateId"
-
+            :okr-id="item.okrId"
+            finance-type="income"
             @open-edit-modal="openIncomeModal"
-            @del-income="delIncome"
+            @del-record="delIncome"
             :user-id="userStore.userInfo.userId" />
 
           </span>
@@ -147,13 +148,88 @@
 
         </div>
       </section>
+      <!--支出-->
+      <section class="container mx-auto px-6 -mt-10 relative z-30 mt-10">
+        <!-- 右侧：新建按钮 -->
+        <div class="w-full lg:w-auto flex justify-end">
+          <button @click="openExpenseModal({})"
+                  class="cursor-pointer group relative px-6 py-3 bg-cyan-950/30 border border-cyan-500 text-cyan-400 font-bold uppercase tracking-widest hover:bg-cyan-500 hover:text-black transition-all duration-300 clip-path-slant w-full sm:w-auto">
+            <span
+              class="cursor-pointer absolute w-0 h-0 top-0 left-0 bg-cyan-400 group-hover:w-full group-hover:h-full transition-all duration-300 -z-10"></span>
+            + 新增支出
+          </button>
+        </div>
+        <div class="flex items-end gap-4 mb-12 border-b border-slate-800 pb-4">
+          <h2 class="text-3xl font-bold text-white">
+            <span class="text-green-400 text-shadow-lg text-shadow-green-400/50">支出</span>
+          </h2>
+          <span class="font-mono text-xs text-slate-500 mb-1"></span>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <indicator-card
+            :title="'累计支出'"
+            subtitle="根据你选择的周期计算"
+            unit="￥"
+            v-model:value="expenseAmount"
+          />
+          <indicator-card
+            title="支出笔数"
+            unit="笔"
+            :value="expenseLength"
+          />
+        </div>
+        <div class="mt-4 grid grid-cols-4 gap-4">
+          <span v-for="item in expenseList">
+          <finance-card
+            :id="item.id"
+            :incomeDate="item.expenseDate"
+            :amount="item.amount"
+            :second-cate-name="item.secondCateName"
+            :first-cate-name="item.firstCateName"
+            :note="item.note"
+            :user_id="item.userId"
+            :first-cate-id="item.firstCateId"
+            :second-cate-id="item.secondCateId"
+            :okr-id="item.okrId"
+            @open-edit-modal="openExpenseModal"
+            @del-record="delExpense"
+            finance-type="expense"
+            :user-id="userStore.userInfo.userId" />
+
+          </span>
+        </div>
+        <!-- 分页组件 -->
+        <div class="w-full lg:w-auto">
+          <el-pagination
+            class="mt-8 flex justify-center"
+            v-model:current-page="expenseQueryParams.page"
+            v-model:page-size="expenseQueryParams.pageSize"
+            :page-sizes="[20,30,40,50]"
+            :background="true"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="expenseTotal"
+            @size-change="fetchExpenseData"
+            @current-change="fetchExpenseData"
+          />
+
+        </div>
+      </section>
     </div>
     <!--收入模态框-->
-    <income-modal
+    <finance-modal
       v-model="incomeModalOpen"
-      :income-data="incomeForm"
+      :finance-data="incomeForm"
       :first-cate-list="firstCateOptions"
+      finance-type="income"
       @submit="submitIncome"
+    />
+    <!--支出模态框-->
+    <finance-modal
+      v-model="expenseModalOpen"
+      :finance-data="expenseForm"
+      :first-cate-list="expenseFirstCateOptions"
+      finance-type="expense"
+      @submit="submitExpense"
     />
   </div>
 </template>
@@ -166,97 +242,17 @@ import useIncomeStore from '@/stores/finance/income.js'
 import { dayjs, ElMessageBox, ElNotification } from 'element-plus'
 import isoWeek from 'dayjs/plugin/isoWeek'
 import IndicatorCard from '@/components/IndicatorCard.vue'
-import IncomeCard from '@/views/finance/component/IncomeCard.vue'
-import IncomeModal from '@/views/finance/component/IncomeModal.vue'
+import IncomeCard from '@/views/finance/component/FinanceCard.vue'
+import IncomeModal from '@/views/finance/component/FinanceModal.vue'
+import FinanceCard from '@/views/finance/component/FinanceCard.vue'
+import useExpenseStore from '@/stores/finance/expense.js'
+import FinanceModal from '@/views/finance/component/FinanceModal.vue'
 
 
 dayjs.extend(isoWeek)
 const userStore = useUserStore()
 // 模拟当前用户名称
 const currentUser = userStore.userInfo.username
-
-
-// 模态框状态
-const incomeModalOpen = ref(false)
-const editMode = ref(false)
-
-
-const incomeForm = ref({})
-
-// 打开模态框
-const openIncomeModal = (income = null) => {
-  if (income) {
-    editMode.value = true
-    incomeForm.value = income
-  } else {
-    editMode.value = false
-    incomeForm.value = {}
-    if (queryParams.value.endDate) {
-      incomeForm.value.incomeDate = queryParams.value.endDate
-    }
-    incomeForm.userId = currentUser // 确保User ID正确
-  }
-  incomeModalOpen.value = true
-}
-
-// 保存收入
-const saveTask = async () => {
-  if (editMode.value) {
-    // 模拟更新
-    const res = await incomeStore.updateIncome(incomeForm.value)
-    if (res.data.code === 200) {
-      ElNotification.success({
-        title: '成功',
-        message: res.data.msg
-      })
-      await fetchIncomeData()
-      incomeModalOpen.value = false
-    } else {
-      ElNotification.error({
-        title: '更新todo失败',
-        message: res.data.msg
-      })
-    }
-  } else {
-    // 模拟新增
-    const res = await incomeStore.addIncome(incomeForm.value)
-    if (res.data.code === 200) {
-      ElNotification.success({
-        title: '成功',
-        message: res.data.msg
-      })
-      incomeModalOpen.value = false
-      await fetchIncomeData()
-    } else {
-      ElNotification.error({
-        title: '新增todo失败',
-        message: res.data.msg
-      })
-    }
-  }
-  incomeModalOpen.value = false
-}
-
-// 删除收入
-const delIncome = async (id) => {
-  try {
-    await ElMessageBox.confirm('确定删除此收入吗？', '提示', {
-      type: 'warning'
-    })
-    const res = await incomeStore.delIncome(id)
-    if (res.data.code === 200) {
-      ElNotification.success('删除成功')
-      await fetchIncomeData()
-    } else {
-      ElNotification.error(res.data.msg)
-    }
-
-
-  } catch (error) {
-
-  }
-
-}
 
 
 // 条件筛选的选择方法
@@ -276,6 +272,7 @@ const getButtonClass = (type) => {
   const isActive = activeType.value === type
   return `${baseClass} ${isActive ? activeClass : inactiveClass}`
 }
+// ---------------------------收入模块----------------------------------------
 
 // 筛选条件
 const chooseDateRangeType = async (dateType) => {
@@ -295,7 +292,6 @@ const chooseDateRangeType = async (dateType) => {
     await fetchIncomeData()
   }
 }
-// 获取数据/监听数据
 const dateStr = dayjs().format('YYYY-MM-DD')
 const total = ref(0)
 const queryParams = ref({
@@ -304,10 +300,7 @@ const queryParams = ref({
   page: 1,
   pageSize: 20
 })
-
 const incomes = ref([]) // 收入列表数据
-
-
 const incomeStore = useIncomeStore()
 const fetchIncomeData = async () => {
   const res = await incomeStore.getIncomeList(queryParams.value)
@@ -316,10 +309,6 @@ const fetchIncomeData = async () => {
     total.value = res.data.data.total
   }
 }
-
-
-// 计算属性
-//累计专注时间
 const incomeAmount = computed(() => {
   const incomeAmount = incomes?.value.reduce((accumulator, currentTask) => {
     return accumulator + currentTask.amount
@@ -327,22 +316,12 @@ const incomeAmount = computed(() => {
   return incomeAmount
 })
 
-// 收入笔数
 const incomeLength = computed(() => {
   const uniqueOkrIds = [...new Set(incomes?.value.map(item => item.id))]
   return uniqueOkrIds.length
 })
 
 const firstCateOptions = ref([])
-
-onMounted(async () => {
-  firstCateOptions.value = await incomeStore.getFirstCateList()
-  await fetchIncomeData()
-})
-
-watch(queryParams, async (newVal, oldValue) => {
-  await fetchIncomeData()
-}, { deep: true, immediate: true })
 
 // 提交收入表单
 const submitIncome = async (incomeForm) => {
@@ -377,7 +356,170 @@ const submitIncome = async (incomeForm) => {
   }
   await fetchIncomeData()
 }
+// 模态框状态
+const incomeModalOpen = ref(false)
+const editMode = ref(false)
+const incomeForm = ref({})
+// 打开模态框
+const openIncomeModal = (income = null) => {
+  if (income) {
+    editMode.value = true
+    incomeForm.value = income
+  } else {
+    editMode.value = false
+    incomeForm.value = {}
+    if (queryParams.value.endDate) {
+      incomeForm.value.incomeDate = queryParams.value.endDate
+    }
+    incomeForm.userId = currentUser // 确保User ID正确
+  }
+  incomeModalOpen.value = true
+}
+// 删除收入
+const delIncome = async (id) => {
+  try {
+    await ElMessageBox.confirm('确定删除此收入吗？', '提示', {
+      type: 'warning'
+    })
+    const res = await incomeStore.delIncome(id)
+    if (res.data.code === 200) {
+      ElNotification.success('删除成功')
+      await fetchIncomeData()
+    } else {
+      ElNotification.error(res.data.msg)
+    }
 
+
+  } catch (error) {
+
+  }
+
+}
+
+
+// ---------------------------支出模块----------------------------------------
+
+// 基本属性
+const expenseStore = useExpenseStore()
+const expenseQueryParams = ref({
+  page: 1,
+  pageSize: 20,
+  startDate: dateStr,
+  endDate: dateStr
+})
+const expenseTotal = ref(0)
+const expenseList = ref([])
+const expenseFirstCateOptions = ref([])
+
+// 计算属性
+const expenseAmount = computed(() => {
+  const expenseAmount = expenseList?.value.reduce((accumulator, currentTask) => {
+    return accumulator + currentTask.amount
+  }, 0)
+  return expenseAmount
+})
+
+const expenseLength = computed(() => {
+  const uniqueOkrIds = [...new Set(expenseList?.value.map(item => item.id))]
+  return uniqueOkrIds.length
+})
+
+// 请求支出数据
+const fetchExpenseData = async () => {
+  const res = await expenseStore.getExpenseList(expenseQueryParams.value)
+  if (res.data.code === 200) {
+    expenseList.value = res.data.data.expenseList
+    expenseTotal.value = res.data.data.total
+  } else {
+    ElNotification.error({
+      title: '错误',
+      message: res.data.msg
+    })
+  }
+}
+// 删除支出记录
+const delExpense = async (expenseId) => {
+  const res = await expenseStore.delExpense(expenseId)
+  if (res.data.code === 200) {
+    ElNotification.success({
+      title: '成功',
+      message: res.data.msg
+    })
+  } else {
+    ElNotification.error({
+      title: '错误',
+      message: res.data.msg
+    })
+  }
+  await fetchExpenseData()
+}
+// 提交支出记录
+const submitExpense = async (expenseForm) => {
+  if (expenseForm.id) {
+    // 更新
+    expenseForm.expenseDate = expenseForm.incomeDate
+    const res = await expenseStore.updateExpense(expenseForm)
+    if (res.data.code === 200) {
+      ElNotification.success({
+        title: '成功',
+        message: res.data.msg
+      })
+    } else {
+      ElNotification.error({
+        title: '错误',
+        message: res.data.msg
+      })
+    }
+  } else {
+    // 新增
+    expenseForm.expenseDate = expenseForm.incomeDate
+    const res = await expenseStore.addExpense(expenseForm)
+    if (res.data.code === 200) {
+      ElNotification.success({
+        title: '成功',
+        message: res.data.msg
+      })
+    } else {
+      ElNotification.error({
+        title: '错误',
+        message: res.data.msg
+      })
+    }
+  }
+  await fetchExpenseData()
+}
+
+// 打开编辑模态框
+const expenseForm = ref()
+const expenseModalOpen = ref(false)
+const openExpenseModal = (expense = null) => {
+  if (expense) {
+    editMode.value = true
+    expenseForm.value = expense
+  } else {
+    editMode.value = false
+    expenseForm.value = {}
+    expenseForm.userId = currentUser // 确保User ID正确
+  }
+  expenseModalOpen.value = true
+}
+
+// ---------------------------生命周期----------------------------------------
+onMounted(async () => {
+  firstCateOptions.value = await incomeStore.getFirstCateList()
+  expenseFirstCateOptions.value = await expenseStore.getFirstCateList()
+  await fetchIncomeData()
+  await fetchExpenseData()
+})
+
+// ---------------------------数据监听----------------------------------------
+watch(queryParams, async (newVal, oldValue) => {
+  expenseQueryParams.value = newVal
+  await fetchIncomeData()
+}, { deep: true, immediate: true })
+watch(expenseQueryParams, async (newVal, oldValue) => {
+  await fetchExpenseData()
+}, { deep: true, immediate: true })
 
 </script>
 
