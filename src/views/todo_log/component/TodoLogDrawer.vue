@@ -74,7 +74,7 @@
             </div>
 
             <!-- 描述 -->
-            <p class="mb-4 text-sm text-slate-400 font-mono leading-relaxed border-l-2 border-slate-700 pl-3">
+            <p class="mb-4 text-sm text-slate-400 font-mono whitespace-pre-line leading-relaxed border-l-2 border-slate-700 pl-3">
               {{ log.logDesc || '无详细描述' }}
             </p>
 

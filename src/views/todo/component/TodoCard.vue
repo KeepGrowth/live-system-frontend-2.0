@@ -21,7 +21,7 @@
           >
             {{ getStatusLabel(task.status).text }}
           </span>
-        <span class="text-xs text-slate-500 font-bold">ID: {{ task.id }}</span>
+        <span class="text-xs text-slate-500 font-bold">目标: {{ task.goalName || '无' }}</span>
       </div>
 
       <!-- 标题 -->
