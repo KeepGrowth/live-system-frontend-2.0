@@ -22,6 +22,7 @@
     "dayjs": "^1.11.20",
     "echarts": "^6.0.0",
     "echarts-wordcloud": "^2.1.0",
+    "element-china-area-data": "^6.1.0",
     "element-plus": "^2.13.6",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",

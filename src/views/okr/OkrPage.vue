@@ -106,6 +106,7 @@
           :okr-list="todoOkrs"
           @edit="openModal"
           @delete="deleteProgram"
+
         />
       </section>
 

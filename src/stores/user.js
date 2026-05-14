@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import api from '@/utils/request.js'
 import { ElMessage } from 'element-plus'
+import utils from '@/utils/common.js'
 
 const useUserStore = defineStore('user', () => {
   // 用户认证token
@@ -31,7 +32,8 @@ const useUserStore = defineStore('user', () => {
 
   // 修改用户方法
   const updateUser = async (updateForm) => {
-    const res = await api.post('/user/update', updateForm)
+    const cleanParams = utils.cleanObject(updateForm)
+    const res = await api.put('/user/info', cleanParams)
     return res
   }
 
@@ -47,12 +49,27 @@ const useUserStore = defineStore('user', () => {
     return res
   }
 
-  // 清楚登录状态
+  // 清除登录状态
   const logout = async () => {
     // 1. 清空响应式变量的值
     token.value = ''
     userInfo.value = {}
     localStorage.removeItem('user')
+  }
+
+  // 更新用户密码
+  const updatePwd = async (oldPwd, newPwd) => {
+    const res = await api.put('/user/pwd', {
+      oldPassword: oldPwd,
+      newPassword: newPwd
+    })
+    return res
+  }
+
+  // 获取单个用户信息
+  const getUserById= async (userId)=>{
+    const res = await api.get(`/user/detail/${userId}`, )
+    return res
   }
 
 
@@ -65,7 +82,9 @@ const useUserStore = defineStore('user', () => {
     updateUser,
     deleteUser,
     sendCode,
-    logout
+    getUserById,
+    logout,
+    updatePwd
   }
 
 }, {

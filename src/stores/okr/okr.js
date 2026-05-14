@@ -83,6 +83,12 @@ const useOkrStore = defineStore('okr', () => {
       return res
     }
 
+    // 获取详情
+    const getOkrById = async(okrId)=>{
+      const res = await api.get(`/okr/detail/${okrId}`)
+      return res
+    }
+
 
     return {
       okrOptions,
@@ -90,7 +96,8 @@ const useOkrStore = defineStore('okr', () => {
       addOkr,
       updateOkr,
       delOkr,
-      getOptions
+      getOptions,
+      getOkrById
     }
 
   }, {

@@ -313,7 +313,7 @@ const incomeAmount = computed(() => {
   const incomeAmount = incomes?.value.reduce((accumulator, currentTask) => {
     return accumulator + currentTask.amount
   }, 0)
-  return incomeAmount
+  return incomeAmount.toFixed(2)
 })
 
 const incomeLength = computed(() => {
@@ -416,7 +416,7 @@ const expenseAmount = computed(() => {
   const expenseAmount = expenseList?.value.reduce((accumulator, currentTask) => {
     return accumulator + currentTask.amount
   }, 0)
-  return expenseAmount
+  return expenseAmount.toFixed(2)
 })
 
 const expenseLength = computed(() => {

@@ -64,8 +64,11 @@
 
       <!-- 操作栏 -->
       <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-2">
-        <div class="text-[10px] text-slate-600">
-          关联OKR: <span class="text-slate-400">{{ task?.okrId || '无' }}</span>
+        <div
+          class="cursor-pointer text-[10px] text-slate-600"
+          :class="task.okrId?'cursor-pointer':''"
+          @click="displayOkr(task.okrId)">
+          关联OKR: <span class="text-slate-400">{{ task?.krName || '无' }}</span>
         </div>
         <div class="flex gap-2">
           <button
@@ -74,12 +77,12 @@
           >
             新增日志
           </button>
-          <button
-            @click="goToDetail(task.id)"
-            class="cursor-pointer text-xs bg-slate-800 hover:bg-green-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"
-          >
-            详情
-          </button>
+          <!--          <button-->
+          <!--            @click="goToDetail(task.id)"-->
+          <!--            class="cursor-pointer text-xs bg-slate-800 hover:bg-green-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"-->
+          <!--          >-->
+          <!--            详情-->
+          <!--          </button>-->
           <button
             @click="handleEdit(task)"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"
@@ -110,6 +113,7 @@
     @submit="handleLogSubmit"
     @close="isLogModalOpen=false"
   />
+
 </template>
 
 <script setup>
@@ -118,6 +122,7 @@ import { ElMessageBox, ElNotification } from 'element-plus'
 import TodoLogDrawer from '@/views/todo_log/component/TodoLogDrawer.vue'
 import TodoLogModal from '@/views/todo_log/component/TodoLogModal.vue'
 import useTodoLogStore from '@/stores/todo/todoLog.js'
+import OkrDisPlay from '@/views/okr/component/OkrDisPlay.vue'
 
 // Props 定义
 const props = defineProps({
@@ -128,7 +133,7 @@ const props = defineProps({
 })
 
 // Emits 定义
-const emit = defineEmits(['edit', 'delete', 'appendLog'])
+const emit = defineEmits(['edit', 'delete', 'appendLog', 'displayOkr'])
 
 // 状态颜色映射
 const getStatusColor = (status) => {
@@ -154,7 +159,13 @@ const handleEdit = (goal) => {
 // 处理删除
 const handleDelete = (id) => {
   emit('delete', id)
+}
+// 处理打开OKR
+const displayOkr = (okrId) => {
+  if(okrId){
+    emit('displayOkr', okrId)
 
+  }
 }
 
 // 处理新增日志
@@ -196,12 +207,12 @@ const delLog = async (logForm) => {
 // 加载日志数据
 const fetchCurrentLogList = async (todoId) => {
   const res = await todoLogStore.getLogByTodo(todoId)
-  if (res.data.code===200){
+  if (res.data.code === 200) {
     currentLogList.value = res.data.data.todoLogList
-  }else{
+  } else {
     ElNotification.error({
-      title:'刷新日志数据失败',
-      message:res.data.msg
+      title: '刷新日志数据失败',
+      message: res.data.msg
     })
   }
 }

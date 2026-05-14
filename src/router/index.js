@@ -68,6 +68,12 @@ const router = createRouter({
       name: 'FinancePage',
       component: () => import('@/views/finance/FinancePage.vue')
     },
+    // 个人中心
+    {
+      path: '/profile',
+      name: 'UserCenter',
+      component: () => import('@/views/user/UserCenter.vue')
+    },
 
   ]
 })

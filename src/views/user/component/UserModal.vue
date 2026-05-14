@@ -40,10 +40,12 @@
           <div class="text-center space-y-2">
             <h2
               class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-400 tracking-widest uppercase glitch-text"
-              :data-text="user.username">
-              {{ user.username }}
+              :data-text="'账号'+user.username">
+              账号：{{ user.username }}
             </h2>
-            <p class="text-sm text-fuchsia-500 tracking-[0.2em]">ID: {{ String(user.id) }}</p>
+            <p class="text-sm text-fuchsia-500 tracking-[0.2em]">{{ String(user.nickname) }}</p>
+                        <p class="text-sm text-fuchsia-500 tracking-[0.2em]">职业: {{ String(user.occupation) }}</p>
+            <p class="text-sm text-fuchsia-500 tracking-[0.2em]">行业: {{ String(user.industry) }}</p>
           </div>
 
           <!-- 签名 -->
@@ -96,7 +98,7 @@
 
           <!-- 状态描述 (全宽) -->
           <div class="mt-6">
-            <span class="text-xs text-fuchsia-500 mb-1 block">statusDesc</span>
+            <span class="text-xs text-fuchsia-500 mb-1 block">账号状态</span>
             <div
               class="w-full h-24 border border-cyan-900 bg-cyan-950/10 p-3 text-sm text-cyan-200 overflow-y-auto custom-scrollbar">
               {{ user.statusDesc || '正常使用' }}
@@ -147,9 +149,9 @@ const formatDate = (dateString) => {
 
 // 格式化性别
 const formatGender = (val) => {
-  if (val === 1) return 'MALE'
-  if (val === 0) return 'FEMALE'
-  return 'UNKNOWN'
+  if (val === 1) return '男'
+  if (val === 2) return '女'
+  return '保密'
 }
 </script>
 

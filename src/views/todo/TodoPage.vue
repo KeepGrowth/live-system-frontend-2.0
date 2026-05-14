@@ -147,6 +147,7 @@
           @edit="openModal"
           @delete="deleteTask"
           @append-log="openLogModal"
+          @display-okr="openOkrDisplayModal"
         />
       </section>
       <!--进行中-->
@@ -287,7 +288,7 @@
             <!-- 隐藏字段模拟 -->
             <div class="grid grid-cols-2 gap-4 opacity-50 hover:opacity-100 transition-opacity">
               <div class="space-y-1">
-                <label class="text-[10px] uppercase">关联OKR（可选）</label>
+                <label class="text-[10px] uppercase">关联OKR</label>
                 <el-cascader
                   filterable
                   clearable
@@ -322,6 +323,10 @@
       :initial-data="{todoId:currentTodoId}"
       @submit="handleLogSubmit"
     />
+    <okr-dis-play
+      v-model="okrDisplayOpen"
+      :data="currentOkr"
+    />
   </div>
 </template>
 
@@ -337,6 +342,8 @@ import useOkrStore from '@/stores/okr/okr.js'
 import TodoLogModal from '@/views/todo_log/component/TodoLogModal.vue'
 import useTodoLogStore from '@/stores/todo/todoLog.js'
 import IndicatorCard from '@/components/IndicatorCard.vue'
+import OkrDetail from '@/views/okr/OkrDetail.vue'
+import OkrDisPlay from '@/views/okr/component/OkrDisPlay.vue'
 
 
 dayjs.extend(isoWeek)
@@ -441,6 +448,16 @@ const deleteTask = async (id) => {
   } catch (error) {
 
   }
+
+}
+
+// 打开OKR详情
+const okrDisplayOpen = ref(false)
+const currentOkr = ref()
+const openOkrDisplayModal = async (okrId) => {
+  okrDisplayOpen.value = true
+  const res = await okrStore.getOkrById(okrId)
+  currentOkr.value = res.data.data
 
 }
 
