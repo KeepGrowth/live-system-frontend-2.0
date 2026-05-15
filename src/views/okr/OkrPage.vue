@@ -105,7 +105,7 @@
         <okr-card
           :okr-list="todoOkrs"
           @edit="openModal"
-          @delete="deleteProgram"
+          @delete="delOkr"
 
         />
       </section>
@@ -122,7 +122,7 @@
         <okr-card
           :okr-list="finishedOkrs"
           @edit="openModal"
-          @delete="deleteProgram"
+          @delete="delOkr"
         />
       </section>
       <!--已放弃-->
@@ -136,7 +136,7 @@
         <okr-card
           :okr-list="giveUpOkrs"
           @edit="openModal"
-          @delete="deleteProgram"
+          @delete="delOkr"
         />
       </section>
       <el-empty knDesc="暂无OKR，新建一个开始你的一年吧。" v-if="okrList.length===0" />
@@ -272,7 +272,6 @@ const openModal = (okr = null) => {
 }
 
 // (新增/修改)OKR
-const programStore = useProgramStore()
 const saveOkr = async () => {
   if (editMode.value) {
     // 更新
@@ -311,12 +310,12 @@ const saveOkr = async () => {
 }
 
 // 删除任务
-const deleteProgram = async (id) => {
+const delOkr = async (okrId) => {
   try {
-    await ElMessageBox.confirm('确定删除此任务吗？', '提示', {
+    await ElMessageBox.confirm('确定删除此OKR吗？', '提示', {
       type: 'warning'
     })
-    const res = await programStore.delProgram(id)
+    const res = await okrStore.delOkr(okrId)
     if (res.data.code === 200) {
       ElNotification.success('删除成功')
       await fetchOkrData()
@@ -373,6 +372,7 @@ watch(queryParams, async (newVal, old) => {
 }, { deep: true, immediate: true })
 
 // 级联选项
+const programStore= useProgramStore()
 let programOptions = ref([])
 const fetchProgramOptions = async () => {
   const res = await programStore.getOptions()

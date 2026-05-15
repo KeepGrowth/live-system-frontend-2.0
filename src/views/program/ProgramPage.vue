@@ -57,7 +57,7 @@
             <el-select
               placeholder="状态"
               style="width: 100px"
-              v-model="queryParams.programStatus"
+              v-model="queryParams.status"
               clearable
             >
               <el-option :value="0" label="待完成"></el-option>
@@ -116,6 +116,7 @@
           :program-list="todoPrograms"
           @edit="openModal"
           @delete="deleteProgram"
+          @open-okr-drawer="openOkrDrawer"
         />
       </section>
       <!--进行中-->
@@ -139,6 +140,7 @@
           :program-list="runningPrograms"
           @edit="openModal"
           @delete="deleteProgram"
+          @open-okr-drawer="openOkrDrawer"
         />
       </section>
 
@@ -155,6 +157,7 @@
           :program-list="finishedPrograms"
           @edit="openModal"
           @delete="deleteProgram"
+          @open-okr-drawer="openOkrDrawer"
         />
       </section>
       <!--已放弃-->
@@ -169,6 +172,7 @@
           :program-list="giveUpPrograms"
           @edit="openModal"
           @delete="deleteProgram"
+          @open-okr-drawer="openOkrDrawer"
         />
       </section>
       <el-empty programDesc="暂无项目，新建一个开始你的一年吧。" v-if="programList.length===0" />
@@ -240,6 +244,12 @@
                         class="w-full bg-slate-900 border border-slate-700 text-slate-200 p-2 focus:outline-none focus:border-cyan-500 transition-all resize-none"
                         placeholder="详细描述项目..."></textarea>
             </div>
+<!--            <div class="space-y-1">-->
+<!--              <label class="text-xs text-cyan-500 uppercase font-bold">封面</label>-->
+<!--              <uploader-->
+<!--                @list-change="handleImageListChange"-->
+<!--              />-->
+<!--            </div>-->
 
             <!-- 第三行：参数设置 -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -288,6 +298,20 @@
         </div>
       </div>
     </div>
+    <!--OKR数据流抽屉-->
+    <okr-drawer
+      v-model="okrDrawerOpen"
+      :okrs="currentOkrList"
+      @edit="openOkrEditModal"
+    />
+    <!--OKR编辑模态框-->
+    <okr-modal
+      v-model="okrEditModalOpen"
+      :data="currentOkr"
+      :program-options="programOptions"
+      @close="okrEditModalOpen=false"
+      @save-okr="saveOkr"
+    />
   </div>
 </template>
 
@@ -302,6 +326,9 @@ import isoWeek from 'dayjs/plugin/isoWeek'
 import useOkrStore from '@/stores/okr/okr.js'
 import ProgramCard from '@/views/program/component/ProgramCard.vue'
 import useGoalStore from '@/stores/goal/goal.js'
+import OkrDrawer from '@/views/okr/component/OkrDrawer.vue'
+import OkrModal from '@/views/okr/component/OkrModal.vue'
+import Uploader from '@/components/Uploader.vue'
 
 dayjs.extend(isoWeek)
 const userStore = useUserStore()
@@ -372,7 +399,7 @@ const saveProgram = async () => {
   isModalOpen.value = false
 }
 
-// 删除任务
+// 删除项目
 const deleteProgram = async (id) => {
   try {
     await ElMessageBox.confirm('确定删除此任务吗？', '提示', {
@@ -392,51 +419,6 @@ const deleteProgram = async (id) => {
   }
 
 }
-
-// 辅助函数：状态样式
-const getStatusColor = (status) => {
-  switch (status) {
-    case 0:
-      return 'border-l-4 border-l-gray-400' // 待开始
-    case 1:
-      return 'border-l-4 border-l-yellow-400' // 进行中
-    case 2:
-      return 'border-l-4 border-l-emerald-500 opacity-75' // 完成
-    case 3:
-      return 'border-l-4 border-l-red-500 opacity-50 grayscale' // 放弃
-    default:
-      return 'border-l-4 border-l-cyan-500' // 待办
-  }
-}
-
-const getStatusLabel = (status) => {
-  switch (status) {
-    case 0:
-      return { text: '待完成', color: 'border-gray-500/50 text-yellow-500 bg-gray-500/10' }
-    case 1:
-      return { text: '进行中', color: 'border-yellow-500/50 text-yellow-500 bg-yellow-500/10' }
-    case 2:
-      return { text: '已完成', color: 'border-emerald-500/50 text-emerald-500 bg-emerald-500/10' }
-    case 3:
-      return { text: '已放弃', color: 'border-red-500/50 text-red-500 bg-red-500/10' }
-    default:
-      return { text: '待开始', color: 'border-cyan-500/50 text-cyan-500 bg-cyan-500/10' }
-  }
-}
-
-// 条件筛选的选择方法
-// 定义当前选中的类型，默认可以是 'today'
-const activeType = ref('today')
-
-// 定义基础样式（所有按钮共有的样式）
-const baseClass = 'cursor-pointer px-3 py-1.5 text-xs font-bold rounded transition-all duration-300'
-
-// 定义高亮样式（选中时的样式）
-const activeClass = 'text-cyan-900 bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.5)] hover:scale-105'
-
-// 定义默认样式（未选中时的样式）
-const inactiveClass = 'text-cyan-400 border border-cyan-500/30 bg-cyan-950/30 hover:bg-cyan-500/20 hover:border-cyan-400'
-
 // 计算属性
 const todoPrograms = computed(() => {
   return programList?.value.filter(item => item.programStatus === 0) || []
@@ -469,10 +451,11 @@ const queryParams = ref({
   goalId: null,
   page: 1,
   pageSize: 30,
-  programStatus: 2
+  status: 2
 })
 const total = ref(0)
 const programStore = useProgramStore()
+let programOptions = ref([])
 const fetchProgramData = async () => {
   const res = await programStore.getProgramList(queryParams.value)
   if (res.data.code === 200) {
@@ -483,6 +466,9 @@ const fetchProgramData = async () => {
 // 监听数据
 watch(queryParams, async (newVal, old) => {
   await fetchProgramData()
+  let res = await programStore.getOptions()
+  programOptions.value = res.data.data
+
 }, { deep: true, immediate: true })
 
 // 级联选项
@@ -501,39 +487,57 @@ const fetchGoalOptions = async () => {
   }
 }
 
-
 onMounted(async () => {
   await fetchProgramData()
   await fetchGoalOptions()
+  let res = await programStore.getOptions()
+  programOptions.value = res.data.data
 })
 
-// 年份日期快捷选项
-const shortcuts = [
-  {
-    text: '最近1年',
-    value: [new Date(), new Date()]
-  },
-  {
-    text: '最近3年',
-    value: () => {
-      const end = new Date()
-      const start = new Date(
-        new Date().setFullYear(new Date().getFullYear() - 3)
-      )
-      return [start, end]
-    }
-  },
-  {
-    text: '最近5年',
-    value: () => {
-      const start = new Date()
-      const end = new Date(
-        new Date().setFullYear(new Date().getFullYear() - 5)
-      )
-      return [start, end]
-    }
+// 打开OKR模态框
+const okrStore = useOkrStore()
+const okrDrawerOpen = ref(false)
+const currentOkrList = ref([])
+const currentProgramId = ref()
+const openOkrDrawer = async (programId) => {
+  const res = await okrStore.getListByProgramId(programId)
+  currentProgramId.value = programId
+  currentOkrList.value = res.data.data
+  okrDrawerOpen.value = true
+}
+
+// 编辑OKR信息
+const okrEditModalOpen = ref(false)
+const currentOkr = ref({})
+const openOkrEditModal = async (okr) => {
+  currentOkr.value = okr
+  okrEditModalOpen.value = true
+}
+const saveOkr = async (okrForm) => {
+  // 更新
+  const res = await okrStore.updateOkr(okrForm)
+  if (res.data.code === 200) {
+    ElNotification.success({
+      title: '成功',
+      message: res.data.msg
+    })
+    isModalOpen.value = false
+  } else {
+    ElNotification.error({
+      title: '更新todo失败',
+      message: res.data.msg
+    })
   }
-]
+  okrEditModalOpen.value = false
+  const okrRes = await okrStore.getListByProgramId(currentProgramId.value)
+  currentOkrList.value = okrRes.data.data
+  await fetchProgramData()
+}
+
+// 封面上传
+const handleImageListChange = async (coverList) => {
+  programForm.value.cover = coverList
+}
 </script>
 
 <style scoped>

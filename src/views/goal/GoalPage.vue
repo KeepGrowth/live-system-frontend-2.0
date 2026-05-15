@@ -31,18 +31,24 @@
           <!-- 日期范围输入 -->
           <el-date-picker
             prefix-icon="none"
-            v-model="yearRange"
-            type="yearrange"
+            v-model="queryParams.startYear"
+            value-format="YYYY"
+            type="year"
+            placeholder="开始年份"
             unlink-panels
-            start-placeholder="开始"
-            end-placeholder="结束"
-            :shortcuts="shortcuts"
+          />
+          <el-date-picker
+            v-model="queryParams.endYear"
+            value-format="YYYY"
+            type="year"
+            unlink-panels
+            placeholder="结束年份"
           />
           <div class="flex items-center gap-2">
             <el-select
               placeholder="状态"
               style="width: 100px"
-              v-model="queryParams.goalStatus"
+              v-model="queryParams.status"
               clearable
             >
               <el-option :value="0" label="待完成"></el-option>
@@ -50,6 +56,13 @@
               <el-option :value="2" label="已完成"></el-option>
               <el-option :value="3" label="已放弃"></el-option>
             </el-select>
+          </div>
+          <div class="flex items-center gap-2">
+            <el-input
+              placeholder="输入目标关键词"
+              v-model="queryParams.keyWord"
+            />
+            <el-button type="primary" @click="fetchGoalData">搜索</el-button>
           </div>
         </div>
 
@@ -64,7 +77,6 @@
         </div>
 
       </header>
-<!--      <swiper-component class="mb-5" v-if="swiperImagesList.length > 0" :images="swiperImagesList" />-->
       <!-- 分页组件 -->
       <div>
         <el-pagination
@@ -98,7 +110,7 @@
           <span class="font-mono text-xs text-slate-500 mb-1">:: 加油</span>
         </div>
         <goal-card
-          :goal-list="todoGoals"
+          :goal-data="todoGoals"
           @edit="openModal"
           @delete="deleteGoal"
         />
@@ -121,7 +133,7 @@
           <span class="font-mono text-xs text-slate-500 mb-1">:: 加油</span>
         </div>
         <goal-card
-          :goal-list="runningGoals"
+          :goal-data="runningGoals"
           @edit="openModal"
           @delete="deleteGoal"
         />
@@ -137,7 +149,7 @@
           <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了，慢点，看看花是怎么开的</span>
         </div>
         <goal-card
-          :goal-list="finishedGoals"
+          :goal-data="finishedGoals"
           @edit="openModal"
           @delete="deleteGoal"
         />
@@ -151,7 +163,7 @@
           <span class="font-mono text-xs text-slate-500 mb-1">:: 你已经做的非常棒了，慢点，看看花是怎么开的</span>
         </div>
         <goal-card
-          :goal-list="giveUpGoals"
+          :goal-data="giveUpGoals"
           @edit="openModal"
           @delete="deleteGoal"
         />
@@ -388,6 +400,39 @@ const deleteGoal = async (id) => {
 
 }
 
+// 滑动轮播图计算属性
+// const swiperImagesList = computed(() => {
+//   return finishedGoals.value
+//     .map(item => item.imageUrls ? item.imageUrls : [])
+//     .flat()
+//     .filter(url => url.trim() !== '')
+// })
+
+
+// 获取数据/监听数据
+const goalList = ref([]) // 任务列表数据
+// 默认今年的数据
+const dateStr = dayjs().format('YYYY')
+const queryParams = ref({
+  startYear: dateStr,
+  endYear: dateStr,
+  page: 1,
+  pageSize: 20,
+  status: null
+})
+const goalStore = useGoalStore()
+const fetchGoalData = async () => {
+  const res = await goalStore.getGoalList(queryParams.value)
+  if (res.data.code === 200) {
+    goalList.value = res.data.data.goalList
+    total.value = res.data.data.total
+  } else {
+    ElNotification.error({
+      title: '获取数据失败'
+    })
+  }
+}
+
 // 计算属性
 const todoGoals = computed(() => {
   return goalList?.value.filter(item => item.goalStatus === 0)
@@ -402,55 +447,8 @@ const finishedGoals = computed(() => {
 const giveUpGoals = computed(() => {
   return goalList?.value.filter(item => item.goalStatus === 3)
 })
-// 滑动轮播图计算属性
-// const swiperImagesList = computed(() => {
-//   return finishedGoals.value
-//     .map(item => item.imageUrls ? item.imageUrls : [])
-//     .flat()
-//     .filter(url => url.trim() !== '')
-// })
-
-
-// 获取数据/监听数据
-const goalList = ref() // 任务列表数据
-// 默认今年的数据
-const yearRange = ref([String(new Date().getFullYear()), String(new Date().getFullYear())])
-const queryParams = ref({
-  startYear: yearRange[0],
-  endYear: yearRange[1],
-  page: 1,
-  pageSize: 20,
-  goalStatus:2
-})
-const goalStore = useGoalStore()
-const fetchGoalData = async () => {
-  const res = await goalStore.getGoalList(queryParams.value)
-  if (res.data.code === 200) {
-    console.log(goalList.value)
-    goalList.value = res.data.data.goalList
-    total.value = res.data.data.total
-  }else{
-    ElNotification.error({
-      title:'获取数据失败'
-    })
-  }
-}
 const total = ref(0)
 
-// 监听数据
-// 修复后的 watch
-watch(yearRange, async (newVal) => {
-  // ✅ 直接赋值字符串，或者根据后端接口要求格式化
-  if (newVal && newVal.length === 2) {
-    queryParams.value.startYear = newVal[0].getFullYear().toString(); // 假设后端接受 '2025' 这种格式
-    queryParams.value.endYear = newVal[1].getFullYear().toString();
-  }
-}, { deep: true })
-
-// queryParams 的 watch 保持不变，它负责真正发起请求
-watch(queryParams, async (newVal, old) => {
-  await fetchGoalData()
-}, { deep: true, immediate: true })
 onMounted(async () => {
   await fetchGoalData()
 })

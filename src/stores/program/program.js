@@ -73,12 +73,14 @@ const useProgramStore = defineStore('program', () => {
     }
 
 
+
     return {
       getProgramList,
       delProgram,
       updateProgram,
       addProgram,
       getProgramDetail,
+      programOptions,
       getOptions
     }
 

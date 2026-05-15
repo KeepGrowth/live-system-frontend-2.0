@@ -227,7 +227,7 @@
       <swiper-component :images="goalImagesList" class="mb-5" v-if="goalImagesList.length>0" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 卡片循环 -->
-        <div v-for="goal in goalList.slice(0,9)" :key="goal.id" v-if="goalList.length>0">
+        <div v-for="goal in goalList" :key="goal.id" v-if="goalList.length>0">
           <card-component
             :id="goal.id"
             :title="goal.goalName"
@@ -273,7 +273,7 @@
       <swiper-component class="mb-5" :images="programImagesList" v-if="programImagesList.length>0" />
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- 项目卡片循环 -->
-        <div v-for="program in programList.slice(0,9)" :key="program.id" v-if="programList.length>0">
+        <div v-for="program in programList" :key="program.id" v-if="programList.length>0">
           <card-component
             :id="program.id"
             :title="program.programName"
@@ -372,7 +372,8 @@ const userStore = useUserStore()
 // 筛选条件
 const queryParams = ref({
   page: 1,
-  pageSize: 10
+  pageSize: 10,
+  status:2
 })
 
 // 请求数据

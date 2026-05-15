@@ -176,7 +176,7 @@
   <!--OKR模态框-->
   <okr-modal
     v-model="isOkrModalOpen"
-    :data="okrData"
+    :okrData="okrData"
     @view-detail="onViewOkrDetail"
   />
 

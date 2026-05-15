@@ -162,6 +162,7 @@
           :todo-list="runingTasks"
           @edit="openModal"
           @delete="deleteTask"
+          @display-okr="openOkrDisplayModal"
           @append-log="openLogModal"
         />
       </section>
@@ -179,6 +180,7 @@
           @edit="openModal"
           @delete="deleteTask"
           @append-log="openLogModal"
+          @display-okr="openOkrDisplayModal"
         />
       </section>
       <!--已放弃-->
@@ -194,6 +196,7 @@
           @edit="openModal"
           @delete="deleteTask"
           @append-log="openLogModal"
+          @display-okr="openOkrDisplayModal"
         />
       </section>
       <el-empty description="暂无待办，新建一个开始你的一天吧。" v-if="tasks.length===0" />

@@ -4,10 +4,10 @@
   <!-- 卡片网格 -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div
-      v-for="task in okrList"
-      :key="task.id"
+      v-for="okr in okrList"
+      :key="okr.id"
       class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
-      :class="getStatusColor(task.status)"
+      :class="getStatusColor(okr.status)"
     >
       <!-- 装饰角标 -->
       <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-500 opacity-50"></div>
@@ -17,71 +17,72 @@
       <div class="flex justify-between items-start mb-4">
           <span
             class="text-[10px] uppercase border px-2 py-0.5 rounded-none tracking-wider"
-            :class="getStatusLabel(task.status).color"
+            :class="getStatusLabel(okr.status).color"
           >
-            {{ getStatusLabel(task.status).text }}
+            {{ getStatusLabel(okr.status).text }}
           </span>
-        <span class="text-xs text-slate-500 font-bold">ID: {{ task.id }}</span>
+        <span class="text-xs text-slate-500 font-bold">关联目标: {{ okr.goalName }}</span>
       </div>
 
       <!-- 标题 -->
       <h3
         class="text-xl font-bold text-slate-100 mb-2 group-hover:text-cyan-300 transition-colors line-clamp-1"
-        :title="task.krName"
+        :title="okr.krName"
       >
-        {{ task.krName }}
+        {{ okr.krName }}
       </h3>
 
       <!-- 目标简述 -->
       <p
         class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors"
       >
-        {{ task.krDesc || '无详细描述' }}
+        {{ okr.krDesc || '无详细描述' }}
       </p>
 
       <!-- 数据网格 -->
       <div class="grid grid-cols-2 gap-2 text-xs mb-6 font-mono">
         <div class="flex flex-col">
           <span class="text-slate-600 text-[10px] uppercase">创建时间</span>
-          <span class="text-fuchsia-400">{{ task.createTimeStr || 'N/A' }}</span>
+          <span class="text-fuchsia-400">{{ okr.createTimeStr || 'N/A' }}</span>
         </div>
         <div class="flex flex-col text-right">
           <span class="text-slate-600 text-[10px] uppercase">更新时间</span>
-          <span class="text-cyan-400">{{ task.updateTimeStr || '等待完成' }}</span>
+          <span class="text-cyan-400">{{ okr.updateTimeStr || '等待完成' }}</span>
         </div>
         <div class="hover:text-cyan-400 cursor-pointer flex flex-col text-left">
           <span class="  text-slate-600 text-[10px] uppercase">关联目标</span>
-          <span class="text-emerald-400">{{ task.goalId }}</span>
+          <span class="text-emerald-400">{{ okr.goalId }}</span>
         </div>
         <div
-          @click="openTodoDrawer(task.todoList)"
+          @click="openTodoDrawer(okr.todoList)"
           class="cursor-pointer flex flex-col text-right"
         >
           <span class="text-slate-600 text-[10px] uppercase">关联todo数</span>
-          <span class="text-emerald-400">{{ task.todoList?.length || 0 }}</span>
+          <span class="text-emerald-400">{{ okr.todoList?.length || 0 }}</span>
         </div>
       </div>
 
       <!-- 操作栏 -->
       <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-2">
-        <div class="hover:text-cyan-400 cursor-pointer text-[10px] text-slate-600">
-          关联项目: <span class="text-slate-400">{{ task.programId || '--' }}</span>
+        <div class="hover:text-cyan-400 cursor-pointer text-[10px] text-slate-600"
+             @click="openProgramModal(okr.programId)">
+          关联项目: <span class="text-slate-400">{{ okr.programName || '未关联项目' }}</span>
         </div>
         <div class="flex gap-2">
           <button
-            @click="goToDetail(task.id)"
+            @click="goToDetail(okr.id)"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-green-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"
           >
             详情
           </button>
           <button
-            @click="handleEdit(task)"
+            @click="handleEdit(okr)"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"
           >
             编辑
           </button>
           <button
-            @click="handleDelete(task.id)"
+            @click="handleDelete(okr.id)"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-red-900/50 hover:text-red-400 border border-transparent hover:border-red-500 px-3 py-1 transition-all"
           >
             删除
@@ -90,12 +91,25 @@
       </div>
     </div>
   </div>
-<!--todo抽屉模态-->
+  <!--todo抽屉模态-->
   <todo-drawer
     v-model="isTodoDrawerOpen"
     :todo-list="currentTodoList"
     @edit="editTodo"
     @delete="delTodo"
+  />
+  <!--项目详情模态框-->
+  <program-display
+    v-model="programModalOpen"
+    @close="programModalOpen=false"
+    @open-goal-modal="openGoalModal"
+    :data="currentProgramDetail"
+  />
+<!--目标详情模态框-->
+  <goal-display
+    v-model="goalModalOpen"
+    @close="goalModalOpen=false"
+    :data="currentGoalDetail"
   />
 
 
@@ -109,6 +123,10 @@ import TodoLogDrawer from '@/views/todo_log/component/TodoLogDrawer.vue'
 import TodoDrawer from '@/views/todo/component/TodoDrawer.vue'
 import useTodoLogStore from '@/stores/todo/todoLog.js'
 import useTodoStore from '@/stores/todo/todo.js'
+import useProgramStore from '@/stores/program/program.js'
+import ProgramDisplay from '@/views/program/component/ProgramDisplay.vue'
+import useGoalStore from '@/stores/goal/goal.js'
+import GoalDisplay from '@/views/goal/component/GoalDisplay.vue'
 
 // Props 定义
 const props = defineProps({
@@ -186,53 +204,39 @@ const delTodo = async (todoForm) => {
     })
   }
 }
-// 加载日志数据
+// 加载Todo数据
 const fetchCurrentTodoList = async (okrId) => {
   const res = await todoStore.getTodoByOkr(okrId)
-  if (res.data.code===200){
+  if (res.data.code === 200) {
     currentTodoList.value = res.data.data.todoList
-  }else{
+  } else {
     ElNotification.error({
-      title:'刷新数据失败',
-      message:res.data.msg
+      title: '刷新数据失败',
+      message: res.data.msg
     })
   }
 }
 
-// 日志提交
-const handleLogSubmit = async (todoLogForm) => {
-  if (!todoLogForm.id) {
-    const res = await todoStore.addTodoLog(todoLogForm)
-    if (res.data.code === 200) {
-      ElNotification.success({
-        title: '成功',
-        message: res.data.msg
-      })
-      await fetchCurrentTodoList(todoLogForm.todoId)
-    } else {
-      ElNotification.error({
-        title: '失败',
-        message: res.data.msg
-      })
-    }
-  } else {
-    const res = await todoStore.updateTodoLog(todoLogForm)
-    if (res.data.code === 200) {
-      ElNotification.success({
-        title: '成功',
-        message: res.data.msg
-      })
-      await fetchCurrentTodoList(todoLogForm.todoId)
-    } else {
-      ElNotification.error({
-        title: '失败',
-        message: res.data.msg
-      })
-    }
-  }
-
-  isTodoModalOpen.value = false
+// ----------------------项目模态框处理----------------------
+const programStore = useProgramStore()
+const programModalOpen = ref(false)
+const currentProgramDetail = ref({})
+const openProgramModal = async (programId) => {
+  programModalOpen.value = true
+  const res = await programStore.getProgramDetail(programId)
+  currentProgramDetail.value = res.data.data
 }
+
+// ----------------------目标模态框处理----------------------
+const goalStore = useGoalStore()
+const goalModalOpen = ref(false)
+const currentGoalDetail = ref({})
+const openGoalModal = async (goalId) => {
+  const res = await goalStore.getGoalDetail(goalId)
+  currentGoalDetail.value = res.data.data
+  goalModalOpen.value = true
+}
+
 </script>
 
 <style scoped>

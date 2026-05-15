@@ -77,12 +77,6 @@
           >
             新增日志
           </button>
-          <!--          <button-->
-          <!--            @click="goToDetail(task.id)"-->
-          <!--            class="cursor-pointer text-xs bg-slate-800 hover:bg-green-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"-->
-          <!--          >-->
-          <!--            详情-->
-          <!--          </button>-->
           <button
             @click="handleEdit(task)"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"

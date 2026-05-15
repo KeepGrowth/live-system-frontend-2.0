@@ -91,16 +91,26 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { ElMessageBox } from 'element-plus'
 
 // Props 定义
 const props = defineProps({
-  goalList: {
+  goalData: {
     type: Array,
     default: () => []
   }
 })
+const goalList = ref(props.goalData)
+watch(
+  () => props.goalData,
+  (newVal) => {
+    goalList.value = newVal
+  },{
+    deep:true,
+    immediate:true
+  }
+)
 
 // Emits 定义
 const emit = defineEmits(['edit', 'delete'])

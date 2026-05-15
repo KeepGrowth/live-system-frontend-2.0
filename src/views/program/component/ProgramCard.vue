@@ -4,10 +4,10 @@
   <!-- 卡片网格 -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div
-      v-for="task in programList"
-      :key="task.id"
+      v-for="program in programList"
+      :key="program.id"
       class="group relative bg-slate-900/80 border border-slate-700 p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] backdrop-blur-sm"
-      :class="getStatusColor(task.programStatus)"
+      :class="getStatusColor(program.programStatus)"
     >
       <!-- 装饰角标 -->
       <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-500 opacity-50"></div>
@@ -17,70 +17,70 @@
       <div class="flex justify-between items-start mb-4">
           <span
             class="text-[10px] uppercase border px-2 py-0.5 rounded-none tracking-wider"
-            :class="getStatusLabel(task.programStatus).color"
+            :class="getStatusLabel(program.programStatus).color"
           >
-            {{ getStatusLabel(task.programStatus).text }}
+            {{ getStatusLabel(program.programStatus).text }}
           </span>
-        <span class="text-xs text-slate-500 font-bold">ID: {{ task.id }}</span>
+        <span class="text-xs text-slate-500 font-bold">ID: {{ program.id }}</span>
       </div>
 
       <!-- 标题 -->
       <h3
         class="text-xl font-bold text-slate-100 mb-2 group-hover:text-cyan-300 transition-colors line-clamp-1"
-        :title="task.programName"
+        :title="program.programName"
       >
-        {{ task.programName }}
+        {{ program.programName }}
       </h3>
 
       <!-- 目标简述 -->
       <p
         class="text-sm text-slate-400 mb-4 line-clamp-2 h-10 border-l-2 border-slate-800 pl-2 group-hover:border-cyan-500/30 transition-colors"
       >
-        {{ task.programDesc || '无详细描述' }}
+        {{ program.programDesc || '无详细描述' }}
       </p>
 
       <!-- 数据网格 -->
       <div class="grid grid-cols-2 gap-2 text-xs mb-6 font-mono">
         <div class="flex flex-col">
           <span class="text-slate-600 text-[10px] uppercase">开始日期</span>
-          <span class="text-fuchsia-400">{{ task.estimateStartTime || 'N/A' }}</span>
+          <span class="text-fuchsia-400">{{ program.estimateStartTime || 'N/A' }}</span>
         </div>
         <div class="flex flex-col text-right">
           <span class="text-slate-600 text-[10px] uppercase">预计结束日期</span>
-          <span class="text-cyan-400">{{ task.estimateFinishTime || '等待完成' }}</span>
+          <span class="text-cyan-400">{{ program.estimateFinishTime || '等待完成' }}</span>
         </div>
         <div class="flex flex-col">
           <span class="text-slate-600 text-[10px] uppercase">累计花费时间(小时)</span>
           <div class="flex justify-start gap-1 mt-1">
-            <span class="text-emerald-400">{{ (task.focusTime/60).toFixed(2) || '等待开始' }}</span>
+            <span class="text-emerald-400">{{ (program.focusTime / 60).toFixed(2) || '等待开始' }}</span>
           </div>
         </div>
-        <div class="cursor-pointer flex flex-col text-right">
+        <div class="cursor-pointer flex flex-col text-right" @click="openOkrDrawer(program.id)">
           <span class="text-slate-600 text-[10px] uppercase">关联OKR数</span>
-          <span class="text-emerald-400">{{ task.okrList?.length || 0 }}</span>
+          <span class="text-emerald-400">{{ program.okrList?.length || 0 }}</span>
         </div>
       </div>
 
       <!-- 操作栏 -->
       <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-2">
         <div class="text-[10px] text-slate-600">
-          关联目标: <span class="text-slate-400">{{ task.goalId || '--' }}</span>
+          关联目标: <span class="text-slate-400">{{ program.goalName || '无关联目标' }}</span>
         </div>
         <div class="flex gap-2">
           <button
-            @click="goToDetail(task.id)"
+            @click="goToDetail(program.id)"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-green-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"
           >
             详情
           </button>
           <button
-            @click="handleEdit(task)"
+            @click="handleEdit(program)"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-cyan-900 hover:text-cyan-400 border border-transparent hover:border-cyan-500 px-3 py-1 transition-all"
           >
             编辑
           </button>
           <button
-            @click="handleDelete(task.id)"
+            @click="handleDelete(program.id)"
             class="cursor-pointer text-xs bg-slate-800 hover:bg-red-900/50 hover:text-red-400 border border-transparent hover:border-red-500 px-3 py-1 transition-all"
           >
             删除
@@ -105,7 +105,7 @@ const props = defineProps({
 })
 
 // Emits 定义
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits(['edit', 'delete', 'openOkrDrawer'])
 
 // 状态颜色映射
 const getStatusColor = (status) => {
@@ -135,11 +135,16 @@ const handleDelete = (id) => {
 }
 
 // 跳转到详情页面
-const goToDetail = (programId)=>{
+const goToDetail = (programId) => {
   router.push({
     name: 'ProgramDetail',
     params: { id: programId }
   })
+}
+
+//-------------打开OKR数据流抽屉-------------
+const openOkrDrawer = async (programId) => {
+  emit('openOkrDrawer', programId)
 }
 </script>
 

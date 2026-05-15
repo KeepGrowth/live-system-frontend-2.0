@@ -7,10 +7,14 @@
     :http-request="customUpload"
     :on-preview="handlePreview"
     :on-remove="handleRemove"
-    list-type="picture"
+    list-type="picture-card"
   >
-    <el-icon style="width: 10rem">拖拽或点击上传图片</el-icon>
+    <el-icon><Plus /></el-icon>
   </el-upload>
+
+  <el-dialog v-model="dialogVisible">
+    <img w-full :src="dialogImageUrl" alt="Preview Image" />
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -37,9 +41,7 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
   console.log(uploadFile, uploadFiles)
 }
 
-const handlePreview: UploadProps['onPreview'] = (file) => {
-  console.log(file)
-}
+
 // 上传成功的图像列表
 const imageList = ref([{}])
 // 🔥 核心修改：自定义上传方法
@@ -102,6 +104,12 @@ const customUpload = async (options: UploadRequestOptions) => {
     })
 }
 
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const handlePreview: UploadProps['onPreview'] = (file) => {
+  dialogImageUrl.value = file.url!
+  dialogVisible.value = true
+}
 // 监听文件列表的变化
 const emit = defineEmits<{
   listChange: [{}]

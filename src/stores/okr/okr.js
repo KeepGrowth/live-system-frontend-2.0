@@ -32,14 +32,7 @@ const useOkrStore = defineStore('okr', () => {
       const loading = ElLoading.service({ fullscreen: true })
       try {
         const res = await api.put('/okr/update', okrForm)
-        if (res.data.code === 200) {
-          ElNotification({
-            goalName: '成功',
-            message: res.data.message,
-            type: 'success'
-          })
-          return res
-        }
+        return res
       } catch (e) {
         ElNotification.error({
           goalName: '错误',
@@ -84,8 +77,13 @@ const useOkrStore = defineStore('okr', () => {
     }
 
     // 获取详情
-    const getOkrById = async(okrId)=>{
+    const getOkrById = async (okrId) => {
       const res = await api.get(`/okr/detail/${okrId}`)
+      return res
+    }
+    //根据项目id查询
+    const getListByProgramId = async (programId) => {
+      const res = await api.get(`/okr/list-by-program-id/${programId}`)
       return res
     }
 
@@ -97,7 +95,7 @@ const useOkrStore = defineStore('okr', () => {
       updateOkr,
       delOkr,
       getOptions,
-      getOkrById
+      getOkrById, getListByProgramId
     }
 
   }, {
