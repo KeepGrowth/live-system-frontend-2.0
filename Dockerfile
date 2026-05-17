@@ -3,10 +3,10 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 # 拷贝依赖文件并安装（使用国内镜像源加速）
 COPY package*.json ./
-RUN pnpm install --registry=https://registry.npmmirror.com
+RUN npm install --registry=https://registry.npmmirror.com
 # 拷贝所有源码并执行打包命令，生成 dist 目录
 COPY . .
-RUN pnpm run build
+RUN npm run build
 
 # 阶段二：使用 Nginx 镜像作为运行环境
 FROM nginx:stable-alpine
