@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN npm install -g npm@11.14.1
 # --registry: (可选) 如果你在国内，建议加上淘宝源加速
 RUN npm install -g pnpm && \
-    pnpm install --frozen-lockfile
+    pnpm install
 
 # 3. 拷贝所有源码
 COPY . .
