@@ -5,8 +5,8 @@ import { ElNotification } from 'element-plus'
 // 生产环境和开发环境请求不同API。
 const baseURL =
   import.meta.env.DEV
-    ? 'https://localhost:8080/api' // 开发环境
-    : '/api' // 生产环境
+    ? 'http://localhost:8080/api' // 开发环境
+    : 'https://859707243.21355/api' // 生产环境
 
 // const baseURL = process.env.NODE_ENV === 'development'
 //   ? 'https://859707243.xyz:21355/api'  // 开发环境-本地地址
