@@ -6,7 +6,7 @@ COPY package*.json ./
 RUN npm install -g pnpm && pnpm install
 # 拷贝所有源码并执行打包命令，生成 dist 目录
 COPY . .
-RUN pnpm run build
+RUN pnpm build
 
 # 阶段二：使用 Nginx 镜像作为运行环境
 FROM nginx:stable-alpine
