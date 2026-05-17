@@ -6,7 +6,7 @@ import { ElNotification } from 'element-plus'
 const baseURL =
   import.meta.env.DEV
     ? 'http://localhost:8080/api' // 开发环境
-    : 'https://859707243.21355/api' // 生产环境
+    : 'https://859707243.xyz:21355/api' // 生产环境
 
 // const baseURL = process.env.NODE_ENV === 'development'
 //   ? 'https://859707243.xyz:21355/api'  // 开发环境-本地地址
