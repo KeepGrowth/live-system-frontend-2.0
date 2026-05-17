@@ -1,10 +1,12 @@
 import axios from 'axios'
 import router from '@/router/index.js'
 import { ElNotification } from 'element-plus'
-// 开发环境：本地Flask地址 | 生产环境：运行npm run build的时候自动替换为线上接口地址
-const baseURL = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:8888/api'  // 开发环境-本地地址
-  : 'http://192.168.1.86:8888/api' // 生产环境-线上地址（替换成你的真实地址）
+
+// 生产环境和开发环境请求不同API。
+const baseURL =
+  import.meta.env.DEV
+    ? 'https://localhost:8080/api' // 开发环境
+    : '/api' // 生产环境
 
 // const baseURL = process.env.NODE_ENV === 'development'
 //   ? 'https://859707243.xyz:21355/api'  // 开发环境-本地地址

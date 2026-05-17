@@ -20,7 +20,7 @@ export default defineConfig({
     })
   ],
   server: {
-    port: 8084,
+    port: 8000,
     host: true, // 允许内网访问
     // 👇 加上这一行，把你的域名加进去
     allowedHosts: [
