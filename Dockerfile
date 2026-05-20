@@ -8,6 +8,7 @@ COPY package*.json ./
 
 # 2. 安装 pnpm 并安装依赖
 # --frozen-lockfile: 确保依赖版本严格锁定，避免构建不一致
+RUN npm config set registry https://registry.npmmirror.com
 RUN npm install -g npm@11.14.1
 # --registry: (可选) 如果你在国内，建议加上淘宝源加速
 RUN npm install -g pnpm && \
