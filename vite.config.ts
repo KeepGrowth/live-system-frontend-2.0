@@ -1,4 +1,4 @@
-import { fileURLToPath, URL } from 'node:url'
+
 import { defineConfig } from 'vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
@@ -6,6 +6,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
+import path from 'path' // 1. 引入 Node 的 path 模块
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -31,7 +32,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': path.resolve(__dirname, './src'),
     }
   }
 })
