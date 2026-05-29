@@ -317,7 +317,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 import TodoCard from '@/views/todo/component/TodoCard.vue'
 import SwiperComponent from '@/components/SwiperComponent.vue'
 import useProgramStore from '@/stores/program/program.js'
@@ -451,7 +451,6 @@ const queryParams = ref({
   goalId: null,
   page: 1,
   pageSize: 30,
-  status: 2
 })
 const total = ref(0)
 const programStore = useProgramStore()

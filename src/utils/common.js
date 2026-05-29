@@ -12,7 +12,7 @@ function cleanObject(obj) {
 const settings = {
   // 目标状态选项
   goalStatusOptions: [],
-  // todo重要性选项
+  // 待办重要性选项
   todoImportanceOptions: [
     {}
   ]

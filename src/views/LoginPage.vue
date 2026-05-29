@@ -215,7 +215,7 @@
 <script setup>
 import { ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 import { ElNotification } from 'element-plus'
 import router from '@/router/index.js'
 

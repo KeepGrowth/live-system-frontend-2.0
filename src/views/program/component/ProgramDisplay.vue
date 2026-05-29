@@ -145,7 +145,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import UserModal from '@/views/user/component/UserModal.vue'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 
 // 定义 Props
 const props = defineProps({

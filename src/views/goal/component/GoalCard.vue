@@ -50,8 +50,8 @@
           <span class="text-cyan-400">{{ goalTask.endDate || '等待完成' }}</span>
         </div>
         <div class="flex flex-col">
-          <span class="text-slate-600 text-[10px] uppercase">满意度评分</span>
-          <span class="text-emerald-400">{{ goalTask.satisfactionScore || '暂无' }}</span>
+          <span class="text-slate-600 text-[10px] uppercase">专注时间</span>
+          <span class="text-emerald-400">{{ (goalTask.focusTime/60).toFixed(2) }}小时</span>
         </div>
         <div class="flex flex-col text-right">
           <span class="text-slate-600 text-[10px] uppercase">关联项目数</span>

@@ -112,7 +112,7 @@
             :value="incomeLength"
           />
         </div>
-        <div class="mt-4 grid grid-cols-4 gap-4">
+        <div class="mt-4 grid grid-cols-1 gap-4">
           <span v-for="item in incomes">
           <finance-card
             :id="item.id"
@@ -178,7 +178,7 @@
             :value="expenseLength"
           />
         </div>
-        <div class="mt-4 grid grid-cols-4 gap-4">
+        <div class="mt-4 grid grid-cols-1 gap-4">
           <span v-for="item in expenseList">
           <finance-card
             :id="item.id"
@@ -236,7 +236,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch, computed, onUnmounted } from 'vue'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 
 import useIncomeStore from '@/stores/finance/income.js'
 import { dayjs, ElMessageBox, ElNotification } from 'element-plus'

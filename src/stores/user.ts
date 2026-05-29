@@ -4,11 +4,34 @@ import api from '@/utils/request.js'
 import { ElMessage } from 'element-plus'
 import utils from '@/utils/common.js'
 
+interface UserInfo {
+  birthday?: string;
+  username: string;
+  email?: string;
+  gender: number;
+  avatar?: string;
+  role: number;
+  status: number;
+  statusDesc?: string;
+  signature?: string;
+  occupation?: string;
+  industry?: string;
+  city?: string;
+  createTimeStr?: string;
+  updateTimeStr?: string;
+  nickname?: string;
+  realname?: string
+
+
+  // 其他用户字段，比如 name、id 等，按需添加
+}
+
 const useUserStore = defineStore('user', () => {
+
   // 用户认证token
   const token = ref('')
   // 用户信息
-  const userInfo = ref({})
+  const userInfo = ref<UserInfo>()
 
   // 用户登录方法
   const login = async (loginForm) => {
@@ -53,7 +76,12 @@ const useUserStore = defineStore('user', () => {
   const logout = async () => {
     // 1. 清空响应式变量的值
     token.value = ''
-    userInfo.value = {}
+    userInfo.value = {
+      username: '',
+      gender: null, // 或者 0，取决于你的业务逻辑
+      role: null,
+      status: null     // 或者 null
+    }
     localStorage.removeItem('user')
   }
 
@@ -67,8 +95,8 @@ const useUserStore = defineStore('user', () => {
   }
 
   // 获取单个用户信息
-  const getUserById= async (userId)=>{
-    const res = await api.get(`/user/detail/${userId}`, )
+  const getUserById = async (userId) => {
+    const res = await api.get(`/user/detail/${userId}`)
     return res
   }
 

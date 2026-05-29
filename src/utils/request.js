@@ -24,7 +24,7 @@ const instance = axios.create({
 instance.interceptors.request.use(
   async (config) => {
     // 动态导入，避免初始化时就加载
-    const useUserStore = (await import('@/stores/user')).default
+    const useUserStore = (await import('@/stores/user.ts')).default
     const userStore = useUserStore()
     let token = userStore.token
     if (token) {
@@ -49,7 +49,7 @@ instance.interceptors.response.use(
       ElNotification.error('登录已过期，请重新登录。')
 
       // 1. 清除本地存储的用户信息和 Token
-      const useUserStore = (await import('@/stores/user')).default
+      const useUserStore = (await import('@/stores/user.ts')).default
       const userStore = useUserStore()
       await userStore.logout() // 假设你的 store 中有 logout action 来清除状态
 

@@ -231,7 +231,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { OfficeBuilding, Postcard, Suitcase, User } from '@element-plus/icons-vue'
 import { Calendar, Message } from '@icon-park/vue-next'
 import { regionData, codeToText } from 'element-china-area-data'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 import { ElNotification } from 'element-plus'
 import PwdModal from '@/views/user/component/PwdModal.vue'
 

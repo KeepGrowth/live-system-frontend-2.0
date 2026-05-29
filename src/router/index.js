@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeTab from '@/components/HomeTab.vue'
-import ProgramPage from '@/views/program/ProgramPage.vue'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -35,7 +33,7 @@ const router = createRouter({
       component: () => import('@/views/program/ProgramDetail.vue'),
       meta: { title: '浮生录事-项目详情' }
     },
-    // todo作战室
+    // 待办作战室
     {
       path: '/todo',
       name: 'TodoPage',

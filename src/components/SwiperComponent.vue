@@ -61,18 +61,32 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 import router from '@/router/index.js'
 
+interface imageItem {
+  id: number;
+  userId: number;
+  todoLogId: number;
+  todoId: number;
+  okrId: number;
+  programId: number;
+  goalId: number;
+  imageUrl: string;
+  createTimeStr: string;
+  incomeId: number;
+  expenseId: number
+}
+
+// 1. 定义 props 的类型接口
+interface Props {
+  images?: Array<imageItem>; // 可选属性，类型为 string 数组（也可写为 string[]）
+}
+
 // 状态控制
 const isPaused = ref(false)
-const props = defineProps({
-  images: {
-    type: Array,
-    default: () => []
-  },
-})
+const props = defineProps<Props>()
 
 // 动画滚动效果计算
 const trackRef = ref(null)
@@ -87,30 +101,24 @@ const GAP_WIDTH = 24
 // 改动点 2: 计算总宽度和动画时长
 const trackStyle = computed(() => {
   const count = props.images.length
+  if (count === 0) return {}
 
-  // 1. 计算单组列表的总宽度 (宽 + 间距) * 数量
-  // 注意：最后一个元素通常不需要间距，但为了计算方便和视觉缓冲，这里简单相加
+  // 1. 计算轨道总宽度 (px)
   const totalWidth = count * (CARD_WIDTH + GAP_WIDTH)
 
-  // 2. 计算动画总时长
-  const duration = count * (CARD_DURATION / 1000) // 转换为秒
+  // 2. 计算动画时长 (秒)
+  const baseSpeed = 50 // 像素/秒，数值越小越慢
+  const duration = totalWidth / baseSpeed
 
   return {
-    '--scroll-distance': `-${totalWidth}px`, // 移动的距离
-    '--scroll-duration': `${duration}s`      // 动画的时间
+    '--scroll-duration': `${duration}s`
   }
 })
 
 
 // 点击图片跳转详情界面
-const goToDetail = async (imageItem) => {
-  // 根据类型不同跳转到不同详情页
-  if (props.type === 'program') {
-    await router.push({
-      name: 'ProgramDetail',
-      params: { id: imageItem.programId }
-    })
-  }
+const goToDetail = async (imageItem: imageItem) => {
+  return
 }
 </script>
 
@@ -119,17 +127,22 @@ const goToDetail = async (imageItem) => {
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
 /* 核心滚动动画 */
-/* 使用 CSS 变量接收 JS 计算的值，实现动态无缝滚动 */
 @keyframes scroll {
+  /* 0% 时在容器右侧外（100%），100% 时移动到负的自身宽度（完全移出左侧） */
   0% {
-    transform: translateX(100%);
+    transform: translateX(0%);
   }
   100% {
-    transform: translateX(var(--scroll-distance, -1000px));
+    transform: translateX(-100%);
   }
 }
 
 .animate-scroll {
+  /*
+   1. animation-direction: normal (默认值)，配合 infinite 实现循环。
+   2. 时长依然由 JS 控制，但逻辑变为：跑完自身宽度所需的时间。
+   3. 添加 will-change 提升性能
+  */
   animation: scroll var(--scroll-duration, 180s) linear infinite;
   will-change: transform;
 }

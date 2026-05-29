@@ -148,7 +148,7 @@ import SwiperComponent from '@/components/SwiperComponent.vue'
 import useProgramStore from '@/stores/program/program.js'
 import { ElNotification } from 'element-plus'
 import UserModal from '@/views/user/component/UserModal.vue'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 
 const props = defineProps({
   id: {

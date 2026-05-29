@@ -50,8 +50,8 @@
           <span class="text-cyan-400">{{ okr.updateTimeStr || '等待完成' }}</span>
         </div>
         <div class="hover:text-cyan-400 cursor-pointer flex flex-col text-left">
-          <span class="  text-slate-600 text-[10px] uppercase">关联目标</span>
-          <span class="text-emerald-400">{{ okr.goalId }}</span>
+          <span class="  text-slate-600 text-[10px] uppercase">花费时间</span>
+          <span class="text-emerald-400">{{ (okr.focusTime / 60).toFixed(2) }}小时</span>
         </div>
         <div
           @click="openTodoDrawer(okr.todoList)"
@@ -91,7 +91,7 @@
       </div>
     </div>
   </div>
-  <!--todo抽屉模态-->
+  <!--待办抽屉模态-->
   <todo-drawer
     v-model="isTodoDrawerOpen"
     :todo-list="currentTodoList"
@@ -173,7 +173,7 @@ const goToDetail = (okrId) => {
   })
 }
 
-// todo列表抽屉相关方法
+// 待办列表抽屉相关方法
 const isTodoDrawerOpen = ref(false)
 const currentTodoList = ref([])
 const openTodoDrawer = async (todoList) => {
@@ -204,7 +204,7 @@ const delTodo = async (todoForm) => {
     })
   }
 }
-// 加载Todo数据
+// 加载待办数据
 const fetchCurrentTodoList = async (okrId) => {
   const res = await todoStore.getTodoByOkr(okrId)
   if (res.data.code === 200) {

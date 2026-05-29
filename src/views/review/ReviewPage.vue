@@ -151,7 +151,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch, computed, onUnmounted } from 'vue'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 import TodoCard from '@/views/todo/component/TodoCard.vue'
 import SwiperComponent from '@/components/SwiperComponent.vue'
 import useGoalStore from '@/stores/goal/goal.js'

@@ -335,7 +335,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 import TodoCard from '@/views/todo/component/TodoCard.vue'
 import SwiperComponent from '@/components/SwiperComponent.vue'
 import useTodoStore from '@/stores/todo/todo.js'
@@ -541,7 +541,6 @@ const chooseDateRangeType = async (dateType) => {
 const dateStr = dayjs().format('YYYY-MM-DD')
 const total = ref(0)
 const queryParams = ref({
-  status: 0,
   startDate: dateStr,
   endDate: dateStr,
   page: 1,
@@ -576,7 +575,7 @@ const fetchOkrOptions = async () => {
   }
 }
 
-// todo日志模态框处理
+// 待办日志模态框处理
 const todoLogStore = useTodoLogStore()
 const isLogModalOpen = ref(false)
 const currentTodoId = ref()

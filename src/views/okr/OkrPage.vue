@@ -50,14 +50,6 @@
             :props="{ emitPath: false }"
           />
         </div>
-        <div
-          class="w-auto flex flex-col sm:flex-row gap-3 items-center bg-slate-900/50 p-3 rounded-lg border border-cyan-900/50 backdrop-blur-sm">
-          选择OKR
-          <!--OKR选择-->
-          <el-select
-            style="width: 200px"
-          ></el-select>
-        </div>
 
         <!-- 右侧：新建按钮 -->
         <div class="w-full lg:w-auto flex justify-end">
@@ -228,7 +220,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 import TodoCard from '@/views/todo/component/TodoCard.vue'
 import SwiperComponent from '@/components/SwiperComponent.vue'
 import useGoalStore from '@/stores/goal/goal.js'

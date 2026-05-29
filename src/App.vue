@@ -1,10 +1,12 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import { zhCn } from 'element-plus/es/locale/index'
+import NavBar from '@/components/bar/NavBar.vue'
 </script>
 
 <template>
   <div class="cyber-container">
+    <nav-bar/>
     <el-config-provider :locale="zhCn">
       <router-view></router-view>
     </el-config-provider>

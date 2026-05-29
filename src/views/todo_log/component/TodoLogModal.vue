@@ -148,7 +148,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import Uploader from '@/components/Uploader.vue'
-import useUserStore from '@/stores/user.js'
+import useUserStore from '@/stores/user.ts'
 import SwiperComponent from '@/components/SwiperComponent.vue'
 
 // 定义 Props
