@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, defineEmits } from 'vue'
+import { ref, watch } from 'vue'
 import type { UploadProps, UploadUserFile, UploadRequestOptions } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import api from '@/utils/request'
@@ -51,7 +51,6 @@ const customUpload = async (options: UploadRequestOptions) => {
   const formData = new FormData()
   // 后端要求的字段名通常是 'file'，具体看你后端定义
   formData.append('file', options.file)
-  formData.append('userId', userStore.userInfo.id)
   // 动态添加 params 中存在的字段
   if (params.todoLogId) {
     formData.append('todoLogId', params.todoLogId)
@@ -84,13 +83,6 @@ const customUpload = async (options: UploadRequestOptions) => {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
-      // 监听上传进度（可选，为了体验更好）
-      onUploadProgress: (e) => {
-        // 如果需要显示进度条，可以在这里更新 options.onProgress
-        if (e.total) {
-          options.onProgress({ percent: (e.loaded * 100) / e.total })
-        }
-      }
     })
     .then((res) => {
       // 3. 上传成功后的回调

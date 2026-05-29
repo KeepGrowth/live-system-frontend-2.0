@@ -100,7 +100,7 @@ const GAP_WIDTH = 24
 
 // 改动点 2: 计算总宽度和动画时长
 const trackStyle = computed(() => {
-  const count = props.images.length
+  const count = props.images?.length || 0
   if (count === 0) return {}
 
   // 1. 计算轨道总宽度 (px)

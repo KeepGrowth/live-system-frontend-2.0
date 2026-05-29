@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
-import { ref, watch, defineEmits } from 'vue'
+import { ref, watch } from 'vue'
 
 // 1. 定义 props 并指定 TS 类型
 const props = defineProps<{

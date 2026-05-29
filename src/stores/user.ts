@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 import utils from '@/utils/common.js'
 
 interface UserInfo {
+  id?:number;
   birthday?: string;
   username: string;
   email?: string;
@@ -78,9 +79,9 @@ const useUserStore = defineStore('user', () => {
     token.value = ''
     userInfo.value = {
       username: '',
-      gender: null, // 或者 0，取决于你的业务逻辑
-      role: null,
-      status: null     // 或者 null
+      gender: 0, // 或者 0，取决于你的业务逻辑
+      role: 0,
+      status: 0     // 或者 null
     }
     localStorage.removeItem('user')
   }
